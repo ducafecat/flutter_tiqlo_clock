@@ -37,6 +37,18 @@
       "skillPath": "skills/engineering/domain-modeling/SKILL.md",
       "computedHash": "a11713c0ff7870efa3c331b2e273f09116158485246edc89ae5088eefd1b0b48"
     },
+    "flutter-assets-compress": {
+      "source": "ducafecat/skills",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-assets-compress/SKILL.md",
+      "computedHash": "038290418752702551b0c12dc8d3ab728b492878ed671b84a7f6488c2f3efc27"
+    },
+    "flutter-riverpod-init": {
+      "source": "ducafecat/skills",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-riverpod-init/SKILL.md",
+      "computedHash": "454779634974a489f07b25dc320ed2cfb505178112b1aca9d2c1a830e532a8cd"
+    },
     "git-guardrails-claude-code": {
       "source": "mattpocock/skills",
       "sourceType": "github",
