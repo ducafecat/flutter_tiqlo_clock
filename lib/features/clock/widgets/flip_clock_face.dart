@@ -42,15 +42,18 @@ class FlipClockFace extends StatelessWidget {
                     width: cardWidth,
                     height: cardHeight,
                   ),
+                  const SizedBox(width: 12),
+                  _FlipCard(
+                    value: snapshot.displaySecond,
+                    width: cardWidth,
+                    height: cardHeight,
+                  ),
                 ],
               ),
-              if (snapshot.period != null || snapshot.displaySecond != null) ...[
+              if (snapshot.period != null) ...[
                 const SizedBox(height: 8),
                 Text(
-                  [
-                    if (snapshot.period != null) snapshot.period!,
-                    if (snapshot.displaySecond != null) snapshot.displaySecond!,
-                  ].join('  '),
+                  snapshot.period!,
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 18,

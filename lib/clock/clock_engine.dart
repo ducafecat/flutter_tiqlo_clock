@@ -43,8 +43,7 @@ class ClockSnapshot {
 
   String get displayMinute => minute.toString().padLeft(2, '0');
 
-  String? get displaySecond =>
-      showSeconds ? (second ?? 0).toString().padLeft(2, '0') : null;
+  String get displaySecond => (second ?? 0).toString().padLeft(2, '0');
 
   static int _hour12(int hour24) {
     final mod = hour24 % 12;
@@ -87,7 +86,7 @@ class ClockEngine {
     return ClockSnapshot(
       hour: now.hour,
       minute: now.minute,
-      second: showSeconds ? now.second : null,
+      second: now.second,
       dateLabel: _dateLabel(now),
       period: twentyFour ? null : (now.hour < 12 ? 'AM' : 'PM'),
       showSeconds: showSeconds,
@@ -97,7 +96,7 @@ class ClockEngine {
 
   Duration get untilNextWallTick {
     final now = clock.wallNow();
-    if (showSeconds) {
+    if (showSeconds || clockThemeId == ClockThemeId.flip) {
       final nextSecond = DateTime(
         now.year,
         now.month,

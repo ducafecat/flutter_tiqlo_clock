@@ -29,6 +29,10 @@ void main() {
     expect(find.text('Timer'), findsOneWidget);
     expect(find.text('More'), findsOneWidget);
 
+    await tester.tap(find.byType(ClockPage));
+    await tester.pump();
+    expect(find.text('Theme'), findsNothing);
+
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
   });
@@ -68,8 +72,10 @@ void main() {
     await tester.pageBack();
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byType(ClockPage));
-    await tester.pump();
+    if (find.text('More').evaluate().isEmpty) {
+      await tester.tap(find.byType(ClockPage));
+      await tester.pump();
+    }
     await tester.tap(find.text('More'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('About'));

@@ -41,6 +41,19 @@ class _ClockPageState extends ConsumerState<ClockPage> {
     });
   }
 
+  void _hideChrome() {
+    _hideChromeTimer?.cancel();
+    setState(() => _chromeVisible = false);
+  }
+
+  void _toggleChrome() {
+    if (_chromeVisible) {
+      _hideChrome();
+    } else {
+      _showChrome();
+    }
+  }
+
   void _openClockTheme() {
     _hideChromeTimer?.cancel();
     showModalBottomSheet<void>(
@@ -51,24 +64,27 @@ class _ClockPageState extends ConsumerState<ClockPage> {
           builder: (context, setSheetState) {
             final current = ref.read(clockEngineProvider).clockThemeId;
             return SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (final id in ClockThemeId.values)
-                    ListTile(
-                      title: Text(
-                        id.label,
-                        style: const TextStyle(color: Colors.white),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final id in ClockThemeId.values)
+                      ListTile(
+                        title: Text(
+                          id.label,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        selected: current == id,
+                        selectedColor: Colors.white,
+                        onTap: () {
+                          ref.read(clockEngineProvider).setClockTheme(id);
+                          ref.invalidate(clockSnapshotProvider);
+                          setState(() {});
+                          setSheetState(() {});
+                        },
                       ),
-                      selected: current == id,
-                      selectedColor: Colors.white,
-                      onTap: () {
-                        ref.read(clockEngineProvider).setClockTheme(id);
-                        setState(() {});
-                        setSheetState(() {});
-                      },
-                    ),
-                ],
+                  ],
+                ),
               ),
             );
           },
@@ -121,7 +137,7 @@ class _ClockPageState extends ConsumerState<ClockPage> {
       backgroundColor: Colors.black,
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: _showChrome,
+        onTap: _toggleChrome,
         child: Stack(
           children: [
             ClockFace(

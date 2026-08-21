@@ -51,6 +51,7 @@ void main() {
     expect(find.text('21:38'), findsNothing);
     expect(find.text('21'), findsOneWidget);
     expect(find.text('38'), findsOneWidget);
+    expect(find.text('00'), findsOneWidget);
 
     await tester.tap(find.text('OLED'));
     await tester.pump();
@@ -61,6 +62,38 @@ void main() {
     await tester.pump();
     expect(engine.clockThemeId, ClockThemeId.retro);
     expect(find.byType(ClockPage), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
+
+  testWidgets('ClockTheme sheet does not overflow in landscape', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(516, 250);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final engine = ClockEngine(
+      clock: FakeClock(wall: DateTime(2026, 8, 20, 21, 38)),
+      locale: const Locale('en'),
+    );
+    final container = ProviderContainer(
+      overrides: [clockEngineProvider.overrideWithValue(engine)],
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(container: container, child: const MyApp()),
+    );
+
+    await tester.tap(find.byType(ClockPage));
+    await tester.pump();
+    await tester.tap(find.text('Theme'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Minimal'), findsOneWidget);
+    expect(find.text('Retro'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
