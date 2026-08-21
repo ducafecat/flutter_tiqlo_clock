@@ -317,6 +317,52 @@ void main() {
     expect(reloaded.snapshot.todayFocusCount, 0);
   });
 
+  test('start timer replaces wall display with remaining mm:ss', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock);
+
+    engine.start(SessionKind.timer, const Duration(minutes: 5));
+
+    final session = engine.snapshot.session;
+    expect(session, isNotNull);
+    expect(session!.kind, SessionKind.timer);
+    expect(session.status, SessionStatus.running);
+    expect(session.remainingLabel, '05:00');
+    expect(session.kindLabel, 'TIMER');
+  });
+
+  test('pause freezes timer remaining; resume continues the same session', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock);
+
+    engine.start(SessionKind.timer, const Duration(minutes: 5));
+    clock.advanceElapsed(const Duration(minutes: 1));
+    engine.pause();
+    clock.advanceElapsed(const Duration(minutes: 10));
+
+    expect(engine.snapshot.session!.status, SessionStatus.paused);
+    expect(engine.snapshot.session!.kind, SessionKind.timer);
+    expect(engine.snapshot.session!.remainingLabel, '04:00');
+
+    engine.resume();
+    clock.advanceElapsed(const Duration(minutes: 1));
+
+    expect(engine.snapshot.session!.status, SessionStatus.running);
+    expect(engine.snapshot.session!.remainingLabel, '03:00');
+  });
+
+  test('cannot start focus while a timer is active', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock);
+
+    engine.start(SessionKind.timer, const Duration(minutes: 5));
+    clock.advanceElapsed(const Duration(minutes: 1));
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+
+    expect(engine.snapshot.session!.kind, SessionKind.timer);
+    expect(engine.snapshot.session!.remainingLabel, '04:00');
+  });
+
   test('timer Complete does not record today Focus', () {
     final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
     final engine = ClockEngine(clock: clock);

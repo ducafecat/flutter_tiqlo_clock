@@ -4,9 +4,13 @@
 
 **Blocked by:** 05 Focus Session；06 Focus Complete 与今日统计
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] 可从 Clock 开始 Timer，显示 `mm:ss` + TIMER
-- [ ] Pause / Resume / Stop 行为与 Focus 相同
-- [ ] Timer Complete 有提醒，今日 Focus 次数和分钟不变
-- [ ] Focus 跑着时不能开 Timer，反之亦然
+- [x] 可从 Clock 开始 Timer，显示 `mm:ss` + TIMER
+- [x] Pause / Resume / Stop 行为与 Focus 相同
+- [x] Timer Complete 有提醒，今日 Focus 次数和分钟不变
+- [x] Focus 跑着时不能开 Timer，反之亦然
+
+## Answer
+
+Clock 上 Timer sheet：预设 1/5/10/30、Custom 1–180。`start(SessionKind.timer)` 走同一套 Session；运行中标 TIMER；Pause/Stop 与 Focus 相同；Complete 提醒不记今日 Focus。同时只能有一个 Session。

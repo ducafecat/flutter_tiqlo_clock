@@ -99,27 +99,55 @@ class _ClockPageState extends ConsumerState<ClockPage> {
   }
 
   void _openFocus() {
+    _openSessionPicker(
+      kind: SessionKind.focus,
+      presets: const [15, 25, 45, 60],
+      defaultMinutes: 25,
+      customMax: 90,
+      highlightMinutes: 25,
+      showToday: true,
+    );
+  }
+
+  void _openTimer() {
+    _openSessionPicker(
+      kind: SessionKind.timer,
+      presets: const [1, 5, 10, 30],
+      defaultMinutes: 1,
+      customMax: 180,
+    );
+  }
+
+  void _openSessionPicker({
+    required SessionKind kind,
+    required List<int> presets,
+    required int defaultMinutes,
+    required int customMax,
+    int? highlightMinutes,
+    bool showToday = false,
+  }) {
     _hideChromeTimer?.cancel();
-    var minutes = 25;
+    var minutes = defaultMinutes;
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.grey.shade900,
       builder: (sheetContext) {
         return StatefulBuilder(
           builder: (context, setSheetState) {
+            final today = ref.read(clockEngineProvider).snapshot;
             return SafeArea(
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    for (final value in const [15, 25, 45, 60])
+                    for (final value in presets)
                       ListTile(
                         title: Text(
                           '$value',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: value == 25 ? 22 : 16,
-                            fontWeight: value == 25
+                            fontSize: value == highlightMinutes ? 22 : 16,
+                            fontWeight: value == highlightMinutes
                                 ? FontWeight.w700
                                 : FontWeight.w400,
                           ),
@@ -133,14 +161,13 @@ class _ClockPageState extends ConsumerState<ClockPage> {
                         'Custom',
                         style: TextStyle(color: Colors.white),
                       ),
-                      selected:
-                          minutes != 15 &&
-                          minutes != 25 &&
-                          minutes != 45 &&
-                          minutes != 60,
+                      selected: !presets.contains(minutes),
                       selectedColor: Colors.white,
                       onTap: () async {
-                        final custom = await _pickCustomMinutes(minutes);
+                        final custom = await _pickCustomMinutes(
+                          minutes,
+                          max: customMax,
+                        );
                         if (custom != null) {
                           setSheetState(() => minutes = custom);
                         }
@@ -155,20 +182,18 @@ class _ClockPageState extends ConsumerState<ClockPage> {
                         Navigator.pop(sheetContext);
                         ref
                             .read(clockEngineProvider)
-                            .start(
-                              SessionKind.focus,
-                              Duration(minutes: minutes),
-                            );
+                            .start(kind, Duration(minutes: minutes));
                         ref.invalidate(clockSnapshotProvider);
                         setState(() {});
                       },
                     ),
-                    ListTile(
-                      title: Text(
-                        'Today ${ref.read(clockEngineProvider).snapshot.todayFocusCount} · ${ref.read(clockEngineProvider).snapshot.todayFocusMinutes} min',
-                        style: const TextStyle(color: Colors.white70),
+                    if (showToday)
+                      ListTile(
+                        title: Text(
+                          'Today ${today.todayFocusCount} · ${today.todayFocusMinutes} min',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -181,8 +206,8 @@ class _ClockPageState extends ConsumerState<ClockPage> {
     });
   }
 
-  Future<int?> _pickCustomMinutes(int current) {
-    var value = current.clamp(1, 90);
+  Future<int?> _pickCustomMinutes(int current, {required int max}) {
+    var value = current.clamp(1, max);
     return showDialog<int>(
       context: context,
       builder: (dialogContext) {
@@ -200,8 +225,8 @@ class _ClockPageState extends ConsumerState<ClockPage> {
                   ),
                   Slider(
                     min: 1,
-                    max: 90,
-                    divisions: 89,
+                    max: max.toDouble(),
+                    divisions: max - 1,
                     value: value.toDouble(),
                     onChanged: (next) {
                       setDialogState(() => value = next.round());
@@ -313,7 +338,7 @@ class _ClockPageState extends ConsumerState<ClockPage> {
       return [
         _ChromeButton(label: 'Theme', onPressed: _openClockTheme),
         _ChromeButton(label: 'Focus', onPressed: _openFocus),
-        _ChromeButton(label: 'Timer', onPressed: _showChrome),
+        _ChromeButton(label: 'Timer', onPressed: _openTimer),
         _ChromeButton(label: 'More', onPressed: _openMore),
       ];
     }

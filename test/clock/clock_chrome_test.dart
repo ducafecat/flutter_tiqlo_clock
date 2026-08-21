@@ -122,7 +122,9 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
     await tester.tap(find.text('Timer'));
-    await tester.pump();
+    await tester.pumpAndSettle();
+    Navigator.pop(tester.element(find.text('Start')));
+    await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 2));
     expect(find.text('Theme'), findsOneWidget);
 
