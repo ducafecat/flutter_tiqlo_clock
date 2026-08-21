@@ -15,6 +15,7 @@ class ClockSnapshot {
     this.period,
     this.showSeconds = false,
     this.is24Hour = true,
+    this.showDate = false,
   });
 
   final int hour;
@@ -24,6 +25,7 @@ class ClockSnapshot {
   final String? period;
   final bool showSeconds;
   final bool is24Hour;
+  final bool showDate;
 
   String get timeLabel {
     final h = is24Hour ? hour : _hour12(hour);
@@ -57,12 +59,14 @@ class ClockEngine {
     this.locale = const Locale('en'),
     this.deviceUses24Hour = true,
     bool showSeconds = false,
+    bool showDate = false,
     TimeFormat? timeFormat,
     ClockThemeId? clockThemeId,
     ClockSettingsStore? store,
   }) : _store = store,
        _timeFormat = timeFormat ?? store?.loadTimeFormat(),
        showSeconds = store?.loadShowSeconds() ?? showSeconds,
+       showDate = store?.loadShowDate() ?? showDate,
        clockThemeId =
            store?.loadClockThemeId() ?? clockThemeId ?? ClockThemeId.minimal;
 
@@ -71,6 +75,7 @@ class ClockEngine {
   final bool deviceUses24Hour;
   final ClockSettingsStore? _store;
   bool showSeconds;
+  bool showDate;
   ClockThemeId clockThemeId;
   TimeFormat? _timeFormat;
 
@@ -90,6 +95,7 @@ class ClockEngine {
       dateLabel: _dateLabel(now),
       period: twentyFour ? null : (now.hour < 12 ? 'AM' : 'PM'),
       showSeconds: showSeconds,
+      showDate: showDate,
       is24Hour: twentyFour,
     );
   }
@@ -125,6 +131,11 @@ class ClockEngine {
   void setShowSeconds(bool value) {
     showSeconds = value;
     _store?.saveShowSeconds(value);
+  }
+
+  void setShowDate(bool value) {
+    showDate = value;
+    _store?.saveShowDate(value);
   }
 
   void setClockTheme(ClockThemeId id) {

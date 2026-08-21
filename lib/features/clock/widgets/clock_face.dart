@@ -153,17 +153,19 @@ class _DigitalFace extends StatelessWidget {
                   fontFamily: fontFamily,
                 ),
               ),
-              const SizedBox(height: 16),
-              Text(
-                snapshot.dateLabel,
-                style: TextStyle(
-                  color: dateColor,
-                  fontSize: dateSize,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: letterSpacing,
-                  fontFamily: fontFamily,
+              if (snapshot.showDate) ...[
+                const SizedBox(height: 16),
+                Text(
+                  snapshot.dateLabel,
+                  style: TextStyle(
+                    color: dateColor,
+                    fontSize: dateSize,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: letterSpacing,
+                    fontFamily: fontFamily,
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),

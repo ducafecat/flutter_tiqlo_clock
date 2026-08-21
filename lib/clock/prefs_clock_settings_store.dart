@@ -9,6 +9,7 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   static const _formatKey = 'clock.time_format';
   static const _secondsKey = 'clock.show_seconds';
   static const _themeKey = 'clock.theme_id';
+  static const _dateKey = 'clock.show_date';
 
   final SharedPreferences _prefs;
 
@@ -50,5 +51,13 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   @override
   void saveClockThemeId(ClockThemeId id) {
     _prefs.setString(_themeKey, id.name);
+  }
+
+  @override
+  bool loadShowDate() => _prefs.getBool(_dateKey) ?? false;
+
+  @override
+  void saveShowDate(bool value) {
+    _prefs.setBool(_dateKey, value);
   }
 }

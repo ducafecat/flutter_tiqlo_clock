@@ -31,7 +31,7 @@ void main() {
 
     expect(find.byType(ClockPage), findsOneWidget);
     expect(find.text('21:38'), findsOneWidget);
-    expect(find.text('THU · AUG 20'), findsOneWidget);
+    expect(find.text('THU · AUG 20'), findsNothing);
     expect(find.text('Welcome'), findsNothing);
 
     await tester.pumpWidget(const SizedBox.shrink());

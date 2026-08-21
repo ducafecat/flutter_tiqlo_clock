@@ -21,6 +21,7 @@ void main() {
     expect(engine.snapshot.hour, 21);
     expect(engine.snapshot.minute, 38);
     expect(engine.snapshot.timeLabel, '21:38');
+    expect(engine.snapshot.showDate, isFalse);
   });
 
   test('snapshot date is weekday · month day in English', () {
@@ -104,6 +105,7 @@ void main() {
     );
     engine.setTimeFormat(TimeFormat.h12);
     engine.setShowSeconds(true);
+    engine.setShowDate(true);
 
     final reloaded = ClockEngine(
       clock: clock,
@@ -113,6 +115,8 @@ void main() {
 
     expect(reloaded.snapshot.timeLabel, '09:38:00 PM');
     expect(reloaded.showSeconds, isTrue);
+    expect(reloaded.showDate, isTrue);
+    expect(reloaded.snapshot.showDate, isTrue);
   });
 
   test('clock theme defaults to Minimal and persists across reload', () {

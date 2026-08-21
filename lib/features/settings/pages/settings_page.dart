@@ -50,6 +50,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               setState(() {});
             },
           ),
+          SwitchListTile(
+            title: const Text('Date & Weekday'),
+            value: engine.showDate,
+            onChanged: (value) {
+              engine.setShowDate(value);
+              ref.invalidate(clockSnapshotProvider);
+              setState(() {});
+            },
+          ),
         ],
       ),
     );

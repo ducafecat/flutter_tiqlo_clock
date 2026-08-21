@@ -75,16 +75,18 @@ class FlipClockFace extends StatelessWidget {
                   ),
                 ),
               ],
-              const SizedBox(height: 16),
-              Text(
-                snapshot.dateLabel,
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: dateSize,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 2,
+              if (snapshot.showDate) ...[
+                const SizedBox(height: 16),
+                Text(
+                  snapshot.dateLabel,
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: dateSize,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 2,
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),

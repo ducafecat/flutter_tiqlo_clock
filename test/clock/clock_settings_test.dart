@@ -58,6 +58,29 @@ void main() {
     container.dispose();
   });
 
+  testWidgets('Date & Weekday shows weekday and date on Clock', (tester) async {
+    final container = await _pumpClock(tester);
+
+    expect(find.text('THU · AUG 20'), findsNothing);
+
+    await tester.tap(find.byType(ClockPage));
+    await tester.pump();
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Date & Weekday'));
+    await tester.pump();
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    expect(find.text('THU · AUG 20'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
+
   testWidgets('About shows version', (tester) async {
     final container = await _pumpClock(tester);
 
