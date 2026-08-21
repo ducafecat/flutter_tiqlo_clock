@@ -1,12 +1,14 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'clock_settings_store.dart';
+import 'clock_theme.dart';
 
 class PrefsClockSettingsStore implements ClockSettingsStore {
   PrefsClockSettingsStore(this._prefs);
 
   static const _formatKey = 'clock.time_format';
   static const _secondsKey = 'clock.show_seconds';
+  static const _themeKey = 'clock.theme_id';
 
   final SharedPreferences _prefs;
 
@@ -33,5 +35,20 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   @override
   void saveShowSeconds(bool value) {
     _prefs.setBool(_secondsKey, value);
+  }
+
+  @override
+  ClockThemeId loadClockThemeId() {
+    return switch (_prefs.getString(_themeKey)) {
+      'flip' => ClockThemeId.flip,
+      'oled' => ClockThemeId.oled,
+      'retro' => ClockThemeId.retro,
+      _ => ClockThemeId.minimal,
+    };
+  }
+
+  @override
+  void saveClockThemeId(ClockThemeId id) {
+    _prefs.setString(_themeKey, id.name);
   }
 }

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import 'clock.dart';
 import 'clock_settings_store.dart';
+import 'clock_theme.dart';
 
 class ClockSnapshot {
   const ClockSnapshot({
@@ -35,6 +36,16 @@ class ClockSnapshot {
     return '$time $period';
   }
 
+  String get displayHour {
+    final h = is24Hour ? hour : _hour12(hour);
+    return h.toString().padLeft(2, '0');
+  }
+
+  String get displayMinute => minute.toString().padLeft(2, '0');
+
+  String? get displaySecond =>
+      showSeconds ? (second ?? 0).toString().padLeft(2, '0') : null;
+
   static int _hour12(int hour24) {
     final mod = hour24 % 12;
     return mod == 0 ? 12 : mod;
@@ -48,16 +59,20 @@ class ClockEngine {
     this.deviceUses24Hour = true,
     bool showSeconds = false,
     TimeFormat? timeFormat,
+    ClockThemeId? clockThemeId,
     ClockSettingsStore? store,
   }) : _store = store,
        _timeFormat = timeFormat ?? store?.loadTimeFormat(),
-       showSeconds = store?.loadShowSeconds() ?? showSeconds;
+       showSeconds = store?.loadShowSeconds() ?? showSeconds,
+       clockThemeId =
+           store?.loadClockThemeId() ?? clockThemeId ?? ClockThemeId.minimal;
 
   final Clock clock;
   final Locale locale;
   final bool deviceUses24Hour;
   final ClockSettingsStore? _store;
   bool showSeconds;
+  ClockThemeId clockThemeId;
   TimeFormat? _timeFormat;
 
   bool get is24Hour {
@@ -111,6 +126,11 @@ class ClockEngine {
   void setShowSeconds(bool value) {
     showSeconds = value;
     _store?.saveShowSeconds(value);
+  }
+
+  void setClockTheme(ClockThemeId id) {
+    clockThemeId = id;
+    _store?.saveClockThemeId(id);
   }
 
   String _dateLabel(DateTime now) {

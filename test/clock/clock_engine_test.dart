@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_engine.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_settings_store.dart';
+import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'fake_clock.dart';
@@ -112,5 +113,18 @@ void main() {
 
     expect(reloaded.snapshot.timeLabel, '09:38:00 PM');
     expect(reloaded.showSeconds, isTrue);
+  });
+
+  test('clock theme defaults to Minimal and persists across reload', () {
+    final store = MemoryClockSettingsStore();
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock, store: store);
+
+    expect(engine.clockThemeId, ClockThemeId.minimal);
+
+    engine.setClockTheme(ClockThemeId.flip);
+
+    final reloaded = ClockEngine(clock: clock, store: store);
+    expect(reloaded.clockThemeId, ClockThemeId.flip);
   });
 }

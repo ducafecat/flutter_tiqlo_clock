@@ -1,0 +1,101 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_tiqlo_clock/clock/clock_engine.dart';
+import 'package:flutter_tiqlo_clock/clock/clock_providers.dart';
+import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
+import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
+import 'package:flutter_tiqlo_clock/features/clock/widgets/flip_clock_face.dart';
+import 'package:flutter_tiqlo_clock/main.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
+import 'fake_clock.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    await initializeDateFormatting('en');
+  });
+
+  testWidgets('ClockTheme sheet lists four faces and switches without leaving Clock', (
+    tester,
+  ) async {
+    final engine = ClockEngine(
+      clock: FakeClock(wall: DateTime(2026, 8, 20, 21, 38)),
+      locale: const Locale('en'),
+    );
+    final container = ProviderContainer(
+      overrides: [clockEngineProvider.overrideWithValue(engine)],
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(container: container, child: const MyApp()),
+    );
+
+    await tester.tap(find.byType(ClockPage));
+    await tester.pump();
+    await tester.tap(find.text('Theme'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Minimal'), findsOneWidget);
+    expect(find.text('Flip'), findsOneWidget);
+    expect(find.text('OLED'), findsOneWidget);
+    expect(find.text('Retro'), findsOneWidget);
+
+    await tester.tap(find.text('Flip'));
+    await tester.pump();
+
+    expect(engine.clockThemeId, ClockThemeId.flip);
+    expect(find.byType(ClockPage), findsOneWidget);
+    expect(identical(container.read(clockEngineProvider), engine), isTrue);
+    expect(find.text('21:38'), findsNothing);
+    expect(find.text('21'), findsOneWidget);
+    expect(find.text('38'), findsOneWidget);
+
+    await tester.tap(find.text('OLED'));
+    await tester.pump();
+    expect(engine.clockThemeId, ClockThemeId.oled);
+    expect(find.byType(ClockPage), findsOneWidget);
+
+    await tester.tap(find.text('Retro'));
+    await tester.pump();
+    expect(engine.clockThemeId, ClockThemeId.retro);
+    expect(find.byType(ClockPage), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
+
+  testWidgets('Flip face animates when the displayed minute changes', (
+    tester,
+  ) async {
+    ClockSnapshot snap(int minute) => ClockSnapshot(
+      hour: 21,
+      minute: minute,
+      dateLabel: 'THU · AUG 20',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: FlipClockFace(snapshot: snap(38), landscape: false),
+        ),
+      ),
+    );
+    expect(find.text('38'), findsOneWidget);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: FlipClockFace(snapshot: snap(39), landscape: false),
+        ),
+      ),
+    );
+    await tester.pump();
+    expect(tester.hasRunningAnimations, isTrue);
+
+    await tester.pumpAndSettle();
+    expect(find.text('39'), findsOneWidget);
+    expect(find.text('38'), findsNothing);
+  });
+}

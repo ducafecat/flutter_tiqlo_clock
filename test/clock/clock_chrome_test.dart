@@ -113,7 +113,7 @@ void main() {
     await tester.tap(find.byType(ClockPage));
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
-    await tester.tap(find.text('Theme'));
+    await tester.tap(find.text('Focus'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
     expect(find.text('Theme'), findsOneWidget);

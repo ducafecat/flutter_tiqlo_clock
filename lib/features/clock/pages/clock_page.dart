@@ -5,8 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../clock/clock_providers.dart';
+import '../../../clock/clock_theme.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/ui/clock_system_ui.dart';
+import '../widgets/clock_face.dart';
 
 class ClockPage extends ConsumerStatefulWidget {
   const ClockPage({super.key});
@@ -36,6 +38,44 @@ class _ClockPageState extends ConsumerState<ClockPage> {
     setState(() => _chromeVisible = true);
     _hideChromeTimer = Timer(const Duration(seconds: 3), () {
       if (mounted) setState(() => _chromeVisible = false);
+    });
+  }
+
+  void _openClockTheme() {
+    _hideChromeTimer?.cancel();
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.grey.shade900,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            final current = ref.read(clockEngineProvider).clockThemeId;
+            return SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final id in ClockThemeId.values)
+                    ListTile(
+                      title: Text(
+                        id.label,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      selected: current == id,
+                      selectedColor: Colors.white,
+                      onTap: () {
+                        ref.read(clockEngineProvider).setClockTheme(id);
+                        setState(() {});
+                        setSheetState(() {});
+                      },
+                    ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    ).whenComplete(() {
+      if (mounted) _showChrome();
     });
   }
 
@@ -75,8 +115,7 @@ class _ClockPageState extends ConsumerState<ClockPage> {
     final snapshot = ref.watch(clockSnapshotProvider);
     final landscape =
         MediaQuery.orientationOf(context) == Orientation.landscape;
-    final timeSize = landscape ? 120.0 : 72.0;
-    final dateSize = landscape ? 24.0 : 18.0;
+    final themeId = ref.watch(clockEngineProvider).clockThemeId;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -85,37 +124,10 @@ class _ClockPageState extends ConsumerState<ClockPage> {
         onTap: _showChrome,
         child: Stack(
           children: [
-            Center(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        snapshot.timeLabel,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: timeSize,
-                          fontWeight: FontWeight.w300,
-                          letterSpacing: 2,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        snapshot.dateLabel,
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: dateSize,
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: 2,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            ClockFace(
+              themeId: themeId,
+              snapshot: snapshot,
+              landscape: landscape,
             ),
             if (_chromeVisible)
               Align(
@@ -125,7 +137,7 @@ class _ClockPageState extends ConsumerState<ClockPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _ChromeButton(label: 'Theme', onPressed: _showChrome),
+                      _ChromeButton(label: 'Theme', onPressed: _openClockTheme),
                       _ChromeButton(label: 'Focus', onPressed: _showChrome),
                       _ChromeButton(label: 'Timer', onPressed: _showChrome),
                       _ChromeButton(label: 'More', onPressed: _openMore),

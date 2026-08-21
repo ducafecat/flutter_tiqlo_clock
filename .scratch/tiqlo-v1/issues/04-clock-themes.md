@@ -6,7 +6,7 @@
 
 **Status:** ready-for-agent
 
-- [ ] 至少四套面孔可从 sheet 即时切换
-- [ ] Flip 在数字变化时有翻页动画
-- [ ] 重启后仍是上次选的 ClockTheme
-- [ ] 换脸不改路由、不重建时间源
+- [x] 至少四套面孔可从 sheet 即时切换
+- [x] Flip 在数字变化时有翻页动画
+- [x] 重启后仍是上次选的 ClockTheme
+- [x] 换脸不改路由、不重建时间源
