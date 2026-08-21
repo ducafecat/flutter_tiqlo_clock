@@ -49,9 +49,7 @@ void main() {
     expect(find.byType(ClockPage), findsOneWidget);
     expect(identical(container.read(clockEngineProvider), engine), isTrue);
     expect(find.text('21:38'), findsNothing);
-    expect(find.text('21'), findsOneWidget);
-    expect(find.text('38'), findsOneWidget);
-    expect(find.text('00'), findsOneWidget);
+    expect(find.byType(FlipClockFace), findsOneWidget);
 
     await tester.tap(find.text('OLED'));
     await tester.pump();
@@ -115,7 +113,7 @@ void main() {
         ),
       ),
     );
-    expect(find.text('38'), findsOneWidget);
+    expect(find.text('8'), findsWidgets);
 
     await tester.pumpWidget(
       MaterialApp(
@@ -128,7 +126,7 @@ void main() {
     expect(tester.hasRunningAnimations, isTrue);
 
     await tester.pumpAndSettle();
-    expect(find.text('39'), findsOneWidget);
-    expect(find.text('38'), findsNothing);
+    expect(find.text('9'), findsWidgets);
+    expect(find.text('8'), findsNothing);
   });
 }

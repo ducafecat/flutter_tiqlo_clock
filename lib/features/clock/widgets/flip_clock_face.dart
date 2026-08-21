@@ -16,9 +16,12 @@ class FlipClockFace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardWidth = landscape ? 120.0 : 76.0;
-    final cardHeight = landscape ? 140.0 : 88.0;
+    final cardWidth = landscape ? 72.0 : 48.0;
+    final cardHeight = landscape ? 112.0 : 76.0;
     final dateSize = landscape ? 24.0 : 18.0;
+    final hour = snapshot.displayHour;
+    final minute = snapshot.displayMinute;
+    final second = snapshot.displaySecond;
 
     return Center(
       child: FittedBox(
@@ -31,20 +34,30 @@ class FlipClockFace extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _FlipCard(
-                    value: snapshot.displayHour,
+                  _FlipDigit(digit: hour[0], width: cardWidth, height: cardHeight),
+                  const SizedBox(width: 6),
+                  _FlipDigit(digit: hour[1], width: cardWidth, height: cardHeight),
+                  _FlipColon(height: cardHeight),
+                  _FlipDigit(
+                    digit: minute[0],
                     width: cardWidth,
                     height: cardHeight,
                   ),
-                  const SizedBox(width: 12),
-                  _FlipCard(
-                    value: snapshot.displayMinute,
+                  const SizedBox(width: 6),
+                  _FlipDigit(
+                    digit: minute[1],
                     width: cardWidth,
                     height: cardHeight,
                   ),
-                  const SizedBox(width: 12),
-                  _FlipCard(
-                    value: snapshot.displaySecond,
+                  _FlipColon(height: cardHeight),
+                  _FlipDigit(
+                    digit: second[0],
+                    width: cardWidth,
+                    height: cardHeight,
+                  ),
+                  const SizedBox(width: 6),
+                  _FlipDigit(
+                    digit: second[1],
                     width: cardWidth,
                     height: cardHeight,
                   ),
@@ -80,79 +93,174 @@ class FlipClockFace extends StatelessWidget {
   }
 }
 
-class _FlipCard extends StatelessWidget {
-  const _FlipCard({
-    required this.value,
-    required this.width,
-    required this.height,
-  });
+class _FlipColon extends StatelessWidget {
+  const _FlipColon({required this.height});
 
-  final String value;
-  final double width;
   final double height;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 450),
-        transitionBuilder: (child, animation) {
-          return AnimatedBuilder(
-            animation: animation,
-            child: child,
-            builder: (context, child) {
-              final angle = (1 - animation.value) * math.pi / 2;
-              return Transform(
-                alignment: Alignment.center,
-                transform: Matrix4.identity()
-                  ..setEntry(3, 2, 0.001)
-                  ..rotateX(angle),
-                child: child,
-              );
-            },
-          );
-        },
-        child: _FlipCardFace(
-          key: ValueKey(value),
-          value: value,
-          width: width,
-          height: height,
+    final dot = Container(
+      width: height * 0.08,
+      height: height * 0.08,
+      decoration: const BoxDecoration(
+        color: Color(0xFFD0D0D0),
+        shape: BoxShape.circle,
+      ),
+    );
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: height * 0.12),
+      child: SizedBox(
+        height: height,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            dot,
+            SizedBox(height: height * 0.18),
+            dot,
+          ],
         ),
       ),
     );
   }
 }
 
-class _FlipCardFace extends StatelessWidget {
-  const _FlipCardFace({
-    super.key,
-    required this.value,
+class _FlipDigit extends StatefulWidget {
+  const _FlipDigit({
+    required this.digit,
     required this.width,
     required this.height,
   });
 
-  final String value;
+  final String digit;
   final double width;
   final double height;
 
   @override
+  State<_FlipDigit> createState() => _FlipDigitState();
+}
+
+class _FlipDigitState extends State<_FlipDigit>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late String _current;
+  late String _previous;
+
+  @override
+  void initState() {
+    super.initState();
+    _current = widget.digit;
+    _previous = widget.digit;
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    )..addStatusListener((status) {
+      if (status == AnimationStatus.completed && mounted) {
+        setState(() => _previous = _current);
+        _controller.reset();
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(_FlipDigit oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.digit != oldWidget.digit) {
+      _previous = oldWidget.digit;
+      _current = widget.digit;
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        final t = _controller.value;
+        final flipping = t > 0 && t < 1;
+        return SizedBox(
+          width: widget.width,
+          height: widget.height,
+          child: Stack(
+            clipBehavior: Clip.hardEdge,
+            alignment: Alignment.center,
+            children: [
+              Column(
+                children: [
+                  _half(_current, top: true),
+                  const SizedBox(height: 2),
+                  _half(flipping ? _previous : _current, top: false),
+                ],
+              ),
+              if (flipping && t < 0.5)
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Transform(
+                    alignment: Alignment.bottomCenter,
+                    transform: Matrix4.identity()
+                      ..setEntry(3, 2, 0.006)
+                      ..rotateX(t * math.pi),
+                    child: _half(_previous, top: true),
+                  ),
+                ),
+              if (flipping && t >= 0.5)
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Transform(
+                    alignment: Alignment.topCenter,
+                    transform: Matrix4.identity()
+                      ..setEntry(3, 2, 0.006)
+                      ..rotateX((t - 1) * math.pi),
+                    child: _half(_current, top: false),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _half(String digit, {required bool top}) {
+    final radius = Radius.circular(widget.width * 0.12);
     return Container(
-      width: width,
-      height: height,
-      alignment: Alignment.center,
+      width: widget.width,
+      height: widget.height / 2 - 1,
       decoration: BoxDecoration(
-        color: const Color(0xFF2A2A2A),
-        borderRadius: BorderRadius.circular(8),
+        color: top ? const Color(0xFF2A2A2A) : const Color(0xFF1A1A1A),
+        borderRadius: top
+            ? BorderRadius.vertical(top: radius)
+            : BorderRadius.vertical(bottom: radius),
       ),
-      child: Text(
-        value,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: height * 0.55,
-          fontWeight: FontWeight.w500,
+      child: ClipRRect(
+        borderRadius: top
+            ? BorderRadius.vertical(top: radius)
+            : BorderRadius.vertical(bottom: radius),
+        child: OverflowBox(
+          maxHeight: widget.height,
+          alignment: top ? Alignment.topCenter : Alignment.bottomCenter,
+          child: SizedBox(
+            width: widget.width,
+            height: widget.height,
+            child: Center(
+              child: Text(
+                digit,
+                style: TextStyle(
+                  color: const Color(0xFFF2F2F2),
+                  fontSize: widget.height * 0.62,
+                  fontWeight: FontWeight.w600,
+                  height: 1,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
