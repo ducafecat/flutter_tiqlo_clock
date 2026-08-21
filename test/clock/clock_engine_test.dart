@@ -244,4 +244,118 @@ void main() {
     engine.start(SessionKind.focus, const Duration(minutes: 25));
     expect(engine.untilNextWallTick, const Duration(milliseconds: 750));
   });
+
+  test('elapsed to duration enters Complete', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock);
+
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+    clock.advanceElapsed(const Duration(minutes: 25));
+
+    expect(engine.snapshot.session!.status, SessionStatus.complete);
+    expect(engine.snapshot.session!.remainingLabel, '00:00');
+  });
+
+  test('acknowledgeComplete returns to wall time', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock);
+
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+    clock.advanceElapsed(const Duration(minutes: 25));
+    engine.snapshot;
+    engine.acknowledgeComplete();
+
+    expect(engine.snapshot.session, isNull);
+    expect(engine.snapshot.timeLabel, '21:38');
+  });
+
+  test('focus Complete records today; Stop does not', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock);
+
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+    clock.advanceElapsed(const Duration(minutes: 25));
+    expect(engine.snapshot.todayFocusCount, 1);
+    expect(engine.snapshot.todayFocusMinutes, 25);
+
+    engine.acknowledgeComplete();
+    engine.start(SessionKind.focus, const Duration(minutes: 15));
+    engine.stop();
+    expect(engine.snapshot.todayFocusCount, 1);
+    expect(engine.snapshot.todayFocusMinutes, 25);
+  });
+
+  test('pause and resume still record one Complete', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock);
+
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+    clock.advanceElapsed(const Duration(minutes: 10));
+    engine.pause();
+    engine.resume();
+    clock.advanceElapsed(const Duration(minutes: 15));
+
+    expect(engine.snapshot.session!.status, SessionStatus.complete);
+    expect(engine.snapshot.todayFocusCount, 1);
+    expect(engine.snapshot.todayFocusMinutes, 25);
+  });
+
+  test('today resets after local midnight', () {
+    final store = MemoryClockSettingsStore();
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock, store: store);
+
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+    clock.advanceElapsed(const Duration(minutes: 25));
+    expect(engine.snapshot.todayFocusCount, 1);
+
+    clock.advanceWall(const Duration(hours: 3));
+    expect(engine.snapshot.todayFocusCount, 0);
+    expect(engine.snapshot.todayFocusMinutes, 0);
+
+    final reloaded = ClockEngine(clock: clock, store: store);
+    expect(reloaded.snapshot.todayFocusCount, 0);
+  });
+
+  test('timer Complete does not record today Focus', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock);
+
+    engine.start(SessionKind.timer, const Duration(minutes: 5));
+    clock.advanceElapsed(const Duration(minutes: 5));
+
+    expect(engine.snapshot.session!.status, SessionStatus.complete);
+    expect(engine.snapshot.todayFocusCount, 0);
+    expect(engine.snapshot.todayFocusMinutes, 0);
+  });
+
+  test('sound and vibration default on and persist', () {
+    final store = MemoryClockSettingsStore();
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock, store: store);
+
+    expect(engine.soundEnabled, isTrue);
+    expect(engine.vibrationEnabled, isTrue);
+
+    engine.setSoundEnabled(false);
+    engine.setVibrationEnabled(false);
+
+    final reloaded = ClockEngine(clock: clock, store: store);
+    expect(reloaded.soundEnabled, isFalse);
+    expect(reloaded.vibrationEnabled, isFalse);
+  });
+
+  test('reloading a completed focus does not double-count today', () {
+    final store = MemoryClockSettingsStore();
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock, store: store);
+
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+    clock.advanceElapsed(const Duration(minutes: 25));
+    expect(engine.snapshot.todayFocusCount, 1);
+
+    final reloaded = ClockEngine(clock: clock, store: store);
+    expect(reloaded.snapshot.session!.status, SessionStatus.complete);
+    expect(reloaded.snapshot.todayFocusCount, 1);
+  });
 }

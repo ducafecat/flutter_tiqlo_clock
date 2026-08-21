@@ -13,6 +13,12 @@ abstract class ClockSettingsStore {
   void saveShowDate(bool value);
   StoredSession? loadSession();
   void saveSession(StoredSession? session);
+  List<StoredFocusComplete> loadFocusCompletes();
+  void saveFocusCompletes(List<StoredFocusComplete> completes);
+  bool loadSoundEnabled();
+  bool loadVibrationEnabled();
+  void saveSoundEnabled(bool value);
+  void saveVibrationEnabled(bool value);
 }
 
 class StoredSession {
@@ -22,6 +28,7 @@ class StoredSession {
     required this.startedElapsedMs,
     required this.status,
     this.frozenRemainingMs,
+    this.recorded = false,
   });
 
   final String kind;
@@ -29,6 +36,14 @@ class StoredSession {
   final int startedElapsedMs;
   final String status;
   final int? frozenRemainingMs;
+  final bool recorded;
+}
+
+class StoredFocusComplete {
+  const StoredFocusComplete({required this.localDate, required this.minutes});
+
+  final String localDate;
+  final int minutes;
 }
 
 class MemoryClockSettingsStore implements ClockSettingsStore {
@@ -37,6 +52,9 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   ClockThemeId clockThemeId = ClockThemeId.minimal;
   bool showDate = false;
   StoredSession? session;
+  List<StoredFocusComplete> completes = [];
+  bool soundEnabled = true;
+  bool vibrationEnabled = true;
 
   @override
   TimeFormat? loadTimeFormat() => timeFormat;
@@ -76,5 +94,29 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   @override
   void saveSession(StoredSession? value) {
     session = value;
+  }
+
+  @override
+  List<StoredFocusComplete> loadFocusCompletes() => List.of(completes);
+
+  @override
+  void saveFocusCompletes(List<StoredFocusComplete> value) {
+    completes = List.of(value);
+  }
+
+  @override
+  bool loadSoundEnabled() => soundEnabled;
+
+  @override
+  bool loadVibrationEnabled() => vibrationEnabled;
+
+  @override
+  void saveSoundEnabled(bool value) {
+    soundEnabled = value;
+  }
+
+  @override
+  void saveVibrationEnabled(bool value) {
+    vibrationEnabled = value;
   }
 }

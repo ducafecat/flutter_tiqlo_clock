@@ -59,6 +59,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               setState(() {});
             },
           ),
+          SwitchListTile(
+            title: const Text('Sound'),
+            value: engine.soundEnabled,
+            onChanged: (value) {
+              engine.setSoundEnabled(value);
+              setState(() {});
+            },
+          ),
+          SwitchListTile(
+            title: const Text('Vibration'),
+            value: engine.vibrationEnabled,
+            onChanged: (value) {
+              engine.setVibrationEnabled(value);
+              setState(() {});
+            },
+          ),
         ],
       ),
     );

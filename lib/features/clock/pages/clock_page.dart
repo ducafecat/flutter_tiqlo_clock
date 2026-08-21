@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -162,6 +163,12 @@ class _ClockPageState extends ConsumerState<ClockPage> {
                         setState(() {});
                       },
                     ),
+                    ListTile(
+                      title: Text(
+                        'Today ${ref.read(clockEngineProvider).snapshot.todayFocusCount} · ${ref.read(clockEngineProvider).snapshot.todayFocusMinutes} min',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -249,6 +256,18 @@ class _ClockPageState extends ConsumerState<ClockPage> {
   @override
   Widget build(BuildContext context) {
     final snapshot = ref.watch(clockSnapshotProvider);
+    ref.listen(clockSnapshotProvider, (previous, next) {
+      if (next.session?.status == SessionStatus.complete &&
+          previous?.session?.status != SessionStatus.complete) {
+        final engine = ref.read(clockEngineProvider);
+        if (engine.soundEnabled) {
+          SystemSound.play(SystemSoundType.alert);
+        }
+        if (engine.vibrationEnabled) {
+          HapticFeedback.vibrate();
+        }
+      }
+    });
     final landscape =
         MediaQuery.orientationOf(context) == Orientation.landscape;
     final themeId = ref.watch(clockEngineProvider).clockThemeId;
@@ -278,50 +297,7 @@ class _ClockPageState extends ConsumerState<ClockPage> {
                   padding: EdgeInsets.only(bottom: 48 + notch.bottom),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: snapshot.session == null
-                        ? [
-                            _ChromeButton(
-                              label: 'Theme',
-                              onPressed: _openClockTheme,
-                            ),
-                            _ChromeButton(
-                              label: 'Focus',
-                              onPressed: _openFocus,
-                            ),
-                            _ChromeButton(
-                              label: 'Timer',
-                              onPressed: _showChrome,
-                            ),
-                            _ChromeButton(label: 'More', onPressed: _openMore),
-                          ]
-                        : [
-                            _ChromeButton(
-                              label:
-                                  snapshot.session!.status ==
-                                      SessionStatus.paused
-                                  ? 'Resume'
-                                  : 'Pause',
-                              onPressed: () {
-                                final engine = ref.read(clockEngineProvider);
-                                if (snapshot.session!.status ==
-                                    SessionStatus.paused) {
-                                  engine.resume();
-                                } else {
-                                  engine.pause();
-                                }
-                                ref.invalidate(clockSnapshotProvider);
-                                _showChrome();
-                              },
-                            ),
-                            _ChromeButton(
-                              label: 'Stop',
-                              onPressed: () {
-                                ref.read(clockEngineProvider).stop();
-                                ref.invalidate(clockSnapshotProvider);
-                                _showChrome();
-                              },
-                            ),
-                          ],
+                    children: _chromeButtons(snapshot),
                   ),
                 ),
               ),
@@ -329,6 +305,53 @@ class _ClockPageState extends ConsumerState<ClockPage> {
         ),
       ),
     );
+  }
+
+  List<Widget> _chromeButtons(ClockSnapshot snapshot) {
+    final session = snapshot.session;
+    if (session == null) {
+      return [
+        _ChromeButton(label: 'Theme', onPressed: _openClockTheme),
+        _ChromeButton(label: 'Focus', onPressed: _openFocus),
+        _ChromeButton(label: 'Timer', onPressed: _showChrome),
+        _ChromeButton(label: 'More', onPressed: _openMore),
+      ];
+    }
+    if (session.status == SessionStatus.complete) {
+      return [
+        _ChromeButton(
+          label: 'Done',
+          onPressed: () {
+            ref.read(clockEngineProvider).acknowledgeComplete();
+            ref.invalidate(clockSnapshotProvider);
+            _showChrome();
+          },
+        ),
+      ];
+    }
+    return [
+      _ChromeButton(
+        label: session.status == SessionStatus.paused ? 'Resume' : 'Pause',
+        onPressed: () {
+          final engine = ref.read(clockEngineProvider);
+          if (session.status == SessionStatus.paused) {
+            engine.resume();
+          } else {
+            engine.pause();
+          }
+          ref.invalidate(clockSnapshotProvider);
+          _showChrome();
+        },
+      ),
+      _ChromeButton(
+        label: 'Stop',
+        onPressed: () {
+          ref.read(clockEngineProvider).stop();
+          ref.invalidate(clockSnapshotProvider);
+          _showChrome();
+        },
+      ),
+    ];
   }
 }
 

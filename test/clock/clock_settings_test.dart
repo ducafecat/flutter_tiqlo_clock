@@ -96,6 +96,37 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
   });
+
+  testWidgets('Settings can turn off Sound and Vibration', (tester) async {
+    final engine = ClockEngine(
+      clock: FakeClock(wall: DateTime(2026, 8, 20, 21, 38)),
+      locale: const Locale('en'),
+    );
+    final container = ProviderContainer(
+      overrides: [clockEngineProvider.overrideWithValue(engine)],
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(container: container, child: const MyApp()),
+    );
+
+    await tester.tap(find.byType(ClockPage));
+    await tester.pump();
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Sound'));
+    await tester.pump();
+    await tester.tap(find.text('Vibration'));
+    await tester.pump();
+
+    expect(engine.soundEnabled, isFalse);
+    expect(engine.vibrationEnabled, isFalse);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
 }
 
 Future<ProviderContainer> _pumpClock(WidgetTester tester) async {

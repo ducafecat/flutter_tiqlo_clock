@@ -15,11 +15,13 @@ class SessionSnapshot {
     required this.kind,
     required this.remaining,
     required this.status,
+    required this.duration,
   });
 
   final SessionKind kind;
   final Duration remaining;
   final SessionStatus status;
+  final Duration duration;
 
   String get remainingLabel {
     final total = remaining.inSeconds;
@@ -45,6 +47,8 @@ class ClockSnapshot {
     this.is24Hour = true,
     this.showDate = false,
     this.session,
+    this.todayFocusCount = 0,
+    this.todayFocusMinutes = 0,
   });
 
   final int hour;
@@ -56,6 +60,8 @@ class ClockSnapshot {
   final bool is24Hour;
   final bool showDate;
   final SessionSnapshot? session;
+  final int todayFocusCount;
+  final int todayFocusMinutes;
 
   String get timeLabel {
     final h = is24Hour ? hour : _hour12(hour);
@@ -92,6 +98,8 @@ class ClockEngine {
     bool showDate = false,
     TimeFormat? timeFormat,
     ClockThemeId? clockThemeId,
+    bool soundEnabled = true,
+    bool vibrationEnabled = true,
     ClockSettingsStore? store,
   }) : _store = store,
        _timeFormat = timeFormat ?? store?.loadTimeFormat(),
@@ -99,7 +107,10 @@ class ClockEngine {
        showDate = store?.loadShowDate() ?? showDate,
        clockThemeId =
            store?.loadClockThemeId() ?? clockThemeId ?? ClockThemeId.minimal,
-       _session = _restoreSession(store?.loadSession());
+       soundEnabled = store?.loadSoundEnabled() ?? soundEnabled,
+       vibrationEnabled = store?.loadVibrationEnabled() ?? vibrationEnabled,
+       _session = _restoreSession(store?.loadSession()),
+       _completes = List.of(store?.loadFocusCompletes() ?? const []);
 
   final Clock clock;
   final Locale locale;
@@ -108,8 +119,11 @@ class ClockEngine {
   bool showSeconds;
   bool showDate;
   ClockThemeId clockThemeId;
+  bool soundEnabled;
+  bool vibrationEnabled;
   TimeFormat? _timeFormat;
   _LiveSession? _session;
+  final List<StoredFocusComplete> _completes;
 
   bool get is24Hour {
     final format =
@@ -120,6 +134,8 @@ class ClockEngine {
   ClockSnapshot get snapshot {
     final now = clock.wallNow();
     final twentyFour = is24Hour;
+    final session = _sessionSnapshot();
+    final today = _todayStats(now);
     return ClockSnapshot(
       hour: now.hour,
       minute: now.minute,
@@ -129,7 +145,9 @@ class ClockEngine {
       showSeconds: showSeconds,
       showDate: showDate,
       is24Hour: twentyFour,
-      session: _sessionSnapshot(),
+      session: session,
+      todayFocusCount: today.count,
+      todayFocusMinutes: today.minutes,
     );
   }
 
@@ -182,6 +200,16 @@ class ClockEngine {
     _store?.saveClockThemeId(id);
   }
 
+  void setSoundEnabled(bool value) {
+    soundEnabled = value;
+    _store?.saveSoundEnabled(value);
+  }
+
+  void setVibrationEnabled(bool value) {
+    vibrationEnabled = value;
+    _store?.saveVibrationEnabled(value);
+  }
+
   void start(SessionKind kind, Duration duration) {
     if (_session != null) return;
     _session = _LiveSession(
@@ -216,14 +244,59 @@ class ClockEngine {
     _persistSession();
   }
 
+  void acknowledgeComplete() {
+    if (_session?.status != SessionStatus.complete) return;
+    _session = null;
+    _persistSession();
+  }
+
   SessionSnapshot? _sessionSnapshot() {
     final session = _session;
     if (session == null) return null;
+    _completeIfDue();
     return SessionSnapshot(
       kind: session.kind,
       remaining: session.remainingAt(clock.elapsed()),
       status: session.status,
+      duration: session.duration,
     );
+  }
+
+  void _completeIfDue() {
+    final session = _session;
+    if (session == null || session.status != SessionStatus.running) return;
+    if (session.remainingAt(clock.elapsed()) > Duration.zero) return;
+    session.status = SessionStatus.complete;
+    if (session.kind == SessionKind.focus && !session.recorded) {
+      session.recorded = true;
+      _completes.add(
+        StoredFocusComplete(
+          localDate: _localDate(clock.wallNow()),
+          minutes: session.duration.inMinutes,
+        ),
+      );
+      _store?.saveFocusCompletes(_completes);
+    }
+    _persistSession();
+  }
+
+  ({int count, int minutes}) _todayStats(DateTime now) {
+    final date = _localDate(now);
+    var count = 0;
+    var minutes = 0;
+    for (final item in _completes) {
+      if (item.localDate != date) continue;
+      count += 1;
+      minutes += item.minutes;
+    }
+    return (count: count, minutes: minutes);
+  }
+
+  static String _localDate(DateTime now) {
+    final y = now.year.toString().padLeft(4, '0');
+    final m = now.month.toString().padLeft(2, '0');
+    final d = now.day.toString().padLeft(2, '0');
+    return '$y-$m-$d';
   }
 
   void _persistSession() {
@@ -239,6 +312,7 @@ class ClockEngine {
         startedElapsedMs: session.startedElapsed.inMilliseconds,
         status: session.status.name,
         frozenRemainingMs: session.frozenRemaining?.inMilliseconds,
+        recorded: session.recorded,
       ),
     );
   }
@@ -256,6 +330,7 @@ class ClockEngine {
       frozenRemaining: stored.frozenRemainingMs == null
           ? null
           : Duration(milliseconds: stored.frozenRemainingMs!),
+      recorded: stored.recorded,
     );
   }
 
@@ -277,6 +352,7 @@ class _LiveSession {
     required this.startedElapsed,
     required this.status,
     this.frozenRemaining,
+    this.recorded = false,
   });
 
   final SessionKind kind;
@@ -284,6 +360,7 @@ class _LiveSession {
   Duration startedElapsed;
   SessionStatus status;
   Duration? frozenRemaining;
+  bool recorded;
 
   Duration remainingAt(Duration elapsed) {
     if (status == SessionStatus.paused) {

@@ -97,7 +97,9 @@ class _SessionFace extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                session.remainingLabel,
+                session.status == SessionStatus.complete
+                    ? 'COMPLETE'
+                    : session.remainingLabel,
                 style: TextStyle(
                   color: timeColor,
                   fontSize: timeSize,
@@ -106,6 +108,19 @@ class _SessionFace extends StatelessWidget {
                   fontFamily: fontFamily,
                 ),
               ),
+              if (session.status == SessionStatus.complete) ...[
+                const SizedBox(height: 16),
+                Text(
+                  '${session.duration.inMinutes} min',
+                  style: TextStyle(
+                    color: labelColor,
+                    fontSize: labelSize,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: letterSpacing,
+                    fontFamily: fontFamily,
+                  ),
+                ),
+              ],
               const SizedBox(height: 16),
               Text(
                 session.kindLabel,

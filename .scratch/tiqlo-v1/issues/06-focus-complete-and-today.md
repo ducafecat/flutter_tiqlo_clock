@@ -6,9 +6,9 @@
 
 **Status:** ready-for-agent
 
-- [ ] elapsed 走到 duration 后进入 Complete，有声和震（设置允许时）
-- [ ] Done 后回到墙上时间
-- [ ] Complete 记今日；Stop 不记；Pause/Resume 仍一次
-- [ ] Focus sheet 底部能看到今日次数和分钟；Clock 空闲时不显示统计
-- [ ] 本地日期跨过 0:00 后「今日」清零（用假 Clock 的墙上日期测）
-- [ ] Settings 可关声音、震动
+- [x] elapsed 走到 duration 后进入 Complete，有声和震（设置允许时）
+- [x] Done 后回到墙上时间
+- [x] Complete 记今日；Stop 不记；Pause/Resume 仍一次
+- [x] Focus sheet 底部能看到今日次数和分钟；Clock 空闲时不显示统计
+- [x] 本地日期跨过 0:00 后「今日」清零（用假 Clock 的墙上日期测）
+- [x] Settings 可关声音、震动

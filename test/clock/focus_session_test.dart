@@ -150,6 +150,56 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
   });
+
+  testWidgets('Complete shows this session and Done, not today stats', (
+    tester,
+  ) async {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock, locale: const Locale('en'));
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+    clock.advanceElapsed(const Duration(minutes: 25));
+    engine.snapshot;
+    final container = await _pumpClock(tester, engine: engine);
+
+    expect(find.text('COMPLETE'), findsOneWidget);
+    expect(find.text('25 min'), findsOneWidget);
+    expect(find.textContaining('Today'), findsNothing);
+
+    await tester.tap(find.byType(ClockPage));
+    await tester.pump();
+    expect(find.text('Done'), findsOneWidget);
+    expect(find.text('Pause'), findsNothing);
+
+    await tester.tap(find.text('Done'));
+    await tester.pump();
+    expect(find.text('21:38'), findsOneWidget);
+    expect(find.text('COMPLETE'), findsNothing);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
+
+  testWidgets('Focus sheet shows Today after Complete', (tester) async {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock, locale: const Locale('en'));
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+    clock.advanceElapsed(const Duration(minutes: 25));
+    engine.snapshot;
+    engine.acknowledgeComplete();
+    final container = await _pumpClock(tester, engine: engine);
+
+    expect(find.textContaining('Today'), findsNothing);
+
+    await tester.tap(find.byType(ClockPage));
+    await tester.pump();
+    await tester.tap(find.text('Focus'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Today 1 · 25 min'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
 }
 
 Future<ProviderContainer> _pumpClock(

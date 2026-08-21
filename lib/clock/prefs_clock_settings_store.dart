@@ -11,6 +11,9 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   static const _themeKey = 'clock.theme_id';
   static const _dateKey = 'clock.show_date';
   static const _sessionKey = 'clock.session';
+  static const _completesKey = 'clock.focus_completes';
+  static const _soundKey = 'clock.sound';
+  static const _vibrationKey = 'clock.vibration';
 
   final SharedPreferences _prefs;
 
@@ -73,6 +76,7 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
       frozenRemainingMs: parts.length > 4 && parts[4].isNotEmpty
           ? int.parse(parts[4])
           : null,
+      recorded: parts.length > 5 && parts[5] == '1',
     );
   }
 
@@ -90,7 +94,50 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
         session.startedElapsedMs,
         session.status,
         session.frozenRemainingMs ?? '',
+        session.recorded ? '1' : '0',
       ].join(','),
     );
+  }
+
+  @override
+  List<StoredFocusComplete> loadFocusCompletes() {
+    final raw = _prefs.getString(_completesKey);
+    if (raw == null || raw.isEmpty) return [];
+    return [
+      for (final item in raw.split(';'))
+        if (item.contains(','))
+          StoredFocusComplete(
+            localDate: item.split(',')[0],
+            minutes: int.parse(item.split(',')[1]),
+          ),
+    ];
+  }
+
+  @override
+  void saveFocusCompletes(List<StoredFocusComplete> completes) {
+    if (completes.isEmpty) {
+      _prefs.remove(_completesKey);
+      return;
+    }
+    _prefs.setString(
+      _completesKey,
+      completes.map((e) => '${e.localDate},${e.minutes}').join(';'),
+    );
+  }
+
+  @override
+  bool loadSoundEnabled() => _prefs.getBool(_soundKey) ?? true;
+
+  @override
+  bool loadVibrationEnabled() => _prefs.getBool(_vibrationKey) ?? true;
+
+  @override
+  void saveSoundEnabled(bool value) {
+    _prefs.setBool(_soundKey, value);
+  }
+
+  @override
+  void saveVibrationEnabled(bool value) {
+    _prefs.setBool(_vibrationKey, value);
   }
 }
