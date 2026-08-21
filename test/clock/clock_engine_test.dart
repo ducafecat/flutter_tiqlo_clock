@@ -417,6 +417,46 @@ void main() {
     expect(reloaded.vibrationEnabled, isFalse);
   });
 
+  test('night mode hides date and seconds without changing ClockTheme', () {
+    final store = MemoryClockSettingsStore();
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38, 20));
+    final engine = ClockEngine(clock: clock, store: store);
+    engine.setShowSeconds(true);
+    engine.setShowDate(true);
+    engine.setClockTheme(ClockThemeId.flip);
+
+    expect(engine.snapshot.timeLabel, '21:38:20');
+    expect(engine.snapshot.showDate, isTrue);
+    expect(engine.snapshot.nightMode, isFalse);
+
+    engine.setNightMode(true);
+
+    expect(engine.clockThemeId, ClockThemeId.flip);
+    expect(engine.snapshot.nightMode, isTrue);
+    expect(engine.snapshot.showSeconds, isFalse);
+    expect(engine.snapshot.showDate, isFalse);
+    expect(engine.snapshot.timeLabel, '21:38');
+    expect(engine.untilNextWallTick, const Duration(seconds: 40));
+
+    final reloaded = ClockEngine(clock: clock, store: store);
+    expect(reloaded.nightMode, isTrue);
+    expect(reloaded.clockThemeId, ClockThemeId.flip);
+    expect(reloaded.snapshot.timeLabel, '21:38');
+  });
+
+  test('keep awake defaults on and persists', () {
+    final store = MemoryClockSettingsStore();
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock, store: store);
+
+    expect(engine.keepAwake, isTrue);
+
+    engine.setKeepAwake(false);
+
+    final reloaded = ClockEngine(clock: clock, store: store);
+    expect(reloaded.keepAwake, isFalse);
+  });
+
   test('reloading a completed focus does not double-count today', () {
     final store = MemoryClockSettingsStore();
     final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));

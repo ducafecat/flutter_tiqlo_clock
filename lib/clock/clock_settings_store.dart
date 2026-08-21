@@ -23,6 +23,10 @@ abstract class ClockSettingsStore {
   bool loadNotificationGranted();
   void saveNotificationAsked(bool value);
   void saveNotificationGranted(bool value);
+  bool loadNightMode();
+  bool loadKeepAwake();
+  void saveNightMode(bool value);
+  void saveKeepAwake(bool value);
 }
 
 class StoredSession {
@@ -61,6 +65,8 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   bool vibrationEnabled = true;
   bool notificationAsked = false;
   bool notificationGranted = false;
+  bool nightMode = false;
+  bool keepAwake = true;
 
   @override
   TimeFormat? loadTimeFormat() => timeFormat;
@@ -140,5 +146,21 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   @override
   void saveNotificationGranted(bool value) {
     notificationGranted = value;
+  }
+
+  @override
+  bool loadNightMode() => nightMode;
+
+  @override
+  bool loadKeepAwake() => keepAwake;
+
+  @override
+  void saveNightMode(bool value) {
+    nightMode = value;
+  }
+
+  @override
+  void saveKeepAwake(bool value) {
+    keepAwake = value;
   }
 }

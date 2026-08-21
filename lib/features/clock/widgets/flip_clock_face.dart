@@ -49,18 +49,20 @@ class FlipClockFace extends StatelessWidget {
                     width: cardWidth,
                     height: cardHeight,
                   ),
-                  _FlipColon(height: cardHeight),
-                  _FlipDigit(
-                    digit: second[0],
-                    width: cardWidth,
-                    height: cardHeight,
-                  ),
-                  const SizedBox(width: 6),
-                  _FlipDigit(
-                    digit: second[1],
-                    width: cardWidth,
-                    height: cardHeight,
-                  ),
+                  if (snapshot.showSeconds) ...[
+                    _FlipColon(height: cardHeight),
+                    _FlipDigit(
+                      digit: second[0],
+                      width: cardWidth,
+                      height: cardHeight,
+                    ),
+                    const SizedBox(width: 6),
+                    _FlipDigit(
+                      digit: second[1],
+                      width: cardWidth,
+                      height: cardHeight,
+                    ),
+                  ],
                 ],
               ),
               if (snapshot.period != null) ...[

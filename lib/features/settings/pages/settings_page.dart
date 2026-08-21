@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../clock/clock_providers.dart';
 import '../../../clock/clock_settings_store.dart';
 import '../../../core/ui/clock_system_ui.dart';
+import '../../../core/ui/clock_wake.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -13,21 +14,26 @@ class SettingsPage extends ConsumerStatefulWidget {
 }
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
+  var _keepAwake = true;
+
   @override
   void initState() {
     super.initState();
     ClockSystemUi.show();
+    ClockWake.setEnabled(false);
   }
 
   @override
   void dispose() {
     ClockSystemUi.hide();
+    ClockWake.setEnabled(_keepAwake);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final engine = ref.watch(clockEngineProvider);
+    _keepAwake = engine.keepAwake;
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
@@ -55,6 +61,23 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             value: engine.showDate,
             onChanged: (value) {
               engine.setShowDate(value);
+              ref.invalidate(clockSnapshotProvider);
+              setState(() {});
+            },
+          ),
+          SwitchListTile(
+            title: const Text('Keep Screen Awake'),
+            value: engine.keepAwake,
+            onChanged: (value) {
+              engine.setKeepAwake(value);
+              setState(() {});
+            },
+          ),
+          SwitchListTile(
+            title: const Text('Night Mode'),
+            value: engine.nightMode,
+            onChanged: (value) {
+              engine.setNightMode(value);
               ref.invalidate(clockSnapshotProvider);
               setState(() {});
             },

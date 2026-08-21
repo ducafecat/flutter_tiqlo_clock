@@ -46,6 +46,7 @@ class ClockSnapshot {
     this.showSeconds = false,
     this.is24Hour = true,
     this.showDate = false,
+    this.nightMode = false,
     this.session,
     this.todayFocusCount = 0,
     this.todayFocusMinutes = 0,
@@ -59,6 +60,7 @@ class ClockSnapshot {
   final bool showSeconds;
   final bool is24Hour;
   final bool showDate;
+  final bool nightMode;
   final SessionSnapshot? session;
   final int todayFocusCount;
   final int todayFocusMinutes;
@@ -100,6 +102,8 @@ class ClockEngine {
     ClockThemeId? clockThemeId,
     bool soundEnabled = true,
     bool vibrationEnabled = true,
+    bool nightMode = false,
+    bool keepAwake = true,
     ClockSettingsStore? store,
   }) : _store = store,
        _timeFormat = timeFormat ?? store?.loadTimeFormat(),
@@ -109,6 +113,8 @@ class ClockEngine {
            store?.loadClockThemeId() ?? clockThemeId ?? ClockThemeId.minimal,
        soundEnabled = store?.loadSoundEnabled() ?? soundEnabled,
        vibrationEnabled = store?.loadVibrationEnabled() ?? vibrationEnabled,
+       nightMode = store?.loadNightMode() ?? nightMode,
+       keepAwake = store?.loadKeepAwake() ?? keepAwake,
        _completes = List.of(store?.loadFocusCompletes() ?? const []) {
     _session = _restoreSession(store?.loadSession());
     _pauseIfRebooted();
@@ -123,6 +129,8 @@ class ClockEngine {
   ClockThemeId clockThemeId;
   bool soundEnabled;
   bool vibrationEnabled;
+  bool nightMode;
+  bool keepAwake;
   TimeFormat? _timeFormat;
   _LiveSession? _session;
   final List<StoredFocusComplete> _completes;
@@ -138,14 +146,16 @@ class ClockEngine {
     final twentyFour = is24Hour;
     final session = _sessionSnapshot();
     final today = _todayStats(now);
+    final night = nightMode;
     return ClockSnapshot(
       hour: now.hour,
       minute: now.minute,
       second: now.second,
       dateLabel: _dateLabel(now),
       period: twentyFour ? null : (now.hour < 12 ? 'AM' : 'PM'),
-      showSeconds: showSeconds,
-      showDate: showDate,
+      showSeconds: showSeconds && !night,
+      showDate: showDate && !night,
+      nightMode: night,
       is24Hour: twentyFour,
       session: session,
       todayFocusCount: today.count,
@@ -161,7 +171,7 @@ class ClockEngine {
       return Duration(microseconds: 1000000 - rem);
     }
     final now = clock.wallNow();
-    if (showSeconds || clockThemeId == ClockThemeId.flip) {
+    if (showSeconds && !nightMode) {
       final nextSecond = DateTime(
         now.year,
         now.month,
@@ -210,6 +220,16 @@ class ClockEngine {
   void setVibrationEnabled(bool value) {
     vibrationEnabled = value;
     _store?.saveVibrationEnabled(value);
+  }
+
+  void setNightMode(bool value) {
+    nightMode = value;
+    _store?.saveNightMode(value);
+  }
+
+  void setKeepAwake(bool value) {
+    keepAwake = value;
+    _store?.saveKeepAwake(value);
   }
 
   void start(SessionKind kind, Duration duration) {

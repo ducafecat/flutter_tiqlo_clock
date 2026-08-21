@@ -4,10 +4,14 @@
 
 **Blocked by:** 02 Clock 外壳；03 时间显示设置
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] Night Mode 不切换 ClockTheme
-- [ ] 开启后字更暗、无日期无秒、系统亮度下降；关闭后亮度恢复
-- [ ] Night Mode 选择能记住
-- [ ] Clock/Session 默认常亮；Settings 页不强制常亮
-- [ ] 可在 Settings 关闭 Keep Screen Awake
+- [x] Night Mode 不切换 ClockTheme
+- [x] 开启后字更暗、无日期无秒、系统亮度下降；关闭后亮度恢复
+- [x] Night Mode 选择能记住
+- [x] Clock/Session 默认常亮；Settings 页不强制常亮
+- [x] 可在 Settings 关闭 Keep Screen Awake
+
+## Answer
+
+Night Mode 叠在当前 ClockTheme：字变暗、藏日期和秒、降应用亮度，关掉后恢复。Keep Screen Awake 默认开，Clock 页持有 wakelock，进 Settings 释放。

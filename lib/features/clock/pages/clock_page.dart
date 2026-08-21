@@ -11,6 +11,7 @@ import '../../../clock/clock_providers.dart';
 import '../../../clock/clock_theme.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/ui/clock_system_ui.dart';
+import '../../../core/ui/clock_wake.dart';
 import '../widgets/clock_face.dart';
 
 class ClockPage extends ConsumerStatefulWidget {
@@ -31,10 +32,13 @@ class _ClockPageState extends ConsumerState<ClockPage>
     ClockSystemUi.hide();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final session = ref.read(clockEngineProvider).snapshot.session;
+      final engine = ref.read(clockEngineProvider);
+      final session = engine.snapshot.session;
       if (session == null || session.status != SessionStatus.running) {
         ref.read(sessionAlertsProvider).cancel();
       }
+      ClockWake.setEnabled(engine.keepAwake);
+      NightBrightness.setEnabled(engine.nightMode);
     });
   }
 
@@ -62,6 +66,8 @@ class _ClockPageState extends ConsumerState<ClockPage>
       if (session != null && session.status != SessionStatus.complete) {
         alerts.cancel();
       }
+      ClockWake.setEnabled(engine.keepAwake);
+      NightBrightness.setEnabled(engine.nightMode);
       ref.invalidate(clockSnapshotProvider);
     }
   }
@@ -288,14 +294,32 @@ class _ClockPageState extends ConsumerState<ClockPage>
       context: context,
       backgroundColor: Colors.grey.shade900,
       builder: (sheetContext) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _moreTile(sheetContext, 'Settings', AppRoutes.settings),
-              _moreTile(sheetContext, 'About', AppRoutes.about),
-            ],
-          ),
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            final engine = ref.read(clockEngineProvider);
+            return SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SwitchListTile(
+                    title: const Text(
+                      'Night Mode',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    value: engine.nightMode,
+                    onChanged: (value) {
+                      engine.setNightMode(value);
+                      ref.invalidate(clockSnapshotProvider);
+                      setSheetState(() {});
+                      setState(() {});
+                    },
+                  ),
+                  _moreTile(sheetContext, 'Settings', AppRoutes.settings),
+                  _moreTile(sheetContext, 'About', AppRoutes.about),
+                ],
+              ),
+            );
+          },
         );
       },
     ).whenComplete(() {
@@ -317,6 +341,9 @@ class _ClockPageState extends ConsumerState<ClockPage>
   Widget build(BuildContext context) {
     final snapshot = ref.watch(clockSnapshotProvider);
     ref.listen(clockSnapshotProvider, (previous, next) {
+      if (previous?.nightMode != next.nightMode) {
+        NightBrightness.setEnabled(next.nightMode);
+      }
       if (next.session?.status == SessionStatus.complete &&
           previous?.session?.status != SessionStatus.complete) {
         final engine = ref.read(clockEngineProvider);
@@ -344,10 +371,13 @@ class _ClockPageState extends ConsumerState<ClockPage>
           children: [
             Padding(
               padding: notch,
-              child: ClockFace(
-                themeId: themeId,
-                snapshot: snapshot,
-                landscape: landscape,
+              child: Opacity(
+                opacity: snapshot.nightMode ? 0.35 : 1,
+                child: ClockFace(
+                  themeId: themeId,
+                  snapshot: snapshot,
+                  landscape: landscape,
+                ),
               ),
             ),
             if (_chromeVisible)

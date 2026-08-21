@@ -16,6 +16,8 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   static const _vibrationKey = 'clock.vibration';
   static const _notificationAskedKey = 'clock.notification_asked';
   static const _notificationGrantedKey = 'clock.notification_granted';
+  static const _nightModeKey = 'clock.night_mode';
+  static const _keepAwakeKey = 'clock.keep_awake';
 
   final SharedPreferences _prefs;
 
@@ -159,5 +161,21 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   @override
   void saveNotificationGranted(bool value) {
     _prefs.setBool(_notificationGrantedKey, value);
+  }
+
+  @override
+  bool loadNightMode() => _prefs.getBool(_nightModeKey) ?? false;
+
+  @override
+  bool loadKeepAwake() => _prefs.getBool(_keepAwakeKey) ?? true;
+
+  @override
+  void saveNightMode(bool value) {
+    _prefs.setBool(_nightModeKey, value);
+  }
+
+  @override
+  void saveKeepAwake(bool value) {
+    _prefs.setBool(_keepAwakeKey, value);
   }
 }
