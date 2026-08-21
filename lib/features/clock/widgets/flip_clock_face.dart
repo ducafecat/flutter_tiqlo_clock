@@ -203,9 +203,14 @@ class _FlipDigitState extends State<_FlipDigit>
               Column(
                 children: [
                   _half(_current, top: true),
-                  const SizedBox(height: 2),
                   _half(flipping ? _previous : _current, top: false),
                 ],
+              ),
+              Center(
+                child: ColoredBox(
+                  color: Colors.black.withValues(alpha: 0.22),
+                  child: SizedBox(width: widget.width, height: 1),
+                ),
               ),
               if (flipping && topPhase)
                 Align(
@@ -237,7 +242,7 @@ class _FlipDigitState extends State<_FlipDigit>
     required bool top,
     required double angle,
   }) {
-    final shade = math.sin(angle.abs()).clamp(0.0, 1.0) * 0.42;
+    final shade = math.sin(angle.abs()).clamp(0.0, 1.0) * 0.2;
     return Transform(
       alignment: top ? Alignment.bottomCenter : Alignment.topCenter,
       filterQuality: FilterQuality.medium,
@@ -252,9 +257,9 @@ class _FlipDigitState extends State<_FlipDigit>
     final radius = Radius.circular(widget.width * 0.12);
     return Container(
       width: widget.width,
-      height: widget.height / 2 - 1,
+      height: widget.height / 2,
       decoration: BoxDecoration(
-        color: top ? const Color(0xFF2A2A2A) : const Color(0xFF1A1A1A),
+        color: const Color(0xFF242424),
         borderRadius: top
             ? BorderRadius.vertical(top: radius)
             : BorderRadius.vertical(bottom: radius),
