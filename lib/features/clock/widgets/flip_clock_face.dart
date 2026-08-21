@@ -23,13 +23,13 @@ class FlipClockFace extends StatelessWidget {
     final minute = snapshot.displayMinute;
     final second = snapshot.displaySecond;
 
-    return Center(
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      child: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.contain,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 mainAxisSize: MainAxisSize.min,

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -132,6 +133,9 @@ class _ClockPageState extends ConsumerState<ClockPage> {
     final landscape =
         MediaQuery.orientationOf(context) == Orientation.landscape;
     final themeId = ref.watch(clockEngineProvider).clockThemeId;
+    final notch = defaultTargetPlatform == TargetPlatform.iOS
+        ? MediaQuery.viewPaddingOf(context)
+        : EdgeInsets.zero;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -140,16 +144,19 @@ class _ClockPageState extends ConsumerState<ClockPage> {
         onTap: _toggleChrome,
         child: Stack(
           children: [
-            ClockFace(
-              themeId: themeId,
-              snapshot: snapshot,
-              landscape: landscape,
+            Padding(
+              padding: notch,
+              child: ClockFace(
+                themeId: themeId,
+                snapshot: snapshot,
+                landscape: landscape,
+              ),
             ),
             if (_chromeVisible)
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 48),
+                  padding: EdgeInsets.only(bottom: 48 + notch.bottom),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
