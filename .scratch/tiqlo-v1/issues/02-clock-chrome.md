@@ -6,8 +6,8 @@
 
 **Status:** ready-for-agent
 
-- [ ] 横屏、竖屏都是同一 Clock，不是另一条路由
-- [ ] 横屏时间更大、居中、无 Overflow
-- [ ] Clock 上无状态栏/导航栏；Settings 里系统栏回来
-- [ ] 点击显示操作栏，三秒无操作自动隐藏，再点可再显示
-- [ ] More 可进入 Settings 与 About（内容可空，路由在）
+- [x] 横屏、竖屏都是同一 Clock，不是另一条路由
+- [x] 横屏时间更大、居中、无 Overflow
+- [x] Clock 上无状态栏/导航栏；Settings 里系统栏回来
+- [x] 点击显示操作栏，三秒无操作自动隐藏，再点可再显示
+- [x] More 可进入 Settings 与 About（内容可空，路由在）
