@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/config/app_config.dart';
 import '../../../core/ui/clock_system_ui.dart';
 
 class AboutPage extends StatefulWidget {
@@ -26,7 +27,9 @@ class _AboutPageState extends State<AboutPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('About')),
-      body: const SizedBox.expand(),
+      body: Center(
+        child: Text('Version ${AppConfig.version}'),
+      ),
     );
   }
 }

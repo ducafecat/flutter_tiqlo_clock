@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../clock/clock_providers.dart';
+import '../../../clock/clock_settings_store.dart';
 import '../../../core/ui/clock_system_ui.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
+  ConsumerState<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends ConsumerState<SettingsPage> {
   @override
   void initState() {
     super.initState();
@@ -24,9 +27,31 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final engine = ref.watch(clockEngineProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
-      body: const SizedBox.expand(),
+      body: ListView(
+        children: [
+          SwitchListTile(
+            title: const Text('24 Hour'),
+            value: engine.is24Hour,
+            onChanged: (value) {
+              engine.setTimeFormat(value ? TimeFormat.h24 : TimeFormat.h12);
+              ref.invalidate(clockSnapshotProvider);
+              setState(() {});
+            },
+          ),
+          SwitchListTile(
+            title: const Text('Show Seconds'),
+            value: engine.showSeconds,
+            onChanged: (value) {
+              engine.setShowSeconds(value);
+              ref.invalidate(clockSnapshotProvider);
+              setState(() {});
+            },
+          ),
+        ],
+      ),
     );
   }
 }

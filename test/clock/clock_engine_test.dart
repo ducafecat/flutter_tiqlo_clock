@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_engine.dart';
+import 'package:flutter_tiqlo_clock/clock/clock_settings_store.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'fake_clock.dart';
@@ -50,5 +51,66 @@ void main() {
     final engine = ClockEngine(clock: clock);
 
     expect(engine.untilNextWallTick, const Duration(seconds: 40));
+  });
+
+  test('12-hour snapshot timeLabel includes AM/PM', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock, deviceUses24Hour: false);
+
+    expect(engine.snapshot.timeLabel, '09:38 PM');
+    expect(engine.snapshot.period, 'PM');
+  });
+
+  test('24-hour snapshot timeLabel has no AM/PM', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock, deviceUses24Hour: true);
+
+    expect(engine.snapshot.timeLabel, '21:38');
+    expect(engine.snapshot.period, isNull);
+  });
+
+  test('midnight in 12-hour format is 12:00 AM', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 0, 0));
+    final engine = ClockEngine(clock: clock, deviceUses24Hour: false);
+
+    expect(engine.snapshot.timeLabel, '12:00 AM');
+  });
+
+  test('showSeconds includes seconds and ticks to the next second', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38, 20));
+    final engine = ClockEngine(clock: clock, showSeconds: true);
+
+    expect(engine.snapshot.timeLabel, '21:38:20');
+    expect(engine.untilNextWallTick, const Duration(seconds: 1));
+  });
+
+  test('setTimeFormat overrides device 24-hour default', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock, deviceUses24Hour: true);
+
+    engine.setTimeFormat(TimeFormat.h12);
+
+    expect(engine.snapshot.timeLabel, '09:38 PM');
+  });
+
+  test('reloading engine from store keeps format and seconds', () {
+    final store = MemoryClockSettingsStore();
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(
+      clock: clock,
+      store: store,
+      deviceUses24Hour: true,
+    );
+    engine.setTimeFormat(TimeFormat.h12);
+    engine.setShowSeconds(true);
+
+    final reloaded = ClockEngine(
+      clock: clock,
+      store: store,
+      deviceUses24Hour: true,
+    );
+
+    expect(reloaded.snapshot.timeLabel, '09:38:00 PM');
+    expect(reloaded.showSeconds, isTrue);
   });
 }

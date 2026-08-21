@@ -4,6 +4,8 @@ abstract final class AppConfig {
     defaultValue: 'Tiqlo',
   );
 
+  static const version = '1.0.0';
+
   static const ui = UiConfig(designWidth: 390, designHeight: 844);
 }
 

@@ -9,6 +9,101 @@ part of 'clock_providers.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(sharedPreferences)
+final sharedPreferencesProvider = SharedPreferencesProvider._();
+
+final class SharedPreferencesProvider
+    extends
+        $FunctionalProvider<
+          SharedPreferences,
+          SharedPreferences,
+          SharedPreferences
+        >
+    with $Provider<SharedPreferences> {
+  SharedPreferencesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'sharedPreferencesProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$sharedPreferencesHash();
+
+  @$internal
+  @override
+  $ProviderElement<SharedPreferences> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  SharedPreferences create(Ref ref) {
+    return sharedPreferences(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SharedPreferences value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SharedPreferences>(value),
+    );
+  }
+}
+
+String _$sharedPreferencesHash() => r'386519e62271b10ae7f628d13ea90b85216f025f';
+
+@ProviderFor(clockSettingsStore)
+final clockSettingsStoreProvider = ClockSettingsStoreProvider._();
+
+final class ClockSettingsStoreProvider
+    extends
+        $FunctionalProvider<
+          ClockSettingsStore,
+          ClockSettingsStore,
+          ClockSettingsStore
+        >
+    with $Provider<ClockSettingsStore> {
+  ClockSettingsStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'clockSettingsStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$clockSettingsStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<ClockSettingsStore> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ClockSettingsStore create(Ref ref) {
+    return clockSettingsStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ClockSettingsStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ClockSettingsStore>(value),
+    );
+  }
+}
+
+String _$clockSettingsStoreHash() =>
+    r'0e278d923e2a7b76ccaf712beb856df48a311391';
+
 @ProviderFor(clock)
 final clockProvider = ClockProvider._();
 
@@ -88,7 +183,7 @@ final class ClockEngineProvider
   }
 }
 
-String _$clockEngineHash() => r'97c8dd74d6f990f0eaa015673607bbab09628326';
+String _$clockEngineHash() => r'eefdad16da5c94ee257256f580f7ab067274f17d';
 
 @ProviderFor(clockSnapshot)
 final clockSnapshotProvider = ClockSnapshotProvider._();
