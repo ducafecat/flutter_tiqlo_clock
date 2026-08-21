@@ -153,11 +153,10 @@ class _FlipDigitState extends State<_FlipDigit>
     _previous = widget.digit;
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 700),
     )..addStatusListener((status) {
       if (status == AnimationStatus.completed && mounted) {
         setState(() => _previous = _current);
-        _controller.reset();
       }
     });
   }
@@ -183,8 +182,15 @@ class _FlipDigitState extends State<_FlipDigit>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, _) {
-        final t = _controller.value;
-        final flipping = t > 0 && t < 1;
+        final raw = _controller.value;
+        final flipping = _controller.isAnimating;
+        final topPhase = raw < 0.5;
+        final topAngle = Curves.easeInCubic.transform((raw * 2).clamp(0.0, 1.0)) *
+            (math.pi / 2);
+        final bottomAngle =
+            (Curves.easeOutCubic.transform(((raw - 0.5) * 2).clamp(0.0, 1.0)) -
+                1) *
+            (math.pi / 2);
         return SizedBox(
           width: widget.width,
           height: widget.height,
@@ -199,26 +205,22 @@ class _FlipDigitState extends State<_FlipDigit>
                   _half(flipping ? _previous : _current, top: false),
                 ],
               ),
-              if (flipping && t < 0.5)
+              if (flipping && topPhase)
                 Align(
                   alignment: Alignment.topCenter,
-                  child: Transform(
-                    alignment: Alignment.bottomCenter,
-                    transform: Matrix4.identity()
-                      ..setEntry(3, 2, 0.006)
-                      ..rotateX(t * math.pi),
-                    child: _half(_previous, top: true),
+                  child: _flap(
+                    digit: _previous,
+                    top: true,
+                    angle: topAngle,
                   ),
                 ),
-              if (flipping && t >= 0.5)
+              if (flipping && !topPhase)
                 Align(
                   alignment: Alignment.bottomCenter,
-                  child: Transform(
-                    alignment: Alignment.topCenter,
-                    transform: Matrix4.identity()
-                      ..setEntry(3, 2, 0.006)
-                      ..rotateX((t - 1) * math.pi),
-                    child: _half(_current, top: false),
+                  child: _flap(
+                    digit: _current,
+                    top: false,
+                    angle: bottomAngle,
                   ),
                 ),
             ],
@@ -228,7 +230,23 @@ class _FlipDigitState extends State<_FlipDigit>
     );
   }
 
-  Widget _half(String digit, {required bool top}) {
+  Widget _flap({
+    required String digit,
+    required bool top,
+    required double angle,
+  }) {
+    final shade = math.sin(angle.abs()).clamp(0.0, 1.0) * 0.42;
+    return Transform(
+      alignment: top ? Alignment.bottomCenter : Alignment.topCenter,
+      filterQuality: FilterQuality.medium,
+      transform: Matrix4.identity()
+        ..setEntry(3, 2, 0.0028)
+        ..rotateX(angle),
+      child: _half(digit, top: top, shade: shade),
+    );
+  }
+
+  Widget _half(String digit, {required bool top, double shade = 0}) {
     final radius = Radius.circular(widget.width * 0.12);
     return Container(
       width: widget.width,
@@ -243,24 +261,31 @@ class _FlipDigitState extends State<_FlipDigit>
         borderRadius: top
             ? BorderRadius.vertical(top: radius)
             : BorderRadius.vertical(bottom: radius),
-        child: OverflowBox(
-          maxHeight: widget.height,
-          alignment: top ? Alignment.topCenter : Alignment.bottomCenter,
-          child: SizedBox(
-            width: widget.width,
-            height: widget.height,
-            child: Center(
-              child: Text(
-                digit,
-                style: TextStyle(
-                  color: const Color(0xFFF2F2F2),
-                  fontSize: widget.height * 0.62,
-                  fontWeight: FontWeight.w600,
-                  height: 1,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            OverflowBox(
+              maxHeight: widget.height,
+              alignment: top ? Alignment.topCenter : Alignment.bottomCenter,
+              child: SizedBox(
+                width: widget.width,
+                height: widget.height,
+                child: Center(
+                  child: Text(
+                    digit,
+                    style: TextStyle(
+                      color: const Color(0xFFF2F2F2),
+                      fontSize: widget.height * 0.62,
+                      fontWeight: FontWeight.w600,
+                      height: 1,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+            if (shade > 0)
+              ColoredBox(color: Colors.black.withValues(alpha: shade)),
+          ],
         ),
       ),
     );
