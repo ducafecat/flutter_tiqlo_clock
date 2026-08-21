@@ -6,8 +6,8 @@
 
 **Status:** ready-for-agent
 
-- [ ] 启动后第一帧是 Clock，不是欢迎页或登录页
-- [ ] Clock 显示当前时、分和按设备 locale 排版的日期
-- [ ] 面孔为 Minimal；时间来自 ClockEngine，不是 Widget 自己 tick
-- [ ] 假 Clock 快进后 snapshot 的墙上时间跟着变
-- [ ] 登录、Token、网络门闸不再挡住进入 Clock
+- [x] 启动后第一帧是 Clock，不是欢迎页或登录页
+- [x] Clock 显示当前时、分和按设备 locale 排版的日期
+- [x] 面孔为 Minimal；时间来自 ClockEngine，不是 Widget 自己 tick
+- [x] 假 Clock 快进后 snapshot 的墙上时间跟着变
+- [x] 登录、Token、网络门闸不再挡住进入 Clock

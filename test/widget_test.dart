@@ -1,38 +1,40 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
-import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
-
-import 'package:flutter_tiqlo_clock/core/providers/dio_provider.dart';
+import 'package:flutter_tiqlo_clock/clock/clock_engine.dart';
+import 'package:flutter_tiqlo_clock/clock/clock_providers.dart';
+import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
 import 'package:flutter_tiqlo_clock/main.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
+import 'clock/fake_clock.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() {
-    SharedPreferences.setMockInitialValues({});
-    SharedPreferencesAsyncPlatform.instance =
-        InMemorySharedPreferencesAsync.empty();
+  setUpAll(() async {
+    await initializeDateFormatting('en');
   });
 
-  testWidgets('starts at splash then welcome', (WidgetTester tester) async {
-    final prefs = await SharedPreferences.getInstance();
-    final container = ProviderContainer(
-      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+  testWidgets('first frame is Clock with wall time', (tester) async {
+    final engine = ClockEngine(
+      clock: FakeClock(wall: DateTime(2026, 8, 20, 21, 38)),
+      locale: const Locale('en'),
     );
-    addTearDown(container.dispose);
+    final container = ProviderContainer(
+      overrides: [clockEngineProvider.overrideWithValue(engine)],
+    );
 
     await tester.pumpWidget(
       UncontrolledProviderScope(container: container, child: const MyApp()),
     );
 
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(ClockPage), findsOneWidget);
+    expect(find.text('21:38'), findsOneWidget);
+    expect(find.text('THU · AUG 20'), findsOneWidget);
+    expect(find.text('Welcome'), findsNothing);
 
-    await tester.pump(const Duration(milliseconds: 800));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Welcome'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
   });
 }
