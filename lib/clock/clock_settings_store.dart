@@ -11,6 +11,24 @@ abstract class ClockSettingsStore {
   void saveShowSeconds(bool value);
   void saveClockThemeId(ClockThemeId id);
   void saveShowDate(bool value);
+  StoredSession? loadSession();
+  void saveSession(StoredSession? session);
+}
+
+class StoredSession {
+  const StoredSession({
+    required this.kind,
+    required this.durationMs,
+    required this.startedElapsedMs,
+    required this.status,
+    this.frozenRemainingMs,
+  });
+
+  final String kind;
+  final int durationMs;
+  final int startedElapsedMs;
+  final String status;
+  final int? frozenRemainingMs;
 }
 
 class MemoryClockSettingsStore implements ClockSettingsStore {
@@ -18,6 +36,7 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   bool showSeconds = false;
   ClockThemeId clockThemeId = ClockThemeId.minimal;
   bool showDate = false;
+  StoredSession? session;
 
   @override
   TimeFormat? loadTimeFormat() => timeFormat;
@@ -49,5 +68,13 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   @override
   void saveShowDate(bool value) {
     showDate = value;
+  }
+
+  @override
+  StoredSession? loadSession() => session;
+
+  @override
+  void saveSession(StoredSession? value) {
+    session = value;
   }
 }

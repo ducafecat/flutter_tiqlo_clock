@@ -6,9 +6,9 @@
 
 **Status:** ready-for-agent
 
-- [ ] 可选预设与 Custom，25 分钟被突出
-- [ ] 运行中显示 `mm:ss` + FOCUS，与「显示秒」设置无关
-- [ ] Pause / Resume 为同一次 Session；Stop 回墙上时间
-- [ ] 运行中不能开第二个 Session，也不能进 Theme / Night / Settings
-- [ ] 假 Clock 只快进单调时间时 remaining 减少，快进墙上 now 不影响 remaining
-- [ ] 同开机模拟重载后未结束的 Session 按已流逝时间恢复
+- [x] 可选预设与 Custom，25 分钟被突出
+- [x] 运行中显示 `mm:ss` + FOCUS，与「显示秒」设置无关
+- [x] Pause / Resume 为同一次 Session；Stop 回墙上时间
+- [x] 运行中不能开第二个 Session，也不能进 Theme / Night / Settings
+- [x] 假 Clock 只快进单调时间时 remaining 减少，快进墙上 now 不影响 remaining
+- [x] 同开机模拟重载后未结束的 Session 按已流逝时间恢复

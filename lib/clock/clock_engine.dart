@@ -6,6 +6,34 @@ import 'clock.dart';
 import 'clock_settings_store.dart';
 import 'clock_theme.dart';
 
+enum SessionKind { focus, timer }
+
+enum SessionStatus { running, paused, complete }
+
+class SessionSnapshot {
+  const SessionSnapshot({
+    required this.kind,
+    required this.remaining,
+    required this.status,
+  });
+
+  final SessionKind kind;
+  final Duration remaining;
+  final SessionStatus status;
+
+  String get remainingLabel {
+    final total = remaining.inSeconds;
+    final minutes = total ~/ 60;
+    final seconds = total % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  String get kindLabel => switch (kind) {
+    SessionKind.focus => 'FOCUS',
+    SessionKind.timer => 'TIMER',
+  };
+}
+
 class ClockSnapshot {
   const ClockSnapshot({
     required this.hour,
@@ -16,6 +44,7 @@ class ClockSnapshot {
     this.showSeconds = false,
     this.is24Hour = true,
     this.showDate = false,
+    this.session,
   });
 
   final int hour;
@@ -26,6 +55,7 @@ class ClockSnapshot {
   final bool showSeconds;
   final bool is24Hour;
   final bool showDate;
+  final SessionSnapshot? session;
 
   String get timeLabel {
     final h = is24Hour ? hour : _hour12(hour);
@@ -68,7 +98,8 @@ class ClockEngine {
        showSeconds = store?.loadShowSeconds() ?? showSeconds,
        showDate = store?.loadShowDate() ?? showDate,
        clockThemeId =
-           store?.loadClockThemeId() ?? clockThemeId ?? ClockThemeId.minimal;
+           store?.loadClockThemeId() ?? clockThemeId ?? ClockThemeId.minimal,
+       _session = _restoreSession(store?.loadSession());
 
   final Clock clock;
   final Locale locale;
@@ -78,10 +109,11 @@ class ClockEngine {
   bool showDate;
   ClockThemeId clockThemeId;
   TimeFormat? _timeFormat;
+  _LiveSession? _session;
 
   bool get is24Hour {
-    final format = _timeFormat ??
-        (deviceUses24Hour ? TimeFormat.h24 : TimeFormat.h12);
+    final format =
+        _timeFormat ?? (deviceUses24Hour ? TimeFormat.h24 : TimeFormat.h12);
     return format == TimeFormat.h24;
   }
 
@@ -97,10 +129,17 @@ class ClockEngine {
       showSeconds: showSeconds,
       showDate: showDate,
       is24Hour: twentyFour,
+      session: _sessionSnapshot(),
     );
   }
 
   Duration get untilNextWallTick {
+    if (_session?.status == SessionStatus.running) {
+      final micros = clock.elapsed().inMicroseconds;
+      final rem = micros % 1000000;
+      if (rem == 0) return const Duration(seconds: 1);
+      return Duration(microseconds: 1000000 - rem);
+    }
     final now = clock.wallNow();
     if (showSeconds || clockThemeId == ClockThemeId.flip) {
       final nextSecond = DateTime(
@@ -143,6 +182,83 @@ class ClockEngine {
     _store?.saveClockThemeId(id);
   }
 
+  void start(SessionKind kind, Duration duration) {
+    if (_session != null) return;
+    _session = _LiveSession(
+      kind: kind,
+      duration: duration,
+      startedElapsed: clock.elapsed(),
+      status: SessionStatus.running,
+    );
+    _persistSession();
+  }
+
+  void pause() {
+    final session = _session;
+    if (session == null || session.status != SessionStatus.running) return;
+    session.frozenRemaining = session.remainingAt(clock.elapsed());
+    session.status = SessionStatus.paused;
+    _persistSession();
+  }
+
+  void resume() {
+    final session = _session;
+    if (session == null || session.status != SessionStatus.paused) return;
+    final remaining = session.frozenRemaining ?? Duration.zero;
+    session.startedElapsed = clock.elapsed() - (session.duration - remaining);
+    session.status = SessionStatus.running;
+    session.frozenRemaining = null;
+    _persistSession();
+  }
+
+  void stop() {
+    _session = null;
+    _persistSession();
+  }
+
+  SessionSnapshot? _sessionSnapshot() {
+    final session = _session;
+    if (session == null) return null;
+    return SessionSnapshot(
+      kind: session.kind,
+      remaining: session.remainingAt(clock.elapsed()),
+      status: session.status,
+    );
+  }
+
+  void _persistSession() {
+    final session = _session;
+    if (session == null) {
+      _store?.saveSession(null);
+      return;
+    }
+    _store?.saveSession(
+      StoredSession(
+        kind: session.kind.name,
+        durationMs: session.duration.inMilliseconds,
+        startedElapsedMs: session.startedElapsed.inMilliseconds,
+        status: session.status.name,
+        frozenRemainingMs: session.frozenRemaining?.inMilliseconds,
+      ),
+    );
+  }
+
+  static _LiveSession? _restoreSession(StoredSession? stored) {
+    if (stored == null) return null;
+    final kind = SessionKind.values.asNameMap()[stored.kind];
+    final status = SessionStatus.values.asNameMap()[stored.status];
+    if (kind == null || status == null) return null;
+    return _LiveSession(
+      kind: kind,
+      duration: Duration(milliseconds: stored.durationMs),
+      startedElapsed: Duration(milliseconds: stored.startedElapsedMs),
+      status: status,
+      frozenRemaining: stored.frozenRemainingMs == null
+          ? null
+          : Duration(milliseconds: stored.frozenRemainingMs!),
+    );
+  }
+
   String _dateLabel(DateTime now) {
     final language = locale.languageCode;
     final weekday = DateFormat('EEE', language).format(now).toUpperCase();
@@ -151,5 +267,32 @@ class ClockEngine {
     }
     final monthDay = DateFormat('MMM d', language).format(now).toUpperCase();
     return '$weekday · $monthDay';
+  }
+}
+
+class _LiveSession {
+  _LiveSession({
+    required this.kind,
+    required this.duration,
+    required this.startedElapsed,
+    required this.status,
+    this.frozenRemaining,
+  });
+
+  final SessionKind kind;
+  final Duration duration;
+  Duration startedElapsed;
+  SessionStatus status;
+  Duration? frozenRemaining;
+
+  Duration remainingAt(Duration elapsed) {
+    if (status == SessionStatus.paused) {
+      return frozenRemaining ?? Duration.zero;
+    }
+    if (status == SessionStatus.complete) return Duration.zero;
+    final spent = elapsed - startedElapsed;
+    final left = duration - spent;
+    if (left <= Duration.zero) return Duration.zero;
+    return left;
   }
 }

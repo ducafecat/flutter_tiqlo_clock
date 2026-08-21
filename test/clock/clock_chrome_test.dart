@@ -86,7 +86,9 @@ void main() {
     container.dispose();
   });
 
-  testWidgets('landscape keeps the same Clock with larger time', (tester) async {
+  testWidgets('landscape keeps the same Clock with larger time', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(400, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -119,7 +121,7 @@ void main() {
     await tester.tap(find.byType(ClockPage));
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
-    await tester.tap(find.text('Focus'));
+    await tester.tap(find.text('Timer'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
     expect(find.text('Theme'), findsOneWidget);

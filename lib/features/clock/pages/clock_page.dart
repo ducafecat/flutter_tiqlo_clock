@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../clock/clock_engine.dart';
 import '../../../clock/clock_providers.dart';
 import '../../../clock/clock_theme.dart';
 import '../../../core/router/app_router.dart';
@@ -96,6 +97,124 @@ class _ClockPageState extends ConsumerState<ClockPage> {
     });
   }
 
+  void _openFocus() {
+    _hideChromeTimer?.cancel();
+    var minutes = 25;
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.grey.shade900,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final value in const [15, 25, 45, 60])
+                      ListTile(
+                        title: Text(
+                          '$value',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: value == 25 ? 22 : 16,
+                            fontWeight: value == 25
+                                ? FontWeight.w700
+                                : FontWeight.w400,
+                          ),
+                        ),
+                        selected: minutes == value,
+                        selectedColor: Colors.white,
+                        onTap: () => setSheetState(() => minutes = value),
+                      ),
+                    ListTile(
+                      title: const Text(
+                        'Custom',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      selected:
+                          minutes != 15 &&
+                          minutes != 25 &&
+                          minutes != 45 &&
+                          minutes != 60,
+                      selectedColor: Colors.white,
+                      onTap: () async {
+                        final custom = await _pickCustomMinutes(minutes);
+                        if (custom != null) {
+                          setSheetState(() => minutes = custom);
+                        }
+                      },
+                    ),
+                    ListTile(
+                      title: const Text(
+                        'Start',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () {
+                        Navigator.pop(sheetContext);
+                        ref
+                            .read(clockEngineProvider)
+                            .start(
+                              SessionKind.focus,
+                              Duration(minutes: minutes),
+                            );
+                        ref.invalidate(clockSnapshotProvider);
+                        setState(() {});
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).whenComplete(() {
+      if (mounted) _showChrome();
+    });
+  }
+
+  Future<int?> _pickCustomMinutes(int current) {
+    var value = current.clamp(1, 90);
+    return showDialog<int>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: Colors.grey.shade900,
+          title: const Text('Custom', style: TextStyle(color: Colors.white)),
+          content: StatefulBuilder(
+            builder: (context, setDialogState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '$value',
+                    style: const TextStyle(color: Colors.white, fontSize: 32),
+                  ),
+                  Slider(
+                    min: 1,
+                    max: 90,
+                    divisions: 89,
+                    value: value.toDouble(),
+                    onChanged: (next) {
+                      setDialogState(() => value = next.round());
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, value),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _openMore() {
     _hideChromeTimer?.cancel();
     showModalBottomSheet<void>(
@@ -159,12 +278,50 @@ class _ClockPageState extends ConsumerState<ClockPage> {
                   padding: EdgeInsets.only(bottom: 48 + notch.bottom),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _ChromeButton(label: 'Theme', onPressed: _openClockTheme),
-                      _ChromeButton(label: 'Focus', onPressed: _showChrome),
-                      _ChromeButton(label: 'Timer', onPressed: _showChrome),
-                      _ChromeButton(label: 'More', onPressed: _openMore),
-                    ],
+                    children: snapshot.session == null
+                        ? [
+                            _ChromeButton(
+                              label: 'Theme',
+                              onPressed: _openClockTheme,
+                            ),
+                            _ChromeButton(
+                              label: 'Focus',
+                              onPressed: _openFocus,
+                            ),
+                            _ChromeButton(
+                              label: 'Timer',
+                              onPressed: _showChrome,
+                            ),
+                            _ChromeButton(label: 'More', onPressed: _openMore),
+                          ]
+                        : [
+                            _ChromeButton(
+                              label:
+                                  snapshot.session!.status ==
+                                      SessionStatus.paused
+                                  ? 'Resume'
+                                  : 'Pause',
+                              onPressed: () {
+                                final engine = ref.read(clockEngineProvider);
+                                if (snapshot.session!.status ==
+                                    SessionStatus.paused) {
+                                  engine.resume();
+                                } else {
+                                  engine.pause();
+                                }
+                                ref.invalidate(clockSnapshotProvider);
+                                _showChrome();
+                              },
+                            ),
+                            _ChromeButton(
+                              label: 'Stop',
+                              onPressed: () {
+                                ref.read(clockEngineProvider).stop();
+                                ref.invalidate(clockSnapshotProvider);
+                                _showChrome();
+                              },
+                            ),
+                          ],
                   ),
                 ),
               ),

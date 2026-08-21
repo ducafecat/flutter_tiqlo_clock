@@ -18,6 +18,14 @@ class ClockFace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final session = snapshot.session;
+    if (session != null) {
+      return _SessionFace(
+        session: session,
+        landscape: landscape,
+        themeId: themeId,
+      );
+    }
     return switch (themeId) {
       ClockThemeId.minimal => MinimalClockFace(
         snapshot: snapshot,
@@ -36,6 +44,84 @@ class ClockFace extends StatelessWidget {
         landscape: landscape,
       ),
     };
+  }
+}
+
+class _SessionFace extends StatelessWidget {
+  const _SessionFace({
+    required this.session,
+    required this.landscape,
+    required this.themeId,
+  });
+
+  final SessionSnapshot session;
+  final bool landscape;
+  final ClockThemeId themeId;
+
+  @override
+  Widget build(BuildContext context) {
+    final timeSize = switch (themeId) {
+      ClockThemeId.oled => landscape ? 160.0 : 96.0,
+      ClockThemeId.retro => landscape ? 112.0 : 68.0,
+      _ => landscape ? 120.0 : 72.0,
+    };
+    final labelSize = landscape ? 24.0 : 18.0;
+    final timeColor = switch (themeId) {
+      ClockThemeId.oled => const Color(0xFFB0B0B0),
+      ClockThemeId.retro => const Color(0xFF39FF14),
+      _ => Colors.white,
+    };
+    final labelColor = switch (themeId) {
+      ClockThemeId.oled => const Color(0xFF5A5A5A),
+      ClockThemeId.retro => const Color(0xFF1F8A0E),
+      _ => Colors.white70,
+    };
+    final fontWeight = switch (themeId) {
+      ClockThemeId.oled => FontWeight.w200,
+      ClockThemeId.retro => FontWeight.w600,
+      _ => FontWeight.w300,
+    };
+    final letterSpacing = switch (themeId) {
+      ClockThemeId.oled => 8.0,
+      ClockThemeId.retro => 4.0,
+      _ => 2.0,
+    };
+    final fontFamily = themeId == ClockThemeId.retro ? 'Courier' : null;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      child: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.contain,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                session.remainingLabel,
+                style: TextStyle(
+                  color: timeColor,
+                  fontSize: timeSize,
+                  fontWeight: fontWeight,
+                  letterSpacing: letterSpacing,
+                  fontFamily: fontFamily,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                session.kindLabel,
+                style: TextStyle(
+                  color: labelColor,
+                  fontSize: labelSize,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: letterSpacing,
+                  fontFamily: fontFamily,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

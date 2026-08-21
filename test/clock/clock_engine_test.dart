@@ -131,4 +131,117 @@ void main() {
     final reloaded = ClockEngine(clock: clock, store: store);
     expect(reloaded.clockThemeId, ClockThemeId.flip);
   });
+
+  test('start focus replaces wall display with remaining mm:ss', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock, showSeconds: false);
+
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+
+    final session = engine.snapshot.session;
+    expect(session, isNotNull);
+    expect(session!.kind, SessionKind.focus);
+    expect(session.status, SessionStatus.running);
+    expect(session.remainingLabel, '25:00');
+    expect(engine.snapshot.timeLabel, '21:38');
+  });
+
+  test('advancing elapsed reduces remaining; advancing wall does not', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock);
+
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+    clock.advanceWall(const Duration(minutes: 10));
+    expect(engine.snapshot.session!.remainingLabel, '25:00');
+
+    clock.advanceElapsed(const Duration(minutes: 3, seconds: 5));
+    expect(engine.snapshot.session!.remainingLabel, '21:55');
+  });
+
+  test('pause freezes remaining; resume continues the same session', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock);
+
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+    clock.advanceElapsed(const Duration(minutes: 5));
+    engine.pause();
+    clock.advanceElapsed(const Duration(minutes: 10));
+
+    expect(engine.snapshot.session!.status, SessionStatus.paused);
+    expect(engine.snapshot.session!.remainingLabel, '20:00');
+
+    engine.resume();
+    clock.advanceElapsed(const Duration(minutes: 2));
+
+    expect(engine.snapshot.session!.status, SessionStatus.running);
+    expect(engine.snapshot.session!.kind, SessionKind.focus);
+    expect(engine.snapshot.session!.remainingLabel, '18:00');
+  });
+
+  test('stop returns to wall time without a session', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock);
+
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+    clock.advanceElapsed(const Duration(minutes: 5));
+    engine.stop();
+
+    expect(engine.snapshot.session, isNull);
+    expect(engine.snapshot.timeLabel, '21:38');
+  });
+
+  test('cannot start a second session while one is active', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock);
+
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+    clock.advanceElapsed(const Duration(minutes: 5));
+    engine.start(SessionKind.focus, const Duration(minutes: 15));
+    engine.start(SessionKind.timer, const Duration(minutes: 1));
+
+    expect(engine.snapshot.session!.kind, SessionKind.focus);
+    expect(engine.snapshot.session!.remainingLabel, '20:00');
+  });
+
+  test('same-boot reload restores running session from elapsed', () {
+    final store = MemoryClockSettingsStore();
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock, store: store);
+
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+    clock.advanceElapsed(const Duration(minutes: 7, seconds: 30));
+
+    final reloaded = ClockEngine(clock: clock, store: store);
+    expect(reloaded.snapshot.session!.kind, SessionKind.focus);
+    expect(reloaded.snapshot.session!.status, SessionStatus.running);
+    expect(reloaded.snapshot.session!.remainingLabel, '17:30');
+  });
+
+  test('same-boot reload keeps paused remaining frozen', () {
+    final store = MemoryClockSettingsStore();
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock, store: store);
+
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+    clock.advanceElapsed(const Duration(minutes: 4));
+    engine.pause();
+    clock.advanceElapsed(const Duration(minutes: 20));
+
+    final reloaded = ClockEngine(clock: clock, store: store);
+    expect(reloaded.snapshot.session!.status, SessionStatus.paused);
+    expect(reloaded.snapshot.session!.remainingLabel, '21:00');
+  });
+
+  test('running session ticks every second even when showSeconds is off', () {
+    final clock = FakeClock(
+      wall: DateTime(2026, 8, 20, 21, 38, 20),
+      monotonic: const Duration(milliseconds: 250),
+    );
+    final engine = ClockEngine(clock: clock);
+
+    expect(engine.untilNextWallTick, const Duration(seconds: 40));
+
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+    expect(engine.untilNextWallTick, const Duration(milliseconds: 750));
+  });
 }
