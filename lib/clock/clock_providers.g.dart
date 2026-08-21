@@ -185,6 +185,47 @@ final class ClockEngineProvider
 
 String _$clockEngineHash() => r'eefdad16da5c94ee257256f580f7ab067274f17d';
 
+@ProviderFor(sessionAlerts)
+final sessionAlertsProvider = SessionAlertsProvider._();
+
+final class SessionAlertsProvider
+    extends $FunctionalProvider<SessionAlerts, SessionAlerts, SessionAlerts>
+    with $Provider<SessionAlerts> {
+  SessionAlertsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'sessionAlertsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$sessionAlertsHash();
+
+  @$internal
+  @override
+  $ProviderElement<SessionAlerts> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  SessionAlerts create(Ref ref) {
+    return sessionAlerts(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SessionAlerts value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SessionAlerts>(value),
+    );
+  }
+}
+
+String _$sessionAlertsHash() => r'9574bd0eca3f221ed0baee6f33a935123cb2964e';
+
 @ProviderFor(clockSnapshot)
 final clockSnapshotProvider = ClockSnapshotProvider._();
 

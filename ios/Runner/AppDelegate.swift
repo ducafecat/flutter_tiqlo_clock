@@ -12,5 +12,14 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    let messenger = engineBridge.pluginRegistry.registrar(forPlugin: "TiqloClock")!.messenger()
+    let channel = FlutterMethodChannel(name: "tiqlo/clock", binaryMessenger: messenger)
+    channel.setMethodCallHandler { call, result in
+      if call.method == "elapsedRealtime" {
+        result(Int(ProcessInfo.processInfo.systemUptime * 1000.0))
+      } else {
+        result(FlutterMethodNotImplemented)
+      }
+    }
   }
 }

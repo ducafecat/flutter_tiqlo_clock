@@ -232,6 +232,32 @@ void main() {
     expect(reloaded.snapshot.session!.remainingLabel, '21:00');
   });
 
+  test('reboot pauses a running session and freezes remaining', () {
+    final store = MemoryClockSettingsStore();
+    final clock = FakeClock(
+      wall: DateTime(2026, 8, 20, 21, 38),
+      monotonic: const Duration(hours: 2),
+    );
+    final engine = ClockEngine(clock: clock, store: store);
+
+    engine.start(SessionKind.focus, const Duration(minutes: 25));
+    clock.advanceElapsed(const Duration(minutes: 7, seconds: 30));
+    engine.snapshot;
+
+    final afterReboot = FakeClock(
+      wall: DateTime(2026, 8, 20, 21, 38),
+      monotonic: Duration.zero,
+    );
+    final reloaded = ClockEngine(clock: afterReboot, store: store);
+
+    expect(reloaded.snapshot.session!.status, SessionStatus.paused);
+    expect(reloaded.snapshot.session!.remainingLabel, '17:30');
+
+    afterReboot.advanceElapsed(const Duration(minutes: 10));
+    expect(reloaded.snapshot.session!.status, SessionStatus.paused);
+    expect(reloaded.snapshot.session!.remainingLabel, '17:30');
+  });
+
   test('running session ticks every second even when showSeconds is off', () {
     final clock = FakeClock(
       wall: DateTime(2026, 8, 20, 21, 38, 20),

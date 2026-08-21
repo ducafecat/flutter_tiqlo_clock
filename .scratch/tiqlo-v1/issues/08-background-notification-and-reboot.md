@@ -4,10 +4,14 @@
 
 **Blocked by:** 06 Focus Complete 与今日统计
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] 进入后台时按剩余时间预约一条本地通知
-- [ ] 回到前台且尚未 Complete 时取消该通知
-- [ ] 第一次 Start 才出现权限询问，启动进 Clock 时不询问
-- [ ] 拒绝权限后仍能 Start；无后台通知，回前台可进 Complete
-- [ ] 重启后未完成 Session 处于 Pause，remaining 冻结
+- [x] 进入后台时按剩余时间预约一条本地通知
+- [x] 回到前台且尚未 Complete 时取消该通知
+- [x] 第一次 Start 才出现权限询问，启动进 Clock 时不询问
+- [x] 拒绝权限后仍能 Start；无后台通知，回前台可进 Complete
+- [x] 重启后未完成 Session 处于 Pause，remaining 冻结
+
+## Answer
+
+进后台按 remaining 预约一条本地通知，回前台未 Complete 则取消。第一次 Start 才问权限；拒绝仍 Start。elapsed 归零视为重启，未完成 Session 进入 Pause 并冻结 remaining。

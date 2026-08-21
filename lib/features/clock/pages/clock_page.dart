@@ -20,7 +20,8 @@ class ClockPage extends ConsumerStatefulWidget {
   ConsumerState<ClockPage> createState() => _ClockPageState();
 }
 
-class _ClockPageState extends ConsumerState<ClockPage> {
+class _ClockPageState extends ConsumerState<ClockPage>
+    with WidgetsBindingObserver {
   bool _chromeVisible = false;
   Timer? _hideChromeTimer;
 
@@ -28,12 +29,41 @@ class _ClockPageState extends ConsumerState<ClockPage> {
   void initState() {
     super.initState();
     ClockSystemUi.hide();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final session = ref.read(clockEngineProvider).snapshot.session;
+      if (session == null || session.status != SessionStatus.running) {
+        ref.read(sessionAlertsProvider).cancel();
+      }
+    });
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _hideChromeTimer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final engine = ref.read(clockEngineProvider);
+    final alerts = ref.read(sessionAlertsProvider);
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
+      final session = engine.snapshot.session;
+      if (session != null && session.status == SessionStatus.running) {
+        alerts.schedule(session.remaining, session.kind);
+      }
+      return;
+    }
+    if (state == AppLifecycleState.resumed) {
+      final session = engine.snapshot.session;
+      if (session != null && session.status != SessionStatus.complete) {
+        alerts.cancel();
+      }
+      ref.invalidate(clockSnapshotProvider);
+    }
   }
 
   void _showChrome() {
@@ -178,8 +208,13 @@ class _ClockPageState extends ConsumerState<ClockPage> {
                         'Start',
                         style: TextStyle(color: Colors.white),
                       ),
-                      onTap: () {
+                      onTap: () async {
                         Navigator.pop(sheetContext);
+                        try {
+                          await ref
+                              .read(sessionAlertsProvider)
+                              .requestPermissionOnFirstStart();
+                        } catch (_) {}
                         ref
                             .read(clockEngineProvider)
                             .start(kind, Duration(minutes: minutes));
@@ -372,6 +407,7 @@ class _ClockPageState extends ConsumerState<ClockPage> {
         label: 'Stop',
         onPressed: () {
           ref.read(clockEngineProvider).stop();
+          ref.read(sessionAlertsProvider).cancel();
           ref.invalidate(clockSnapshotProvider);
           _showChrome();
         },

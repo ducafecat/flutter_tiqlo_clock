@@ -7,7 +7,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'clock.dart';
 import 'clock_engine.dart';
 import 'clock_settings_store.dart';
+import 'local_session_alerts.dart';
 import 'prefs_clock_settings_store.dart';
+import 'session_alerts.dart';
 import 'system_clock.dart';
 
 part 'clock_providers.g.dart';
@@ -35,6 +37,15 @@ ClockEngine clockEngine(Ref ref) {
     store: ref.watch(clockSettingsStoreProvider),
     deviceUses24Hour: PlatformDispatcher.instance.alwaysUse24HourFormat,
   );
+}
+
+@Riverpod(keepAlive: true)
+SessionAlerts sessionAlerts(Ref ref) {
+  try {
+    return LocalSessionAlerts(ref.watch(clockSettingsStoreProvider));
+  } catch (_) {
+    return const SilentSessionAlerts();
+  }
 }
 
 @riverpod

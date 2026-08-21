@@ -1,11 +1,14 @@
 import 'clock.dart';
 
 class SystemClock implements Clock {
-  final Stopwatch _elapsed = Stopwatch()..start();
+  SystemClock({this._bootElapsed = Duration.zero});
+
+  final Duration _bootElapsed;
+  final Stopwatch _stopwatch = Stopwatch()..start();
 
   @override
   DateTime wallNow() => DateTime.now();
 
   @override
-  Duration elapsed() => _elapsed.elapsed;
+  Duration elapsed() => _bootElapsed + _stopwatch.elapsed;
 }

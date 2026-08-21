@@ -19,6 +19,10 @@ abstract class ClockSettingsStore {
   bool loadVibrationEnabled();
   void saveSoundEnabled(bool value);
   void saveVibrationEnabled(bool value);
+  bool loadNotificationAsked();
+  bool loadNotificationGranted();
+  void saveNotificationAsked(bool value);
+  void saveNotificationGranted(bool value);
 }
 
 class StoredSession {
@@ -55,6 +59,8 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   List<StoredFocusComplete> completes = [];
   bool soundEnabled = true;
   bool vibrationEnabled = true;
+  bool notificationAsked = false;
+  bool notificationGranted = false;
 
   @override
   TimeFormat? loadTimeFormat() => timeFormat;
@@ -118,5 +124,21 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   @override
   void saveVibrationEnabled(bool value) {
     vibrationEnabled = value;
+  }
+
+  @override
+  bool loadNotificationAsked() => notificationAsked;
+
+  @override
+  bool loadNotificationGranted() => notificationGranted;
+
+  @override
+  void saveNotificationAsked(bool value) {
+    notificationAsked = value;
+  }
+
+  @override
+  void saveNotificationGranted(bool value) {
+    notificationGranted = value;
   }
 }

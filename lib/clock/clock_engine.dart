@@ -109,8 +109,10 @@ class ClockEngine {
            store?.loadClockThemeId() ?? clockThemeId ?? ClockThemeId.minimal,
        soundEnabled = store?.loadSoundEnabled() ?? soundEnabled,
        vibrationEnabled = store?.loadVibrationEnabled() ?? vibrationEnabled,
-       _session = _restoreSession(store?.loadSession()),
-       _completes = List.of(store?.loadFocusCompletes() ?? const []);
+       _completes = List.of(store?.loadFocusCompletes() ?? const []) {
+    _session = _restoreSession(store?.loadSession());
+    _pauseIfRebooted();
+  }
 
   final Clock clock;
   final Locale locale;
@@ -254,12 +256,24 @@ class ClockEngine {
     final session = _session;
     if (session == null) return null;
     _completeIfDue();
+    if (_session?.status == SessionStatus.running) {
+      _persistSession();
+    }
     return SessionSnapshot(
       kind: session.kind,
       remaining: session.remainingAt(clock.elapsed()),
       status: session.status,
       duration: session.duration,
     );
+  }
+
+  void _pauseIfRebooted() {
+    final session = _session;
+    if (session == null || session.status != SessionStatus.running) return;
+    if (clock.elapsed() >= session.startedElapsed) return;
+    session.status = SessionStatus.paused;
+    session.frozenRemaining ??= session.duration;
+    _persistSession();
   }
 
   void _completeIfDue() {
@@ -311,7 +325,9 @@ class ClockEngine {
         durationMs: session.duration.inMilliseconds,
         startedElapsedMs: session.startedElapsed.inMilliseconds,
         status: session.status.name,
-        frozenRemainingMs: session.frozenRemaining?.inMilliseconds,
+        frozenRemainingMs:
+            (session.frozenRemaining ?? session.remainingAt(clock.elapsed()))
+                .inMilliseconds,
         recorded: session.recorded,
       ),
     );

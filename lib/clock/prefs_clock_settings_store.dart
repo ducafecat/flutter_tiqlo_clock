@@ -14,6 +14,8 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   static const _completesKey = 'clock.focus_completes';
   static const _soundKey = 'clock.sound';
   static const _vibrationKey = 'clock.vibration';
+  static const _notificationAskedKey = 'clock.notification_asked';
+  static const _notificationGrantedKey = 'clock.notification_granted';
 
   final SharedPreferences _prefs;
 
@@ -139,5 +141,23 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   @override
   void saveVibrationEnabled(bool value) {
     _prefs.setBool(_vibrationKey, value);
+  }
+
+  @override
+  bool loadNotificationAsked() =>
+      _prefs.getBool(_notificationAskedKey) ?? false;
+
+  @override
+  bool loadNotificationGranted() =>
+      _prefs.getBool(_notificationGrantedKey) ?? false;
+
+  @override
+  void saveNotificationAsked(bool value) {
+    _prefs.setBool(_notificationAskedKey, value);
+  }
+
+  @override
+  void saveNotificationGranted(bool value) {
+    _prefs.setBool(_notificationGrantedKey, value);
   }
 }
