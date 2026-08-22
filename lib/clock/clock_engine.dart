@@ -46,6 +46,7 @@ class ClockSnapshot {
     this.showSeconds = false,
     this.is24Hour = true,
     this.showDate = false,
+    this.showLeadingZero = false,
     this.nightMode = false,
     this.session,
     this.todayFocusCount = 0,
@@ -60,6 +61,7 @@ class ClockSnapshot {
   final bool showSeconds;
   final bool is24Hour;
   final bool showDate;
+  final bool showLeadingZero;
   final bool nightMode;
   final SessionSnapshot? session;
   final int todayFocusCount;
@@ -78,8 +80,7 @@ class ClockSnapshot {
 
   String get displayHour {
     final h = is24Hour ? hour : _hour12(hour);
-    if (is24Hour) return h.toString().padLeft(2, '0');
-    return h.toString();
+    return showLeadingZero ? h.toString().padLeft(2, '0') : h.toString();
   }
 
   String get displayMinute => minute.toString().padLeft(2, '0');
@@ -99,6 +100,7 @@ class ClockEngine {
     this.deviceUses24Hour = true,
     bool showSeconds = false,
     bool showDate = false,
+    bool showLeadingZero = false,
     TimeFormat? timeFormat,
     ClockThemeId? clockThemeId,
     bool soundEnabled = true,
@@ -110,6 +112,7 @@ class ClockEngine {
        _timeFormat = timeFormat ?? store?.loadTimeFormat(),
        showSeconds = store?.loadShowSeconds() ?? showSeconds,
        showDate = store?.loadShowDate() ?? showDate,
+       showLeadingZero = store?.loadShowLeadingZero() ?? showLeadingZero,
        clockThemeId =
            store?.loadClockThemeId() ?? clockThemeId ?? ClockThemeId.minimal,
        soundEnabled = store?.loadSoundEnabled() ?? soundEnabled,
@@ -127,6 +130,7 @@ class ClockEngine {
   final ClockSettingsStore? _store;
   bool showSeconds;
   bool showDate;
+  bool showLeadingZero;
   ClockThemeId clockThemeId;
   bool soundEnabled;
   bool vibrationEnabled;
@@ -156,6 +160,7 @@ class ClockEngine {
       period: twentyFour ? null : (now.hour < 12 ? 'AM' : 'PM'),
       showSeconds: showSeconds && !night,
       showDate: showDate && !night,
+      showLeadingZero: showLeadingZero,
       nightMode: night,
       is24Hour: twentyFour,
       session: session,
@@ -206,6 +211,11 @@ class ClockEngine {
   void setShowDate(bool value) {
     showDate = value;
     _store?.saveShowDate(value);
+  }
+
+  void setShowLeadingZero(bool value) {
+    showLeadingZero = value;
+    _store?.saveShowLeadingZero(value);
   }
 
   void setClockTheme(ClockThemeId id) {

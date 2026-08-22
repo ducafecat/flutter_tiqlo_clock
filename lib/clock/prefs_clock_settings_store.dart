@@ -10,6 +10,7 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   static const _secondsKey = 'clock.show_seconds';
   static const _themeKey = 'clock.theme_id';
   static const _dateKey = 'clock.show_date';
+  static const _leadingZeroKey = 'clock.show_leading_zero';
   static const _sessionKey = 'clock.session';
   static const _completesKey = 'clock.focus_completes';
   static const _soundKey = 'clock.sound';
@@ -64,6 +65,14 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   @override
   void saveShowDate(bool value) {
     _prefs.setBool(_dateKey, value);
+  }
+
+  @override
+  bool loadShowLeadingZero() => _prefs.getBool(_leadingZeroKey) ?? false;
+
+  @override
+  void saveShowLeadingZero(bool value) {
+    _prefs.setBool(_leadingZeroKey, value);
   }
 
   @override

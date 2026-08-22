@@ -95,6 +95,21 @@ void main() {
     expect(engine.snapshot.timeLabel, '09:38 PM');
   });
 
+  test('leading zero can be toggled independently of the time format', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 9, 38));
+    final engine = ClockEngine(clock: clock, deviceUses24Hour: true);
+
+    expect(engine.snapshot.displayHour, '9');
+
+    engine.setShowLeadingZero(true);
+
+    expect(engine.snapshot.displayHour, '09');
+
+    engine.setTimeFormat(TimeFormat.h12);
+
+    expect(engine.snapshot.displayHour, '09');
+  });
+
   test('reloading engine from store keeps format and seconds', () {
     final store = MemoryClockSettingsStore();
     final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
@@ -106,6 +121,7 @@ void main() {
     engine.setTimeFormat(TimeFormat.h12);
     engine.setShowSeconds(true);
     engine.setShowDate(true);
+    engine.setShowLeadingZero(true);
 
     final reloaded = ClockEngine(
       clock: clock,
@@ -116,6 +132,7 @@ void main() {
     expect(reloaded.snapshot.timeLabel, '09:38:00 PM');
     expect(reloaded.showSeconds, isTrue);
     expect(reloaded.showDate, isTrue);
+    expect(reloaded.showLeadingZero, isTrue);
     expect(reloaded.snapshot.showDate, isTrue);
   });
 

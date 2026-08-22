@@ -48,6 +48,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             },
           ),
           SwitchListTile(
+            title: const Text('Show Leading Zero'),
+            value: engine.showLeadingZero,
+            onChanged: (value) {
+              engine.setShowLeadingZero(value);
+              ref.invalidate(clockSnapshotProvider);
+              setState(() {});
+            },
+          ),
+          SwitchListTile(
             title: const Text('Show Seconds'),
             value: engine.showSeconds,
             onChanged: (value) {

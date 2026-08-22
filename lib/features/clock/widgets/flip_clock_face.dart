@@ -24,6 +24,25 @@ class FlipClockFace extends StatelessWidget {
     final cardWidth = cardHeight;
     final gap = cardWidth * 0.08;
     final dateSize = landscape ? 22.0 : 16.0;
+    final cards = [
+      _FlipCard(
+        value: snapshot.displayHour,
+        width: cardWidth,
+        height: cardHeight,
+        badge: snapshot.period,
+      ),
+      _FlipCard(
+        value: snapshot.displayMinute,
+        width: cardWidth,
+        height: cardHeight,
+      ),
+      if (snapshot.showSeconds)
+        _FlipCard(
+          value: snapshot.displaySecond,
+          width: cardWidth,
+          height: cardHeight,
+        ),
+    ];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -33,28 +52,17 @@ class FlipClockFace extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
+              Flex(
+                direction: landscape ? Axis.horizontal : Axis.vertical,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _FlipCard(
-                    value: snapshot.displayHour,
-                    width: cardWidth,
-                    height: cardHeight,
-                    badge: snapshot.period,
-                  ),
-                  SizedBox(width: gap),
-                  _FlipCard(
-                    value: snapshot.displayMinute,
-                    width: cardWidth,
-                    height: cardHeight,
-                  ),
-                  if (snapshot.showSeconds) ...[
-                    SizedBox(width: gap),
-                    _FlipCard(
-                      value: snapshot.displaySecond,
-                      width: cardWidth,
-                      height: cardHeight,
-                    ),
+                  for (var index = 0; index < cards.length; index++) ...[
+                    if (index > 0)
+                      SizedBox(
+                        width: landscape ? gap : 0,
+                        height: landscape ? 0 : gap,
+                      ),
+                    cards[index],
                   ],
                 ],
               ),

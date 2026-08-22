@@ -7,10 +7,12 @@ abstract class ClockSettingsStore {
   bool loadShowSeconds();
   ClockThemeId loadClockThemeId();
   bool loadShowDate();
+  bool loadShowLeadingZero();
   void saveTimeFormat(TimeFormat format);
   void saveShowSeconds(bool value);
   void saveClockThemeId(ClockThemeId id);
   void saveShowDate(bool value);
+  void saveShowLeadingZero(bool value);
   StoredSession? loadSession();
   void saveSession(StoredSession? session);
   List<StoredFocusComplete> loadFocusCompletes();
@@ -59,6 +61,7 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   bool showSeconds = false;
   ClockThemeId clockThemeId = ClockThemeId.minimal;
   bool showDate = false;
+  bool showLeadingZero = false;
   StoredSession? session;
   List<StoredFocusComplete> completes = [];
   bool soundEnabled = true;
@@ -81,6 +84,9 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   bool loadShowDate() => showDate;
 
   @override
+  bool loadShowLeadingZero() => showLeadingZero;
+
+  @override
   void saveTimeFormat(TimeFormat format) {
     timeFormat = format;
   }
@@ -98,6 +104,11 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   @override
   void saveShowDate(bool value) {
     showDate = value;
+  }
+
+  @override
+  void saveShowLeadingZero(bool value) {
+    showLeadingZero = value;
   }
 
   @override

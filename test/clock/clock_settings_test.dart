@@ -59,6 +59,42 @@ void main() {
     container.dispose();
   });
 
+  testWidgets('Show Leading Zero controls the Flip display in 24-hour time', (
+    tester,
+  ) async {
+    final engine = ClockEngine(
+      clock: FakeClock(wall: DateTime(2026, 8, 20, 9, 38)),
+      locale: const Locale('en'),
+      deviceUses24Hour: true,
+    );
+    engine.setClockTheme(ClockThemeId.flip);
+    final container = ProviderContainer(
+      overrides: [clockEngineProvider.overrideWithValue(engine)],
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(container: container, child: const MyApp()),
+    );
+
+    expect(find.text('9'), findsNWidgets(2));
+
+    await tester.tap(find.byType(ClockPage));
+    await tester.pump();
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Show Leading Zero'));
+    await tester.pump();
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    expect(engine.showLeadingZero, isTrue);
+    expect(find.text('09'), findsNWidgets(2));
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
+
   testWidgets('Date & Weekday shows weekday and date on Clock', (tester) async {
     final container = await _pumpClock(tester);
 

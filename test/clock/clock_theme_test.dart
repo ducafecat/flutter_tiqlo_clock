@@ -155,4 +155,33 @@ void main() {
     expect(find.text(':'), findsNothing);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('Flip face stacks hour above minute in portrait', (tester) async {
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const snapshot = ClockSnapshot(
+      hour: 9,
+      minute: 0,
+      dateLabel: 'THU · AUG 20',
+      period: 'AM',
+      is24Hour: false,
+    );
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: FlipClockFace(snapshot: snapshot, landscape: false),
+        ),
+      ),
+    );
+
+    final hourCenter = tester.getCenter(find.text('9').first);
+    final minuteCenter = tester.getCenter(find.text('00').first);
+    expect(hourCenter.dx, closeTo(minuteCenter.dx, 0.1));
+    expect(hourCenter.dy, lessThan(minuteCenter.dy));
+    expect(tester.takeException(), isNull);
+  });
 }
