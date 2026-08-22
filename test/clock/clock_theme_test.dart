@@ -175,6 +175,70 @@ void main() {
     expect(find.text('38'), findsNothing);
   });
 
+  testWidgets('Flip divider stays fixed above the animated flap', (
+    tester,
+  ) async {
+    ClockSnapshot snap(int minute) =>
+        ClockSnapshot(hour: 21, minute: minute, dateLabel: 'THU · AUG 20');
+
+    Widget face(int minute) => MaterialApp(
+      home: Scaffold(
+        body: FlipClockFace(
+          snapshot: snap(minute),
+          landscape: true,
+          palette: FlipPaletteId.pureDark.palette,
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(face(38));
+    final divider = find.byKey(const ValueKey('flip-divider')).at(1);
+    final initialSize = tester.getSize(divider);
+    final initialCenter = tester.getCenter(divider);
+
+    await tester.pumpWidget(face(39));
+    await tester.pump(const Duration(milliseconds: 1));
+    expect(tester.getSize(divider), initialSize);
+    expect(tester.getCenter(divider), initialCenter);
+
+    var cardStack = tester.widget<Stack>(
+      find.byKey(const ValueKey('flip-card-stack')).at(1),
+    );
+    final flapIndex = cardStack.children.indexWhere(
+      (child) => child.key == const ValueKey('flip-flap'),
+    );
+    final dividerIndex = cardStack.children.indexWhere(
+      (child) =>
+          child is Center && child.child?.key == const ValueKey('flip-divider'),
+    );
+    expect(flapIndex, greaterThanOrEqualTo(0));
+    expect(dividerIndex, greaterThan(flapIndex));
+
+    await tester.pump(const Duration(milliseconds: 349));
+    expect(tester.getSize(divider), initialSize);
+    expect(tester.getCenter(divider), initialCenter);
+
+    cardStack = tester.widget<Stack>(
+      find.byKey(const ValueKey('flip-card-stack')).at(1),
+    );
+    expect(
+      cardStack.children.indexWhere(
+        (child) =>
+            child is Center &&
+            child.child?.key == const ValueKey('flip-divider'),
+      ),
+      greaterThan(
+        cardStack.children.indexWhere(
+          (child) => child.key == const ValueKey('flip-flap'),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    expect(tester.getSize(divider), initialSize);
+    expect(tester.getCenter(divider), initialCenter);
+  });
+
   testWidgets('Flip face groups hour and minute into two cards', (
     tester,
   ) async {

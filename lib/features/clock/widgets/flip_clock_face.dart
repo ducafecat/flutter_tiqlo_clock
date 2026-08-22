@@ -188,6 +188,7 @@ class _FlipCardState extends State<_FlipCard>
               child: ClipRRect(
                 borderRadius: radius,
                 child: Stack(
+                  key: const ValueKey('flip-card-stack'),
                   clipBehavior: Clip.hardEdge,
                   children: [
                     Column(
@@ -196,9 +197,9 @@ class _FlipCardState extends State<_FlipCard>
                         _half(flipping ? _previous : _current, top: false),
                       ],
                     ),
-                    Center(child: _hinge()),
                     if (flipping && topPhase)
                       Align(
+                        key: const ValueKey('flip-flap'),
                         alignment: Alignment.topCenter,
                         child: _flap(
                           value: _previous,
@@ -208,6 +209,7 @@ class _FlipCardState extends State<_FlipCard>
                       ),
                     if (flipping && !topPhase)
                       Align(
+                        key: const ValueKey('flip-flap'),
                         alignment: Alignment.bottomCenter,
                         child: _flap(
                           value: _current,
@@ -215,6 +217,7 @@ class _FlipCardState extends State<_FlipCard>
                           angle: bottomAngle,
                         ),
                       ),
+                    Center(child: _hinge()),
                     if (widget.badge != null)
                       Positioned(
                         left: widget.width * 0.07,
