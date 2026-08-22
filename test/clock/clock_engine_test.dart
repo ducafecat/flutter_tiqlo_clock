@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_engine.dart';
+import 'package:flutter_tiqlo_clock/clock/flip_palette.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_settings_store.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -147,6 +148,20 @@ void main() {
 
     final reloaded = ClockEngine(clock: clock, store: store);
     expect(reloaded.clockThemeId, ClockThemeId.flip);
+  });
+
+  test('clock palette defaults to Pure Dark and persists across reload', () {
+    final store = MemoryClockSettingsStore();
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock, store: store);
+
+    expect(engine.flipPaletteId, FlipPaletteId.pureDark);
+
+    engine.setFlipPalette(FlipPaletteId.purple);
+
+    final reloaded = ClockEngine(clock: clock, store: store);
+    expect(reloaded.flipPaletteId, FlipPaletteId.purple);
+    expect(reloaded.clockThemeId, ClockThemeId.digital);
   });
 
   test('start focus replaces wall display with remaining mm:ss', () {
@@ -441,6 +456,7 @@ void main() {
     engine.setShowSeconds(true);
     engine.setShowDate(true);
     engine.setClockTheme(ClockThemeId.flip);
+    engine.setFlipPalette(FlipPaletteId.orange);
 
     expect(engine.snapshot.timeLabel, '21:38:20');
     expect(engine.snapshot.showDate, isTrue);
@@ -449,6 +465,7 @@ void main() {
     engine.setNightMode(true);
 
     expect(engine.clockThemeId, ClockThemeId.flip);
+    expect(engine.flipPaletteId, FlipPaletteId.orange);
     expect(engine.snapshot.nightMode, isTrue);
     expect(engine.snapshot.showSeconds, isFalse);
     expect(engine.snapshot.showDate, isFalse);
@@ -458,6 +475,7 @@ void main() {
     final reloaded = ClockEngine(clock: clock, store: store);
     expect(reloaded.nightMode, isTrue);
     expect(reloaded.clockThemeId, ClockThemeId.flip);
+    expect(reloaded.flipPaletteId, FlipPaletteId.orange);
     expect(reloaded.snapshot.timeLabel, '21:38');
   });
 

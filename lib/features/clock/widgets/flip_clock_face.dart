@@ -3,20 +3,21 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../../clock/clock_engine.dart';
+import '../../../clock/flip_palette.dart';
 
 const _flipFont = 'FlipClock';
-const _digitColor = Color(0xFFC8C8C8);
-const _cardColor = Color(0xFF141414);
 
 class FlipClockFace extends StatelessWidget {
   const FlipClockFace({
     super.key,
     required this.snapshot,
     required this.landscape,
+    required this.palette,
   });
 
   final ClockSnapshot snapshot;
   final bool landscape;
+  final FlipPalette palette;
 
   @override
   Widget build(BuildContext context) {
@@ -30,17 +31,20 @@ class FlipClockFace extends StatelessWidget {
         width: cardWidth,
         height: cardHeight,
         badge: snapshot.period,
+        palette: palette,
       ),
       _FlipCard(
         value: snapshot.displayMinute,
         width: cardWidth,
         height: cardHeight,
+        palette: palette,
       ),
       if (snapshot.showSeconds)
         _FlipCard(
           value: snapshot.displaySecond,
           width: cardWidth,
           height: cardHeight,
+          palette: palette,
         ),
     ];
 
@@ -71,7 +75,7 @@ class FlipClockFace extends StatelessWidget {
                 Text(
                   snapshot.dateLabel,
                   style: TextStyle(
-                    color: const Color(0xFF8A8A8A),
+                    color: palette.digit.withValues(alpha: 0.55),
                     fontSize: dateSize,
                     fontWeight: FontWeight.w400,
                     letterSpacing: 1.5,
@@ -91,12 +95,14 @@ class _FlipCard extends StatefulWidget {
     required this.value,
     required this.width,
     required this.height,
+    required this.palette,
     this.badge,
   });
 
   final String value;
   final double width;
   final double height;
+  final FlipPalette palette;
   final String? badge;
 
   @override
@@ -156,45 +162,78 @@ class _FlipCardState extends State<_FlipCard>
             (Curves.easeOutCubic.transform(((raw - 0.5) * 2).clamp(0.0, 1.0)) -
                 1) *
             (math.pi / 2);
+        final radius = BorderRadius.circular(widget.width * 0.085);
         return SizedBox(
           width: widget.width,
           height: widget.height,
-          child: Stack(
-            clipBehavior: Clip.hardEdge,
-            children: [
-              Column(
-                children: [
-                  _half(_current, top: true),
-                  _half(flipping ? _previous : _current, top: false),
-                ],
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: radius,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.45),
+                  blurRadius: widget.height * 0.09,
+                  offset: Offset(0, widget.height * 0.03),
+                ),
+              ],
+            ),
+            child: DecoratedBox(
+              position: DecorationPosition.foreground,
+              decoration: BoxDecoration(
+                borderRadius: radius,
+                border: Border.all(
+                  color: widget.palette.digit.withValues(alpha: 0.03),
+                ),
               ),
-              Center(child: _hinge()),
-              if (flipping && topPhase)
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: _flap(value: _previous, top: true, angle: topAngle),
-                ),
-              if (flipping && !topPhase)
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: _flap(value: _current, top: false, angle: bottomAngle),
-                ),
-              if (widget.badge != null)
-                Positioned(
-                  left: widget.width * 0.07,
-                  top: widget.height * 0.12,
-                  child: Text(
-                    widget.badge!,
-                    style: TextStyle(
-                      color: _digitColor,
-                      fontFamily: _flipFont,
-                      fontSize: widget.height * 0.085,
-                      fontWeight: FontWeight.w700,
-                      height: 1,
+              child: ClipRRect(
+                borderRadius: radius,
+                child: Stack(
+                  clipBehavior: Clip.hardEdge,
+                  children: [
+                    Column(
+                      children: [
+                        _half(_current, top: true),
+                        _half(flipping ? _previous : _current, top: false),
+                      ],
                     ),
-                  ),
+                    Center(child: _hinge()),
+                    if (flipping && topPhase)
+                      Align(
+                        alignment: Alignment.topCenter,
+                        child: _flap(
+                          value: _previous,
+                          top: true,
+                          angle: topAngle,
+                        ),
+                      ),
+                    if (flipping && !topPhase)
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: _flap(
+                          value: _current,
+                          top: false,
+                          angle: bottomAngle,
+                        ),
+                      ),
+                    if (widget.badge != null)
+                      Positioned(
+                        left: widget.width * 0.07,
+                        top: widget.height * 0.12,
+                        child: Text(
+                          widget.badge!,
+                          style: TextStyle(
+                            color: widget.palette.digit,
+                            fontFamily: _flipFont,
+                            fontSize: widget.height * 0.085,
+                            fontWeight: FontWeight.w700,
+                            height: 1,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-            ],
+              ),
+            ),
           ),
         );
       },
@@ -203,7 +242,8 @@ class _FlipCardState extends State<_FlipCard>
 
   Widget _hinge() {
     return ColoredBox(
-      color: Colors.black,
+      key: const ValueKey('flip-divider'),
+      color: widget.palette.divider,
       child: SizedBox(width: widget.width, height: widget.height * 0.008),
     );
   }
@@ -227,10 +267,11 @@ class _FlipCardState extends State<_FlipCard>
   Widget _half(String value, {required bool top, double shade = 0}) {
     final radius = Radius.circular(widget.width * 0.085);
     return Container(
+      key: ValueKey(top ? 'flip-card-top' : 'flip-card-bottom'),
       width: widget.width,
       height: widget.height / 2,
       decoration: BoxDecoration(
-        color: _cardColor,
+        color: top ? widget.palette.cardTop : widget.palette.cardBottom,
         borderRadius: top
             ? BorderRadius.vertical(top: radius)
             : BorderRadius.vertical(bottom: radius),
@@ -252,7 +293,7 @@ class _FlipCardState extends State<_FlipCard>
                   child: Text(
                     value,
                     style: TextStyle(
-                      color: _digitColor,
+                      color: widget.palette.digit,
                       fontFamily: _flipFont,
                       fontSize: widget.height * 0.84,
                       fontWeight: FontWeight.w700,

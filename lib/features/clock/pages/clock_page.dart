@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../clock/clock_engine.dart';
+import '../../../clock/flip_palette.dart';
 import '../../../clock/clock_providers.dart';
 import '../../../clock/clock_theme.dart';
 import '../../../core/router/app_router.dart';
@@ -97,31 +98,93 @@ class _ClockPageState extends ConsumerState<ClockPage>
     _hideChromeTimer?.cancel();
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Colors.grey.shade900,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: const Color(0xFF1C1C1E),
       builder: (sheetContext) {
         return StatefulBuilder(
           builder: (context, setSheetState) {
-            final current = ref.read(clockEngineProvider).clockThemeId;
+            final engine = ref.read(clockEngineProvider);
+            final currentStyle = engine.clockThemeId;
+            final currentPalette = engine.flipPaletteId;
             return SafeArea(
               child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    const _ThemeSectionTitle('Clock Style'),
                     for (final id in ClockThemeId.values)
                       ListTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                         title: Text(
                           id.label,
                           style: const TextStyle(color: Colors.white),
                         ),
-                        selected: current == id,
+                        trailing: currentStyle == id
+                            ? const Icon(Icons.check, color: Colors.white)
+                            : null,
+                        selected: currentStyle == id,
                         selectedColor: Colors.white,
+                        selectedTileColor: Colors.white.withValues(alpha: 0.08),
                         onTap: () {
-                          ref.read(clockEngineProvider).setClockTheme(id);
+                          engine.setClockTheme(id);
                           ref.invalidate(clockSnapshotProvider);
                           setState(() {});
                           setSheetState(() {});
                         },
                       ),
+                    if (currentStyle == ClockThemeId.flip) ...[
+                      const SizedBox(height: 12),
+                      const _ThemeSectionTitle('Color Theme'),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final id in FlipPaletteId.values)
+                            ChoiceChip(
+                              key: ValueKey('palette-${id.name}'),
+                              avatar: CircleAvatar(
+                                backgroundColor: id.palette.cardTop,
+                                foregroundColor: id.palette.digit,
+                                child: Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: id.palette.digit,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                              label: Text(id.label),
+                              selected: currentPalette == id,
+                              selectedColor: Colors.white.withValues(
+                                alpha: 0.16,
+                              ),
+                              backgroundColor: Colors.white.withValues(
+                                alpha: 0.06,
+                              ),
+                              side: BorderSide(
+                                color: currentPalette == id
+                                    ? Colors.white.withValues(alpha: 0.7)
+                                    : Colors.white.withValues(alpha: 0.12),
+                              ),
+                              labelStyle: const TextStyle(color: Colors.white),
+                              checkmarkColor: Colors.white,
+                              onSelected: (_) {
+                                engine.setFlipPalette(id);
+                                ref.invalidate(clockSnapshotProvider);
+                                setState(() {});
+                                setSheetState(() {});
+                              },
+                            ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -357,13 +420,19 @@ class _ClockPageState extends ConsumerState<ClockPage>
     });
     final landscape =
         MediaQuery.orientationOf(context) == Orientation.landscape;
-    final themeId = ref.watch(clockEngineProvider).clockThemeId;
+    final engine = ref.watch(clockEngineProvider);
+    final themeId = engine.clockThemeId;
+    final flipPalette = engine.flipPaletteId.palette;
+    final backgroundColor = themeId == ClockThemeId.flip
+        ? flipPalette.background
+        : Colors.black;
     final notch = defaultTargetPlatform == TargetPlatform.iOS
         ? MediaQuery.viewPaddingOf(context)
         : EdgeInsets.zero;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      key: const ValueKey('clock-scaffold'),
+      backgroundColor: backgroundColor,
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: _toggleChrome,
@@ -373,6 +442,7 @@ class _ClockPageState extends ConsumerState<ClockPage>
               opacity: snapshot.nightMode ? 0.35 : 1,
               child: ClockFace(
                 themeId: themeId,
+                flipPalette: flipPalette,
                 snapshot: snapshot,
                 landscape: landscape,
               ),
@@ -458,6 +528,28 @@ class _ClockPageState extends ConsumerState<ClockPage>
         },
       ),
     ];
+  }
+}
+
+class _ThemeSectionTitle extends StatelessWidget {
+  const _ThemeSectionTitle(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white70,
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
   }
 }
 

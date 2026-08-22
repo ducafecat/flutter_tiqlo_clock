@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:intl/intl.dart';
 
 import 'clock.dart';
+import 'flip_palette.dart';
 import 'clock_settings_store.dart';
 import 'clock_theme.dart';
 
@@ -103,6 +104,7 @@ class ClockEngine {
     bool showLeadingZero = false,
     TimeFormat? timeFormat,
     ClockThemeId? clockThemeId,
+    FlipPaletteId? flipPaletteId,
     bool soundEnabled = true,
     bool vibrationEnabled = true,
     bool nightMode = false,
@@ -115,6 +117,10 @@ class ClockEngine {
        showLeadingZero = store?.loadShowLeadingZero() ?? showLeadingZero,
        clockThemeId =
            store?.loadClockThemeId() ?? clockThemeId ?? ClockThemeId.digital,
+       flipPaletteId =
+           store?.loadFlipPaletteId() ??
+           flipPaletteId ??
+           FlipPaletteId.pureDark,
        soundEnabled = store?.loadSoundEnabled() ?? soundEnabled,
        vibrationEnabled = store?.loadVibrationEnabled() ?? vibrationEnabled,
        nightMode = store?.loadNightMode() ?? nightMode,
@@ -132,6 +138,7 @@ class ClockEngine {
   bool showDate;
   bool showLeadingZero;
   ClockThemeId clockThemeId;
+  FlipPaletteId flipPaletteId;
   bool soundEnabled;
   bool vibrationEnabled;
   bool nightMode;
@@ -221,6 +228,11 @@ class ClockEngine {
   void setClockTheme(ClockThemeId id) {
     clockThemeId = id;
     _store?.saveClockThemeId(id);
+  }
+
+  void setFlipPalette(FlipPaletteId id) {
+    flipPaletteId = id;
+    _store?.saveFlipPaletteId(id);
   }
 
   void setSoundEnabled(bool value) {
