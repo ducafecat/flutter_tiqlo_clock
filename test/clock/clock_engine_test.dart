@@ -136,12 +136,12 @@ void main() {
     expect(reloaded.snapshot.showDate, isTrue);
   });
 
-  test('clock theme defaults to Minimal and persists across reload', () {
+  test('clock theme defaults to Digital and persists across reload', () {
     final store = MemoryClockSettingsStore();
     final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
     final engine = ClockEngine(clock: clock, store: store);
 
-    expect(engine.clockThemeId, ClockThemeId.minimal);
+    expect(engine.clockThemeId, ClockThemeId.digital);
 
     engine.setClockTheme(ClockThemeId.flip);
 

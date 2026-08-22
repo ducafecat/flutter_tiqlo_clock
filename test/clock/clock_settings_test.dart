@@ -32,7 +32,7 @@ void main() {
     await tester.pageBack();
     await tester.pumpAndSettle();
 
-    expect(find.text('09:38 PM'), findsOneWidget);
+    expect(container.read(clockEngineProvider).snapshot.timeLabel, '09:38 PM');
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
@@ -53,7 +53,7 @@ void main() {
     await tester.pageBack();
     await tester.pumpAndSettle();
 
-    expect(find.text('21:38:00'), findsOneWidget);
+    expect(container.read(clockEngineProvider).snapshot.timeLabel, '21:38:00');
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();

@@ -48,9 +48,8 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   ClockThemeId loadClockThemeId() {
     return switch (_prefs.getString(_themeKey)) {
       'flip' => ClockThemeId.flip,
-      'oled' => ClockThemeId.oled,
-      'retro' => ClockThemeId.retro,
-      _ => ClockThemeId.minimal,
+      'digital' => ClockThemeId.digital,
+      _ => ClockThemeId.digital,
     };
   }
 

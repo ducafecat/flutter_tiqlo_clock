@@ -59,7 +59,7 @@ class StoredFocusComplete {
 class MemoryClockSettingsStore implements ClockSettingsStore {
   TimeFormat? timeFormat;
   bool showSeconds = false;
-  ClockThemeId clockThemeId = ClockThemeId.minimal;
+  ClockThemeId clockThemeId = ClockThemeId.digital;
   bool showDate = false;
   bool showLeadingZero = false;
   StoredSession? session;

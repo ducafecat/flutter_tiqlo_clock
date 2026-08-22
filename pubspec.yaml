@@ -61,3 +61,7 @@ flutter:
       fonts:
         - asset: fonts/RobotoCondensed-Bold.ttf
           weight: 700
+    - family: DSEG7Classic
+      fonts:
+        - asset: fonts/DSEG7Classic-Bold.ttf
+          weight: 700

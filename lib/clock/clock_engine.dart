@@ -114,7 +114,7 @@ class ClockEngine {
        showDate = store?.loadShowDate() ?? showDate,
        showLeadingZero = store?.loadShowLeadingZero() ?? showLeadingZero,
        clockThemeId =
-           store?.loadClockThemeId() ?? clockThemeId ?? ClockThemeId.minimal,
+           store?.loadClockThemeId() ?? clockThemeId ?? ClockThemeId.digital,
        soundEnabled = store?.loadSoundEnabled() ?? soundEnabled,
        vibrationEnabled = store?.loadVibrationEnabled() ?? vibrationEnabled,
        nightMode = store?.loadNightMode() ?? nightMode,

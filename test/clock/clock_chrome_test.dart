@@ -28,6 +28,7 @@ void main() {
     expect(find.text('Focus'), findsOneWidget);
     expect(find.text('Timer'), findsOneWidget);
     expect(find.text('More'), findsOneWidget);
+    expect(find.byKey(const ValueKey('clock-chrome')), findsOneWidget);
 
     await tester.tap(find.byType(ClockPage));
     await tester.pump();

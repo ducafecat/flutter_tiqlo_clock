@@ -27,19 +27,11 @@ class ClockFace extends StatelessWidget {
       );
     }
     return switch (themeId) {
-      ClockThemeId.minimal => MinimalClockFace(
-        snapshot: snapshot,
-        landscape: landscape,
-      ),
       ClockThemeId.flip => FlipClockFace(
         snapshot: snapshot,
         landscape: landscape,
       ),
-      ClockThemeId.oled => OledClockFace(
-        snapshot: snapshot,
-        landscape: landscape,
-      ),
-      ClockThemeId.retro => RetroClockFace(
+      ClockThemeId.digital => DigitalClockFace(
         snapshot: snapshot,
         landscape: landscape,
       ),
@@ -61,32 +53,9 @@ class _SessionFace extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final timeSize = switch (themeId) {
-      ClockThemeId.oled => landscape ? 160.0 : 96.0,
-      ClockThemeId.retro => landscape ? 112.0 : 68.0,
-      _ => landscape ? 120.0 : 72.0,
+      ClockThemeId.digital => landscape ? 136.0 : 88.0,
+      ClockThemeId.flip => landscape ? 120.0 : 72.0,
     };
-    final labelSize = landscape ? 24.0 : 18.0;
-    final timeColor = switch (themeId) {
-      ClockThemeId.oled => const Color(0xFFB0B0B0),
-      ClockThemeId.retro => const Color(0xFF39FF14),
-      _ => Colors.white,
-    };
-    final labelColor = switch (themeId) {
-      ClockThemeId.oled => const Color(0xFF5A5A5A),
-      ClockThemeId.retro => const Color(0xFF1F8A0E),
-      _ => Colors.white70,
-    };
-    final fontWeight = switch (themeId) {
-      ClockThemeId.oled => FontWeight.w200,
-      ClockThemeId.retro => FontWeight.w600,
-      _ => FontWeight.w300,
-    };
-    final letterSpacing = switch (themeId) {
-      ClockThemeId.oled => 8.0,
-      ClockThemeId.retro => 4.0,
-      _ => 2.0,
-    };
-    final fontFamily = themeId == ClockThemeId.retro ? 'Courier' : null;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -101,35 +70,26 @@ class _SessionFace extends StatelessWidget {
                     ? 'COMPLETE'
                     : session.remainingLabel,
                 style: TextStyle(
-                  color: timeColor,
+                  color: Colors.white,
                   fontSize: timeSize,
-                  fontWeight: fontWeight,
-                  letterSpacing: letterSpacing,
-                  fontFamily: fontFamily,
+                  fontWeight: FontWeight.w300,
+                  letterSpacing: 2,
                 ),
               ),
               if (session.status == SessionStatus.complete) ...[
                 const SizedBox(height: 16),
                 Text(
                   '${session.duration.inMinutes} min',
-                  style: TextStyle(
-                    color: labelColor,
-                    fontSize: labelSize,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: letterSpacing,
-                    fontFamily: fontFamily,
-                  ),
+                  style: const TextStyle(color: Colors.white70, fontSize: 18),
                 ),
               ],
               const SizedBox(height: 16),
               Text(
                 session.kindLabel,
-                style: TextStyle(
-                  color: labelColor,
-                  fontSize: labelSize,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: letterSpacing,
-                  fontFamily: fontFamily,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 18,
+                  letterSpacing: 2,
                 ),
               ),
             ],
@@ -140,8 +100,8 @@ class _SessionFace extends StatelessWidget {
   }
 }
 
-class MinimalClockFace extends StatelessWidget {
-  const MinimalClockFace({
+class DigitalClockFace extends StatelessWidget {
+  const DigitalClockFace({
     super.key,
     required this.snapshot,
     required this.landscape,
@@ -152,122 +112,57 @@ class MinimalClockFace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _DigitalFace(
-      snapshot: snapshot,
-      timeSize: landscape ? 120 : 72,
-      dateSize: landscape ? 24 : 18,
-      timeColor: Colors.white,
-      dateColor: Colors.white70,
-      fontWeight: FontWeight.w300,
-      letterSpacing: 2,
-    );
-  }
-}
+    final time = [
+      snapshot.displayHour,
+      snapshot.displayMinute,
+      if (snapshot.showSeconds) snapshot.displaySecond,
+    ].join(':');
 
-class OledClockFace extends StatelessWidget {
-  const OledClockFace({
-    super.key,
-    required this.snapshot,
-    required this.landscape,
-  });
-
-  final ClockSnapshot snapshot;
-  final bool landscape;
-
-  @override
-  Widget build(BuildContext context) {
-    return _DigitalFace(
-      snapshot: snapshot,
-      timeSize: landscape ? 160 : 96,
-      dateSize: landscape ? 20 : 14,
-      timeColor: const Color(0xFFB0B0B0),
-      dateColor: const Color(0xFF5A5A5A),
-      fontWeight: FontWeight.w200,
-      letterSpacing: 8,
-    );
-  }
-}
-
-class RetroClockFace extends StatelessWidget {
-  const RetroClockFace({
-    super.key,
-    required this.snapshot,
-    required this.landscape,
-  });
-
-  final ClockSnapshot snapshot;
-  final bool landscape;
-
-  @override
-  Widget build(BuildContext context) {
-    return _DigitalFace(
-      snapshot: snapshot,
-      timeSize: landscape ? 112 : 68,
-      dateSize: landscape ? 22 : 16,
-      timeColor: const Color(0xFF39FF14),
-      dateColor: const Color(0xFF1F8A0E),
-      fontWeight: FontWeight.w600,
-      letterSpacing: 4,
-      fontFamily: 'Courier',
-    );
-  }
-}
-
-class _DigitalFace extends StatelessWidget {
-  const _DigitalFace({
-    required this.snapshot,
-    required this.timeSize,
-    required this.dateSize,
-    required this.timeColor,
-    required this.dateColor,
-    required this.fontWeight,
-    required this.letterSpacing,
-    this.fontFamily,
-  });
-
-  final ClockSnapshot snapshot;
-  final double timeSize;
-  final double dateSize;
-  final Color timeColor;
-  final Color dateColor;
-  final FontWeight fontWeight;
-  final double letterSpacing;
-  final String? fontFamily;
-
-  @override
-  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       child: SizedBox.expand(
         child: FittedBox(
           fit: BoxFit.contain,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                snapshot.timeLabel,
-                style: TextStyle(
-                  color: timeColor,
-                  fontSize: timeSize,
-                  fontWeight: fontWeight,
-                  letterSpacing: letterSpacing,
-                  fontFamily: fontFamily,
-                ),
-              ),
-              if (snapshot.showDate) ...[
-                const SizedBox(height: 16),
+          child: Semantics(
+            label: snapshot.timeLabel,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
                 Text(
-                  snapshot.dateLabel,
+                  time,
                   style: TextStyle(
-                    color: dateColor,
-                    fontSize: dateSize,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: letterSpacing,
-                    fontFamily: fontFamily,
+                    color: Colors.white,
+                    fontFamily: 'DSEG7Classic',
+                    fontSize: landscape ? 180 : 132,
+                    fontWeight: FontWeight.w700,
+                    height: 1,
                   ),
                 ),
+                if (snapshot.period != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    snapshot.period!,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 3,
+                    ),
+                  ),
+                ],
+                if (snapshot.showDate) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    snapshot.dateLabel,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 18,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

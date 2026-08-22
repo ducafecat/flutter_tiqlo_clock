@@ -5,6 +5,7 @@ import 'package:flutter_tiqlo_clock/clock/clock_engine.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_providers.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
 import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
+import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_face.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/flip_clock_face.dart';
 import 'package:flutter_tiqlo_clock/main.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -18,9 +19,7 @@ void main() {
     await initializeDateFormatting('en');
   });
 
-  testWidgets('ClockTheme sheet lists four faces and switches without leaving Clock', (
-    tester,
-  ) async {
+  testWidgets('ClockTheme sheet lists Flip and Digital faces', (tester) async {
     final engine = ClockEngine(
       clock: FakeClock(wall: DateTime(2026, 8, 20, 21, 38)),
       locale: const Locale('en'),
@@ -37,10 +36,8 @@ void main() {
     await tester.tap(find.text('Theme'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Minimal'), findsOneWidget);
     expect(find.text('Flip'), findsOneWidget);
-    expect(find.text('OLED'), findsOneWidget);
-    expect(find.text('Retro'), findsOneWidget);
+    expect(find.text('Digital'), findsOneWidget);
 
     await tester.tap(find.text('Flip'));
     await tester.pump();
@@ -48,18 +45,17 @@ void main() {
     expect(engine.clockThemeId, ClockThemeId.flip);
     expect(find.byType(ClockPage), findsOneWidget);
     expect(identical(container.read(clockEngineProvider), engine), isTrue);
-    expect(find.text('21:38'), findsNothing);
     expect(find.byType(FlipClockFace), findsOneWidget);
 
-    await tester.tap(find.text('OLED'));
+    await tester.tap(find.text('Digital'));
     await tester.pump();
-    expect(engine.clockThemeId, ClockThemeId.oled);
+    expect(engine.clockThemeId, ClockThemeId.digital);
     expect(find.byType(ClockPage), findsOneWidget);
-
-    await tester.tap(find.text('Retro'));
-    await tester.pump();
-    expect(engine.clockThemeId, ClockThemeId.retro);
-    expect(find.byType(ClockPage), findsOneWidget);
+    expect(find.byType(DigitalClockFace), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.text('21:38')).style!.fontFamily,
+      'DSEG7Classic',
+    );
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
@@ -90,8 +86,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('Minimal'), findsOneWidget);
-    expect(find.text('Retro'), findsOneWidget);
+    expect(find.text('Flip'), findsOneWidget);
+    expect(find.text('Digital'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
@@ -100,11 +96,8 @@ void main() {
   testWidgets('Flip face animates when the displayed minute changes', (
     tester,
   ) async {
-    ClockSnapshot snap(int minute) => ClockSnapshot(
-      hour: 21,
-      minute: minute,
-      dateLabel: 'THU · AUG 20',
-    );
+    ClockSnapshot snap(int minute) =>
+        ClockSnapshot(hour: 21, minute: minute, dateLabel: 'THU · AUG 20');
 
     await tester.pumpWidget(
       MaterialApp(

@@ -382,9 +382,27 @@ class _ClockPageState extends ConsumerState<ClockPage>
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: EdgeInsets.only(bottom: 12 + notch.bottom),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: _chromeButtons(snapshot),
+                  child: Material(
+                    key: const ValueKey('clock-chrome'),
+                    color: const Color(0xE61C1C1E),
+                    elevation: 16,
+                    shadowColor: Colors.black,
+                    shape: StadiumBorder(
+                      side: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.12),
+                      ),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: _chromeButtons(snapshot),
+                      ),
+                    ),
                   ),
                 ),
               ),
