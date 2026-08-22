@@ -56,3 +56,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  fonts:
+    - family: FlipClock
+      fonts:
+        - asset: fonts/RobotoCondensed-Bold.ttf
+          weight: 700

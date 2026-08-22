@@ -369,22 +369,19 @@ class _ClockPageState extends ConsumerState<ClockPage>
         onTap: _toggleChrome,
         child: Stack(
           children: [
-            Padding(
-              padding: notch,
-              child: Opacity(
-                opacity: snapshot.nightMode ? 0.35 : 1,
-                child: ClockFace(
-                  themeId: themeId,
-                  snapshot: snapshot,
-                  landscape: landscape,
-                ),
+            Opacity(
+              opacity: snapshot.nightMode ? 0.35 : 1,
+              child: ClockFace(
+                themeId: themeId,
+                snapshot: snapshot,
+                landscape: landscape,
               ),
             ),
             if (_chromeVisible)
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
-                  padding: EdgeInsets.only(bottom: 48 + notch.bottom),
+                  padding: EdgeInsets.only(bottom: 12 + notch.bottom),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: _chromeButtons(snapshot),

@@ -113,7 +113,7 @@ void main() {
         ),
       ),
     );
-    expect(find.text('8'), findsWidgets);
+    expect(find.text('38'), findsNWidgets(2));
 
     await tester.pumpWidget(
       MaterialApp(
@@ -126,7 +126,33 @@ void main() {
     expect(tester.hasRunningAnimations, isTrue);
 
     await tester.pumpAndSettle();
-    expect(find.text('9'), findsWidgets);
-    expect(find.text('8'), findsNothing);
+    expect(find.text('39'), findsNWidgets(2));
+    expect(find.text('38'), findsNothing);
+  });
+
+  testWidgets('Flip face groups hour and minute into two cards', (
+    tester,
+  ) async {
+    const snapshot = ClockSnapshot(
+      hour: 9,
+      minute: 0,
+      dateLabel: 'THU · AUG 20',
+      period: 'AM',
+      is24Hour: false,
+    );
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: FlipClockFace(snapshot: snapshot, landscape: true),
+        ),
+      ),
+    );
+
+    expect(find.text('9'), findsNWidgets(2));
+    expect(find.text('00'), findsNWidgets(2));
+    expect(find.text('AM'), findsOneWidget);
+    expect(find.text(':'), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 }

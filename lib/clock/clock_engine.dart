@@ -78,7 +78,8 @@ class ClockSnapshot {
 
   String get displayHour {
     final h = is24Hour ? hour : _hour12(hour);
-    return h.toString().padLeft(2, '0');
+    if (is24Hour) return h.toString().padLeft(2, '0');
+    return h.toString();
   }
 
   String get displayMinute => minute.toString().padLeft(2, '0');

@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 
 import '../../../clock/clock_engine.dart';
 
+const _flipFont = 'FlipClock';
+const _digitColor = Color(0xFFC8C8C8);
+const _cardColor = Color(0xFF141414);
+
 class FlipClockFace extends StatelessWidget {
   const FlipClockFace({
     super.key,
@@ -16,12 +20,10 @@ class FlipClockFace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardWidth = landscape ? 72.0 : 48.0;
-    final cardHeight = landscape ? 112.0 : 76.0;
-    final dateSize = landscape ? 24.0 : 18.0;
-    final hour = snapshot.displayHour;
-    final minute = snapshot.displayMinute;
-    final second = snapshot.displaySecond;
+    final cardHeight = landscape ? 260.0 : 210.0;
+    final cardWidth = cardHeight;
+    final gap = cardWidth * 0.08;
+    final dateSize = landscape ? 22.0 : 16.0;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -34,58 +36,37 @@ class FlipClockFace extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _FlipDigit(digit: hour[0], width: cardWidth, height: cardHeight),
-                  const SizedBox(width: 6),
-                  _FlipDigit(digit: hour[1], width: cardWidth, height: cardHeight),
-                  _FlipColon(height: cardHeight),
-                  _FlipDigit(
-                    digit: minute[0],
+                  _FlipCard(
+                    value: snapshot.displayHour,
                     width: cardWidth,
                     height: cardHeight,
+                    badge: snapshot.period,
                   ),
-                  const SizedBox(width: 6),
-                  _FlipDigit(
-                    digit: minute[1],
+                  SizedBox(width: gap),
+                  _FlipCard(
+                    value: snapshot.displayMinute,
                     width: cardWidth,
                     height: cardHeight,
                   ),
                   if (snapshot.showSeconds) ...[
-                    _FlipColon(height: cardHeight),
-                    _FlipDigit(
-                      digit: second[0],
-                      width: cardWidth,
-                      height: cardHeight,
-                    ),
-                    const SizedBox(width: 6),
-                    _FlipDigit(
-                      digit: second[1],
+                    SizedBox(width: gap),
+                    _FlipCard(
+                      value: snapshot.displaySecond,
                       width: cardWidth,
                       height: cardHeight,
                     ),
                   ],
                 ],
               ),
-              if (snapshot.period != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  snapshot.period!,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 2,
-                  ),
-                ),
-              ],
               if (snapshot.showDate) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 Text(
                   snapshot.dateLabel,
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: const Color(0xFF8A8A8A),
                     fontSize: dateSize,
                     fontWeight: FontWeight.w400,
-                    letterSpacing: 2,
+                    letterSpacing: 1.5,
                   ),
                 ),
               ],
@@ -97,54 +78,24 @@ class FlipClockFace extends StatelessWidget {
   }
 }
 
-class _FlipColon extends StatelessWidget {
-  const _FlipColon({required this.height});
-
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    final dot = Container(
-      width: height * 0.08,
-      height: height * 0.08,
-      decoration: const BoxDecoration(
-        color: Color(0xFFD0D0D0),
-        shape: BoxShape.circle,
-      ),
-    );
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: height * 0.12),
-      child: SizedBox(
-        height: height,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            dot,
-            SizedBox(height: height * 0.18),
-            dot,
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _FlipDigit extends StatefulWidget {
-  const _FlipDigit({
-    required this.digit,
+class _FlipCard extends StatefulWidget {
+  const _FlipCard({
+    required this.value,
     required this.width,
     required this.height,
+    this.badge,
   });
 
-  final String digit;
+  final String value;
   final double width;
   final double height;
+  final String? badge;
 
   @override
-  State<_FlipDigit> createState() => _FlipDigitState();
+  State<_FlipCard> createState() => _FlipCardState();
 }
 
-class _FlipDigitState extends State<_FlipDigit>
+class _FlipCardState extends State<_FlipCard>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late String _current;
@@ -153,24 +104,25 @@ class _FlipDigitState extends State<_FlipDigit>
   @override
   void initState() {
     super.initState();
-    _current = widget.digit;
-    _previous = widget.digit;
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 700),
-    )..addStatusListener((status) {
-      if (status == AnimationStatus.completed && mounted) {
-        setState(() => _previous = _current);
-      }
-    });
+    _current = widget.value;
+    _previous = widget.value;
+    _controller =
+        AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 700),
+        )..addStatusListener((status) {
+          if (status == AnimationStatus.completed && mounted) {
+            setState(() => _previous = _current);
+          }
+        });
   }
 
   @override
-  void didUpdateWidget(_FlipDigit oldWidget) {
+  void didUpdateWidget(_FlipCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.digit != oldWidget.digit) {
-      _previous = oldWidget.digit;
-      _current = widget.digit;
+    if (widget.value != oldWidget.value) {
+      _previous = oldWidget.value;
+      _current = widget.value;
       _controller.forward(from: 0);
     }
   }
@@ -189,7 +141,8 @@ class _FlipDigitState extends State<_FlipDigit>
         final raw = _controller.value;
         final flipping = _controller.isAnimating;
         final topPhase = raw < 0.5;
-        final topAngle = Curves.easeInCubic.transform((raw * 2).clamp(0.0, 1.0)) *
+        final topAngle =
+            Curves.easeInCubic.transform((raw * 2).clamp(0.0, 1.0)) *
             (math.pi / 2);
         final bottomAngle =
             (Curves.easeOutCubic.transform(((raw - 0.5) * 2).clamp(0.0, 1.0)) -
@@ -200,7 +153,6 @@ class _FlipDigitState extends State<_FlipDigit>
           height: widget.height,
           child: Stack(
             clipBehavior: Clip.hardEdge,
-            alignment: Alignment.center,
             children: [
               Column(
                 children: [
@@ -208,28 +160,30 @@ class _FlipDigitState extends State<_FlipDigit>
                   _half(flipping ? _previous : _current, top: false),
                 ],
               ),
-              Center(
-                child: ColoredBox(
-                  color: Colors.black.withValues(alpha: 0.22),
-                  child: SizedBox(width: widget.width, height: 1),
-                ),
-              ),
+              Center(child: _hinge()),
               if (flipping && topPhase)
                 Align(
                   alignment: Alignment.topCenter,
-                  child: _flap(
-                    digit: _previous,
-                    top: true,
-                    angle: topAngle,
-                  ),
+                  child: _flap(value: _previous, top: true, angle: topAngle),
                 ),
               if (flipping && !topPhase)
                 Align(
                   alignment: Alignment.bottomCenter,
-                  child: _flap(
-                    digit: _current,
-                    top: false,
-                    angle: bottomAngle,
+                  child: _flap(value: _current, top: false, angle: bottomAngle),
+                ),
+              if (widget.badge != null)
+                Positioned(
+                  left: widget.width * 0.07,
+                  top: widget.height * 0.12,
+                  child: Text(
+                    widget.badge!,
+                    style: TextStyle(
+                      color: _digitColor,
+                      fontFamily: _flipFont,
+                      fontSize: widget.height * 0.085,
+                      fontWeight: FontWeight.w700,
+                      height: 1,
+                    ),
                   ),
                 ),
             ],
@@ -239,29 +193,36 @@ class _FlipDigitState extends State<_FlipDigit>
     );
   }
 
+  Widget _hinge() {
+    return ColoredBox(
+      color: Colors.black,
+      child: SizedBox(width: widget.width, height: widget.height * 0.008),
+    );
+  }
+
   Widget _flap({
-    required String digit,
+    required String value,
     required bool top,
     required double angle,
   }) {
-    final shade = math.sin(angle.abs()).clamp(0.0, 1.0) * 0.2;
+    final shade = math.sin(angle.abs()).clamp(0.0, 1.0) * 0.28;
     return Transform(
       alignment: top ? Alignment.bottomCenter : Alignment.topCenter,
       filterQuality: FilterQuality.medium,
       transform: Matrix4.identity()
-        ..setEntry(3, 2, 0.0028)
+        ..setEntry(3, 2, 0.0024)
         ..rotateX(angle),
-      child: _half(digit, top: top, shade: shade),
+      child: _half(value, top: top, shade: shade),
     );
   }
 
-  Widget _half(String digit, {required bool top, double shade = 0}) {
-    final radius = Radius.circular(widget.width * 0.12);
+  Widget _half(String value, {required bool top, double shade = 0}) {
+    final radius = Radius.circular(widget.width * 0.085);
     return Container(
       width: widget.width,
       height: widget.height / 2,
       decoration: BoxDecoration(
-        color: const Color(0xFF242424),
+        color: _cardColor,
         borderRadius: top
             ? BorderRadius.vertical(top: radius)
             : BorderRadius.vertical(bottom: radius),
@@ -281,11 +242,12 @@ class _FlipDigitState extends State<_FlipDigit>
                 height: widget.height,
                 child: Center(
                   child: Text(
-                    digit,
+                    value,
                     style: TextStyle(
-                      color: const Color(0xFFF2F2F2),
-                      fontSize: widget.height * 0.62,
-                      fontWeight: FontWeight.w600,
+                      color: _digitColor,
+                      fontFamily: _flipFont,
+                      fontSize: widget.height * 0.84,
+                      fontWeight: FontWeight.w700,
                       height: 1,
                     ),
                   ),
