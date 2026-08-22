@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_engine.dart';
+import 'package:flutter_tiqlo_clock/clock/digital_theme.dart';
 import 'package:flutter_tiqlo_clock/clock/flip_palette.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_settings_store.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
@@ -162,6 +163,20 @@ void main() {
     final reloaded = ClockEngine(clock: clock, store: store);
     expect(reloaded.flipPaletteId, FlipPaletteId.purple);
     expect(reloaded.clockThemeId, ClockThemeId.digital);
+  });
+
+  test('Digital theme defaults to Pure Dark and persists across reload', () {
+    final store = MemoryClockSettingsStore();
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(clock: clock, store: store);
+
+    expect(engine.digitalThemeId, DigitalThemeId.pureDark);
+
+    engine.setDigitalTheme(DigitalThemeId.digitalAmber);
+
+    final reloaded = ClockEngine(clock: clock, store: store);
+    expect(reloaded.digitalThemeId, DigitalThemeId.digitalAmber);
+    expect(reloaded.flipPaletteId, FlipPaletteId.pureDark);
   });
 
   test('start focus replaces wall display with remaining mm:ss', () {
@@ -456,6 +471,7 @@ void main() {
     engine.setShowSeconds(true);
     engine.setShowDate(true);
     engine.setClockTheme(ClockThemeId.flip);
+    engine.setDigitalTheme(DigitalThemeId.digitalBlue);
     engine.setFlipPalette(FlipPaletteId.orange);
 
     expect(engine.snapshot.timeLabel, '21:38:20');
@@ -465,6 +481,7 @@ void main() {
     engine.setNightMode(true);
 
     expect(engine.clockThemeId, ClockThemeId.flip);
+    expect(engine.digitalThemeId, DigitalThemeId.digitalBlue);
     expect(engine.flipPaletteId, FlipPaletteId.orange);
     expect(engine.snapshot.nightMode, isTrue);
     expect(engine.snapshot.showSeconds, isFalse);
@@ -475,6 +492,7 @@ void main() {
     final reloaded = ClockEngine(clock: clock, store: store);
     expect(reloaded.nightMode, isTrue);
     expect(reloaded.clockThemeId, ClockThemeId.flip);
+    expect(reloaded.digitalThemeId, DigitalThemeId.digitalBlue);
     expect(reloaded.flipPaletteId, FlipPaletteId.orange);
     expect(reloaded.snapshot.timeLabel, '21:38');
   });

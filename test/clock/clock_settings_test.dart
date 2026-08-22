@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_engine.dart';
+import 'package:flutter_tiqlo_clock/clock/digital_theme.dart';
 import 'package:flutter_tiqlo_clock/clock/flip_palette.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_providers.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
@@ -144,6 +145,7 @@ void main() {
     );
     engine.setShowDate(true);
     engine.setClockTheme(ClockThemeId.flip);
+    engine.setDigitalTheme(DigitalThemeId.digitalBlue);
     engine.setFlipPalette(FlipPaletteId.orange);
     final container = ProviderContainer(
       overrides: [clockEngineProvider.overrideWithValue(engine)],
@@ -163,6 +165,7 @@ void main() {
 
     expect(engine.nightMode, isTrue);
     expect(engine.clockThemeId, ClockThemeId.flip);
+    expect(engine.digitalThemeId, DigitalThemeId.digitalBlue);
     expect(engine.flipPaletteId, FlipPaletteId.orange);
     expect(find.text('THU · AUG 20'), findsNothing);
     expect(find.byType(ClockPage), findsOneWidget);

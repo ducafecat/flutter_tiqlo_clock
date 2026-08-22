@@ -1,3 +1,4 @@
+import 'digital_theme.dart';
 import 'flip_palette.dart';
 import 'clock_theme.dart';
 
@@ -7,12 +8,14 @@ abstract class ClockSettingsStore {
   TimeFormat? loadTimeFormat();
   bool loadShowSeconds();
   ClockThemeId loadClockThemeId();
+  DigitalThemeId loadDigitalThemeId();
   FlipPaletteId loadFlipPaletteId();
   bool loadShowDate();
   bool loadShowLeadingZero();
   void saveTimeFormat(TimeFormat format);
   void saveShowSeconds(bool value);
   void saveClockThemeId(ClockThemeId id);
+  void saveDigitalThemeId(DigitalThemeId id);
   void saveFlipPaletteId(FlipPaletteId id);
   void saveShowDate(bool value);
   void saveShowLeadingZero(bool value);
@@ -63,6 +66,7 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   TimeFormat? timeFormat;
   bool showSeconds = false;
   ClockThemeId clockThemeId = ClockThemeId.digital;
+  DigitalThemeId digitalThemeId = DigitalThemeId.pureDark;
   FlipPaletteId flipPaletteId = FlipPaletteId.pureDark;
   bool showDate = false;
   bool showLeadingZero = false;
@@ -83,6 +87,9 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
 
   @override
   ClockThemeId loadClockThemeId() => clockThemeId;
+
+  @override
+  DigitalThemeId loadDigitalThemeId() => digitalThemeId;
 
   @override
   FlipPaletteId loadFlipPaletteId() => flipPaletteId;
@@ -106,6 +113,11 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   @override
   void saveClockThemeId(ClockThemeId id) {
     clockThemeId = id;
+  }
+
+  @override
+  void saveDigitalThemeId(DigitalThemeId id) {
+    digitalThemeId = id;
   }
 
   @override

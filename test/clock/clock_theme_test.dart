@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_engine.dart';
+import 'package:flutter_tiqlo_clock/clock/digital_theme.dart';
 import 'package:flutter_tiqlo_clock/clock/flip_palette.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_providers.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
@@ -20,7 +21,7 @@ void main() {
     await initializeDateFormatting('en');
   });
 
-  testWidgets('Flip palettes are hidden for Digital and retained by Flip', (
+  testWidgets('Digital and Flip keep independent theme selections', (
     tester,
   ) async {
     final engine = ClockEngine(
@@ -40,26 +41,48 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Flip'), findsOneWidget);
-    expect(find.text('Digital'), findsOneWidget);
+    expect(find.text('Digital'), findsNWidgets(2));
     expect(find.text('Clock Style'), findsOneWidget);
-    expect(find.text('Color Theme'), findsNothing);
+    expect(find.text('Color Theme'), findsOneWidget);
+    for (final id in DigitalThemeId.values) {
+      expect(find.byKey(ValueKey('digital-theme-${id.name}')), findsOneWidget);
+    }
     for (final id in FlipPaletteId.values) {
-      expect(find.text(id.label), findsNothing);
+      expect(find.byKey(ValueKey('palette-${id.name}')), findsNothing);
     }
 
-    await tester.tap(find.text('Flip'));
+    await tester.tap(find.byKey(const ValueKey('digital-theme-digitalRed')));
+    await tester.pump();
+    expect(engine.digitalThemeId, DigitalThemeId.digitalRed);
+    expect(
+      tester
+          .widget<Scaffold>(find.byKey(const ValueKey('clock-scaffold')))
+          .backgroundColor,
+      DigitalThemeId.digitalRed.theme.background,
+    );
+    final digitalTime = tester.widget<Text>(
+      find.byKey(const ValueKey('digital-time')),
+    );
+    expect(digitalTime.style!.color, DigitalThemeId.digitalRed.theme.digit);
+    expect(digitalTime.style!.shadows, DigitalThemeId.digitalRed.theme.glow);
+
+    await tester.tap(find.widgetWithText(ListTile, 'Flip'));
     await tester.pump();
 
     expect(engine.clockThemeId, ClockThemeId.flip);
+    expect(engine.digitalThemeId, DigitalThemeId.digitalRed);
     expect(find.byType(ClockPage), findsOneWidget);
     expect(identical(container.read(clockEngineProvider), engine), isTrue);
     expect(find.byType(FlipClockFace), findsOneWidget);
     expect(find.text('Color Theme'), findsOneWidget);
     for (final id in FlipPaletteId.values) {
-      expect(find.text(id.label), findsOneWidget);
+      expect(find.byKey(ValueKey('palette-${id.name}')), findsOneWidget);
+    }
+    for (final id in DigitalThemeId.values) {
+      expect(find.byKey(ValueKey('digital-theme-${id.name}')), findsNothing);
     }
 
-    await tester.tap(find.text('Purple'));
+    await tester.tap(find.byKey(const ValueKey('palette-purple')));
     await tester.pump();
     expect(engine.flipPaletteId, FlipPaletteId.purple);
     expect(
@@ -69,11 +92,12 @@ void main() {
       FlipPaletteId.purple.palette.background,
     );
 
-    await tester.tap(find.text('Digital'));
+    await tester.tap(find.widgetWithText(ListTile, 'Digital'));
     await tester.pump();
     expect(engine.clockThemeId, ClockThemeId.digital);
     expect(engine.flipPaletteId, FlipPaletteId.purple);
-    expect(find.text('Color Theme'), findsNothing);
+    expect(engine.digitalThemeId, DigitalThemeId.digitalRed);
+    expect(find.text('Color Theme'), findsOneWidget);
     expect(find.text('Purple'), findsNothing);
     expect(find.byType(ClockPage), findsOneWidget);
     expect(find.byType(DigitalClockFace), findsOneWidget);
@@ -85,21 +109,15 @@ void main() {
       tester
           .widget<Scaffold>(find.byKey(const ValueKey('clock-scaffold')))
           .backgroundColor,
-      Colors.black,
+      DigitalThemeId.digitalRed.theme.background,
     );
     expect(
       tester
           .widget<Text>(find.byKey(const ValueKey('digital-time')))
           .style!
           .color,
-      Colors.white,
+      DigitalThemeId.digitalRed.theme.digit,
     );
-
-    await tester.tap(find.text('Flip'));
-    await tester.pump();
-    expect(engine.clockThemeId, ClockThemeId.flip);
-    expect(engine.flipPaletteId, FlipPaletteId.purple);
-    expect(find.text('Color Theme'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
@@ -114,7 +132,15 @@ void main() {
 
     await tester.pumpWidget(
       const MaterialApp(
-        home: DigitalClockFace(snapshot: snapshot, landscape: true),
+        home: DigitalClockFace(
+          snapshot: snapshot,
+          landscape: true,
+          theme: DigitalTheme(
+            background: Colors.black,
+            digit: Colors.white,
+            secondary: Colors.white70,
+          ),
+        ),
       ),
     );
 
@@ -123,6 +149,42 @@ void main() {
     );
     expect(transform.transform.getTranslation().x, closeTo(-50.4, 0.001));
     expect(transform.transform.getTranslation().y, 0);
+  });
+
+  testWidgets('Digital theme colors time, period, and date independently', (
+    tester,
+  ) async {
+    const snapshot = ClockSnapshot(
+      hour: 10,
+      minute: 50,
+      dateLabel: 'THU · AUG 20',
+      period: 'AM',
+      is24Hour: false,
+      showDate: true,
+    );
+    final theme = DigitalThemeId.digitalBlue.theme;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DigitalClockFace(
+          snapshot: snapshot,
+          landscape: true,
+          theme: theme,
+        ),
+      ),
+    );
+
+    final time = tester.widget<Text>(
+      find.byKey(const ValueKey('digital-time')),
+    );
+    expect(time.style!.color, theme.digit);
+    expect(time.style!.shadows, theme.glow);
+    expect(tester.widget<Text>(find.text('AM')).style!.color, theme.secondary);
+    expect(
+      tester.widget<Text>(find.text('THU · AUG 20')).style!.color,
+      theme.secondary,
+    );
+    expect(tester.widget<Text>(find.text('AM')).style!.shadows, isNull);
   });
 
   testWidgets('ClockTheme sheet does not overflow in landscape', (
@@ -151,7 +213,7 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text('Flip'), findsOneWidget);
-    expect(find.text('Digital'), findsOneWidget);
+    expect(find.widgetWithText(ListTile, 'Digital'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
@@ -383,18 +445,28 @@ void main() {
       MaterialApp(
         home: ClockFace(
           themeId: ClockThemeId.digital,
+          digitalTheme: DigitalThemeId.digitalAmber.theme,
           flipPalette: lightPalette,
           snapshot: snapshot,
           landscape: false,
         ),
       ),
     );
-    expect(tester.widget<Text>(find.text('05:00')).style!.color, Colors.white);
+    final digitalSession = tester.widget<Text>(find.text('05:00'));
+    expect(
+      digitalSession.style!.color,
+      DigitalThemeId.digitalAmber.theme.digit,
+    );
+    expect(
+      digitalSession.style!.shadows,
+      DigitalThemeId.digitalAmber.theme.glow,
+    );
 
     await tester.pumpWidget(
       MaterialApp(
         home: ClockFace(
           themeId: ClockThemeId.flip,
+          digitalTheme: DigitalThemeId.digitalAmber.theme,
           flipPalette: lightPalette,
           snapshot: snapshot,
           landscape: false,

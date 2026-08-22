@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'digital_theme.dart';
 import 'flip_palette.dart';
 import 'clock_settings_store.dart';
 import 'clock_theme.dart';
@@ -10,6 +11,7 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   static const _formatKey = 'clock.time_format';
   static const _secondsKey = 'clock.show_seconds';
   static const _themeKey = 'clock.theme_id';
+  static const _digitalThemeKey = 'clock.digital_theme_id';
   static const _flipPaletteKey = 'clock.flip_palette_id';
   static const _legacyPaletteKey = 'clock.color_theme_id';
   static const _dateKey = 'clock.show_date';
@@ -59,6 +61,20 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   @override
   void saveClockThemeId(ClockThemeId id) {
     _prefs.setString(_themeKey, id.name);
+  }
+
+  @override
+  DigitalThemeId loadDigitalThemeId() {
+    final stored = _prefs.getString(_digitalThemeKey);
+    return DigitalThemeId.values.firstWhere(
+      (id) => id.name == stored,
+      orElse: () => DigitalThemeId.pureDark,
+    );
+  }
+
+  @override
+  void saveDigitalThemeId(DigitalThemeId id) {
+    _prefs.setString(_digitalThemeKey, id.name);
   }
 
   @override

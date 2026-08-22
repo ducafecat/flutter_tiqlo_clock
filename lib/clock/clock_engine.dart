@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:intl/intl.dart';
 
 import 'clock.dart';
+import 'digital_theme.dart';
 import 'flip_palette.dart';
 import 'clock_settings_store.dart';
 import 'clock_theme.dart';
@@ -104,6 +105,7 @@ class ClockEngine {
     bool showLeadingZero = false,
     TimeFormat? timeFormat,
     ClockThemeId? clockThemeId,
+    DigitalThemeId? digitalThemeId,
     FlipPaletteId? flipPaletteId,
     bool soundEnabled = true,
     bool vibrationEnabled = true,
@@ -117,6 +119,10 @@ class ClockEngine {
        showLeadingZero = store?.loadShowLeadingZero() ?? showLeadingZero,
        clockThemeId =
            store?.loadClockThemeId() ?? clockThemeId ?? ClockThemeId.digital,
+       digitalThemeId =
+           store?.loadDigitalThemeId() ??
+           digitalThemeId ??
+           DigitalThemeId.pureDark,
        flipPaletteId =
            store?.loadFlipPaletteId() ??
            flipPaletteId ??
@@ -138,6 +144,7 @@ class ClockEngine {
   bool showDate;
   bool showLeadingZero;
   ClockThemeId clockThemeId;
+  DigitalThemeId digitalThemeId;
   FlipPaletteId flipPaletteId;
   bool soundEnabled;
   bool vibrationEnabled;
@@ -228,6 +235,11 @@ class ClockEngine {
   void setClockTheme(ClockThemeId id) {
     clockThemeId = id;
     _store?.saveClockThemeId(id);
+  }
+
+  void setDigitalTheme(DigitalThemeId id) {
+    digitalThemeId = id;
+    _store?.saveDigitalThemeId(id);
   }
 
   void setFlipPalette(FlipPaletteId id) {

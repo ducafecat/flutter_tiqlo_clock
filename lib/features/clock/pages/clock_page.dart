@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../clock/clock_engine.dart';
+import '../../../clock/digital_theme.dart';
 import '../../../clock/flip_palette.dart';
 import '../../../clock/clock_providers.dart';
 import '../../../clock/clock_theme.dart';
@@ -106,7 +107,8 @@ class _ClockPageState extends ConsumerState<ClockPage>
           builder: (context, setSheetState) {
             final engine = ref.read(clockEngineProvider);
             final currentStyle = engine.clockThemeId;
-            final currentPalette = engine.flipPaletteId;
+            final currentFlipPalette = engine.flipPaletteId;
+            final currentDigitalTheme = engine.digitalThemeId;
             return SafeArea(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
@@ -161,7 +163,7 @@ class _ClockPageState extends ConsumerState<ClockPage>
                                 ),
                               ),
                               label: Text(id.label),
-                              selected: currentPalette == id,
+                              selected: currentFlipPalette == id,
                               selectedColor: Colors.white.withValues(
                                 alpha: 0.16,
                               ),
@@ -169,7 +171,7 @@ class _ClockPageState extends ConsumerState<ClockPage>
                                 alpha: 0.06,
                               ),
                               side: BorderSide(
-                                color: currentPalette == id
+                                color: currentFlipPalette == id
                                     ? Colors.white.withValues(alpha: 0.7)
                                     : Colors.white.withValues(alpha: 0.12),
                               ),
@@ -177,6 +179,53 @@ class _ClockPageState extends ConsumerState<ClockPage>
                               checkmarkColor: Colors.white,
                               onSelected: (_) {
                                 engine.setFlipPalette(id);
+                                ref.invalidate(clockSnapshotProvider);
+                                setState(() {});
+                                setSheetState(() {});
+                              },
+                            ),
+                        ],
+                      ),
+                    ] else ...[
+                      const SizedBox(height: 12),
+                      const _ThemeSectionTitle('Color Theme'),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final id in DigitalThemeId.values)
+                            ChoiceChip(
+                              key: ValueKey('digital-theme-${id.name}'),
+                              avatar: CircleAvatar(
+                                backgroundColor: id.theme.background,
+                                foregroundColor: id.theme.digit,
+                                child: Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: id.theme.digit,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                              label: Text(id.label),
+                              selected: currentDigitalTheme == id,
+                              selectedColor: Colors.white.withValues(
+                                alpha: 0.16,
+                              ),
+                              backgroundColor: Colors.white.withValues(
+                                alpha: 0.06,
+                              ),
+                              side: BorderSide(
+                                color: currentDigitalTheme == id
+                                    ? Colors.white.withValues(alpha: 0.7)
+                                    : Colors.white.withValues(alpha: 0.12),
+                              ),
+                              labelStyle: const TextStyle(color: Colors.white),
+                              checkmarkColor: Colors.white,
+                              onSelected: (_) {
+                                engine.setDigitalTheme(id);
                                 ref.invalidate(clockSnapshotProvider);
                                 setState(() {});
                                 setSheetState(() {});
@@ -268,10 +317,11 @@ class _ClockPageState extends ConsumerState<ClockPage>
         MediaQuery.orientationOf(context) == Orientation.landscape;
     final engine = ref.watch(clockEngineProvider);
     final themeId = engine.clockThemeId;
+    final digitalTheme = engine.digitalThemeId.theme;
     final flipPalette = engine.flipPaletteId.palette;
     final backgroundColor = themeId == ClockThemeId.flip
         ? flipPalette.background
-        : Colors.black;
+        : digitalTheme.background;
     final notch = defaultTargetPlatform == TargetPlatform.iOS
         ? MediaQuery.viewPaddingOf(context)
         : EdgeInsets.zero;
@@ -288,6 +338,7 @@ class _ClockPageState extends ConsumerState<ClockPage>
               opacity: snapshot.nightMode ? 0.35 : 1,
               child: ClockFace(
                 themeId: themeId,
+                digitalTheme: digitalTheme,
                 flipPalette: flipPalette,
                 snapshot: snapshot,
                 landscape: landscape,

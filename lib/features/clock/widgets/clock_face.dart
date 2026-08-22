@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../clock/clock_engine.dart';
+import '../../../clock/digital_theme.dart';
 import '../../../clock/flip_palette.dart';
 import '../../../clock/clock_theme.dart';
 import 'flip_clock_face.dart';
@@ -9,12 +10,14 @@ class ClockFace extends StatelessWidget {
   const ClockFace({
     super.key,
     required this.themeId,
+    required this.digitalTheme,
     required this.flipPalette,
     required this.snapshot,
     required this.landscape,
   });
 
   final ClockThemeId themeId;
+  final DigitalTheme digitalTheme;
   final FlipPalette flipPalette;
   final ClockSnapshot snapshot;
   final bool landscape;
@@ -27,6 +30,7 @@ class ClockFace extends StatelessWidget {
         session: session,
         landscape: landscape,
         themeId: themeId,
+        digitalTheme: digitalTheme,
         flipPalette: flipPalette,
       );
     }
@@ -39,6 +43,7 @@ class ClockFace extends StatelessWidget {
       ClockThemeId.digital => DigitalClockFace(
         snapshot: snapshot,
         landscape: landscape,
+        theme: digitalTheme,
       ),
     };
   }
@@ -49,19 +54,27 @@ class _SessionFace extends StatelessWidget {
     required this.session,
     required this.landscape,
     required this.themeId,
+    required this.digitalTheme,
     required this.flipPalette,
   });
 
   final SessionSnapshot session;
   final bool landscape;
   final ClockThemeId themeId;
+  final DigitalTheme digitalTheme;
   final FlipPalette flipPalette;
 
   @override
   Widget build(BuildContext context) {
     final digitColor = themeId == ClockThemeId.flip
         ? flipPalette.digit
-        : Colors.white;
+        : digitalTheme.digit;
+    final secondaryColor = themeId == ClockThemeId.flip
+        ? flipPalette.digit.withValues(alpha: 0.7)
+        : digitalTheme.secondary;
+    final glow = themeId == ClockThemeId.digital
+        ? digitalTheme.glow
+        : const <Shadow>[];
     final timeSize = switch (themeId) {
       ClockThemeId.digital => landscape ? 136.0 : 88.0,
       ClockThemeId.flip => landscape ? 120.0 : 72.0,
@@ -81,6 +94,7 @@ class _SessionFace extends StatelessWidget {
                     : session.remainingLabel,
                 style: TextStyle(
                   color: digitColor,
+                  shadows: glow,
                   fontSize: timeSize,
                   fontWeight: FontWeight.w300,
                   letterSpacing: 2,
@@ -90,17 +104,14 @@ class _SessionFace extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   '${session.duration.inMinutes} min',
-                  style: TextStyle(
-                    color: digitColor.withValues(alpha: 0.7),
-                    fontSize: 18,
-                  ),
+                  style: TextStyle(color: secondaryColor, fontSize: 18),
                 ),
               ],
               const SizedBox(height: 16),
               Text(
                 session.kindLabel,
                 style: TextStyle(
-                  color: digitColor.withValues(alpha: 0.7),
+                  color: secondaryColor,
                   fontSize: 18,
                   letterSpacing: 2,
                 ),
@@ -118,10 +129,12 @@ class DigitalClockFace extends StatelessWidget {
     super.key,
     required this.snapshot,
     required this.landscape,
+    required this.theme,
   });
 
   final ClockSnapshot snapshot;
   final bool landscape;
+  final DigitalTheme theme;
 
   @override
   Widget build(BuildContext context) {
@@ -149,11 +162,12 @@ class DigitalClockFace extends StatelessWidget {
                     time,
                     key: const ValueKey('digital-time'),
                     style: TextStyle(
-                      color: Colors.white,
+                      color: theme.digit,
                       fontFamily: 'DSEG7Classic',
                       fontSize: fontSize,
                       fontWeight: FontWeight.w700,
                       height: 1,
+                      shadows: theme.glow,
                     ),
                   ),
                 ),
@@ -162,7 +176,7 @@ class DigitalClockFace extends StatelessWidget {
                   Text(
                     snapshot.period!,
                     style: TextStyle(
-                      color: Colors.white70,
+                      color: theme.secondary,
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 3,
@@ -174,7 +188,7 @@ class DigitalClockFace extends StatelessWidget {
                   Text(
                     snapshot.dateLabel,
                     style: TextStyle(
-                      color: Colors.white70,
+                      color: theme.secondary,
                       fontSize: 18,
                       letterSpacing: 2,
                     ),
