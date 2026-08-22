@@ -16,43 +16,6 @@ void main() {
     await initializeDateFormatting('en');
   });
 
-  testWidgets('Timer sheet lists presets and Custom', (tester) async {
-    final container = await _pumpClock(tester);
-
-    await tester.tap(find.byType(ClockPage));
-    await tester.pump();
-    await tester.tap(find.text('Timer'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('1'), findsOneWidget);
-    expect(find.text('5'), findsOneWidget);
-    expect(find.text('10'), findsOneWidget);
-    expect(find.text('30'), findsOneWidget);
-    expect(find.text('Custom'), findsOneWidget);
-    expect(find.textContaining('Today'), findsNothing);
-
-    await tester.pumpWidget(const SizedBox.shrink());
-    container.dispose();
-  });
-
-  testWidgets('starting Timer shows remaining mm:ss and TIMER', (tester) async {
-    final container = await _pumpClock(tester);
-
-    await tester.tap(find.byType(ClockPage));
-    await tester.pump();
-    await tester.tap(find.text('Timer'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Start'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('01:00'), findsOneWidget);
-    expect(find.text('TIMER'), findsOneWidget);
-    expect(find.byType(ClockPage), findsOneWidget);
-
-    await tester.pumpWidget(const SizedBox.shrink());
-    container.dispose();
-  });
-
   testWidgets('Pause Resume Stop behave like Focus', (tester) async {
     final engine = ClockEngine(
       clock: FakeClock(wall: DateTime(2026, 8, 20, 21, 38)),
@@ -89,9 +52,7 @@ void main() {
     container.dispose();
   });
 
-  testWidgets('Timer Complete does not count today Focus', (
-    tester,
-  ) async {
+  testWidgets('Timer Complete does not count today Focus', (tester) async {
     final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
     final engine = ClockEngine(clock: clock, locale: const Locale('en'));
     engine.start(SessionKind.timer, const Duration(minutes: 5));
@@ -143,25 +104,6 @@ void main() {
     await tester.tap(find.byType(ClockPage));
     await tester.pump();
     expect(find.text('Focus'), findsNothing);
-
-    await tester.pumpWidget(const SizedBox.shrink());
-    container.dispose();
-  });
-
-  testWidgets('Custom Timer is 1 to 180 minutes in steps of 1', (tester) async {
-    final container = await _pumpClock(tester);
-
-    await tester.tap(find.byType(ClockPage));
-    await tester.pump();
-    await tester.tap(find.text('Timer'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Custom'));
-    await tester.pumpAndSettle();
-
-    final slider = tester.widget<Slider>(find.byType(Slider));
-    expect(slider.min, 1);
-    expect(slider.max, 180);
-    expect(slider.divisions, 179);
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();

@@ -16,7 +16,9 @@ void main() {
     await initializeDateFormatting('en');
   });
 
-  testWidgets('tap shows Theme Focus Timer More', (tester) async {
+  testWidgets('tap shows Theme and More without Focus or Timer', (
+    tester,
+  ) async {
     final container = await _pumpClock(tester);
 
     expect(find.text('Theme'), findsNothing);
@@ -25,8 +27,8 @@ void main() {
     await tester.pump();
 
     expect(find.text('Theme'), findsOneWidget);
-    expect(find.text('Focus'), findsOneWidget);
-    expect(find.text('Timer'), findsOneWidget);
+    expect(find.text('Focus'), findsNothing);
+    expect(find.text('Timer'), findsNothing);
     expect(find.text('More'), findsOneWidget);
     expect(find.byKey(const ValueKey('clock-chrome')), findsOneWidget);
 
@@ -122,9 +124,9 @@ void main() {
     await tester.tap(find.byType(ClockPage));
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
-    await tester.tap(find.text('Timer'));
+    await tester.tap(find.text('More'));
     await tester.pumpAndSettle();
-    Navigator.pop(tester.element(find.text('Start')));
+    Navigator.pop(tester.element(find.text('Settings')));
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 2));
     expect(find.text('Theme'), findsOneWidget);

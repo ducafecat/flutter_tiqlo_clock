@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_engine.dart';
@@ -15,48 +14,6 @@ void main() {
 
   setUpAll(() async {
     await initializeDateFormatting('en');
-  });
-
-  testWidgets('Focus sheet lists presets and highlights 25', (tester) async {
-    final container = await _pumpClock(tester);
-
-    await tester.tap(find.byType(ClockPage));
-    await tester.pump();
-    await tester.tap(find.text('Focus'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('15'), findsOneWidget);
-    expect(find.text('25'), findsOneWidget);
-    expect(find.text('45'), findsOneWidget);
-    expect(find.text('60'), findsOneWidget);
-    expect(find.text('Custom'), findsOneWidget);
-
-    final tiles = tester.widgetList<ListTile>(find.byType(ListTile)).toList();
-    final twentyFive = tiles.firstWhere(
-      (tile) => tile.title is Text && (tile.title as Text).data == '25',
-    );
-    expect(twentyFive.selected, isTrue);
-
-    await tester.pumpWidget(const SizedBox.shrink());
-    container.dispose();
-  });
-
-  testWidgets('starting Focus shows remaining mm:ss and FOCUS', (tester) async {
-    final container = await _pumpClock(tester);
-
-    await tester.tap(find.byType(ClockPage));
-    await tester.pump();
-    await tester.tap(find.text('Focus'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Start'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('25:00'), findsOneWidget);
-    expect(find.text('FOCUS'), findsOneWidget);
-    expect(find.byType(ClockPage), findsOneWidget);
-
-    await tester.pumpWidget(const SizedBox.shrink());
-    container.dispose();
   });
 
   testWidgets('running chrome is Pause and Stop only', (tester) async {
@@ -132,25 +89,6 @@ void main() {
     container.dispose();
   });
 
-  testWidgets('Custom Focus is 1 to 90 minutes in steps of 1', (tester) async {
-    final container = await _pumpClock(tester);
-
-    await tester.tap(find.byType(ClockPage));
-    await tester.pump();
-    await tester.tap(find.text('Focus'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Custom'));
-    await tester.pumpAndSettle();
-
-    final slider = tester.widget<Slider>(find.byType(Slider));
-    expect(slider.min, 1);
-    expect(slider.max, 90);
-    expect(slider.divisions, 89);
-
-    await tester.pumpWidget(const SizedBox.shrink());
-    container.dispose();
-  });
-
   testWidgets('Complete shows this session and Done, not today stats', (
     tester,
   ) async {
@@ -174,28 +112,6 @@ void main() {
     await tester.pump();
     expect(find.text('21:38'), findsOneWidget);
     expect(find.text('COMPLETE'), findsNothing);
-
-    await tester.pumpWidget(const SizedBox.shrink());
-    container.dispose();
-  });
-
-  testWidgets('Focus sheet shows Today after Complete', (tester) async {
-    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
-    final engine = ClockEngine(clock: clock, locale: const Locale('en'));
-    engine.start(SessionKind.focus, const Duration(minutes: 25));
-    clock.advanceElapsed(const Duration(minutes: 25));
-    engine.snapshot;
-    engine.acknowledgeComplete();
-    final container = await _pumpClock(tester, engine: engine);
-
-    expect(find.textContaining('Today'), findsNothing);
-
-    await tester.tap(find.byType(ClockPage));
-    await tester.pump();
-    await tester.tap(find.text('Focus'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Today 1 · 25 min'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
