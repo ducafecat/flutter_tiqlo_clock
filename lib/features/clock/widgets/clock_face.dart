@@ -130,6 +130,7 @@ class DigitalClockFace extends StatelessWidget {
       snapshot.displayMinute,
       if (snapshot.showSeconds) snapshot.displaySecond,
     ].join(':');
+    final fontSize = landscape ? 180.0 : 132.0;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -141,15 +142,19 @@ class DigitalClockFace extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  time,
-                  key: const ValueKey('digital-time'),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontFamily: 'DSEG7Classic',
-                    fontSize: landscape ? 180 : 132,
-                    fontWeight: FontWeight.w700,
-                    height: 1,
+                Transform.translate(
+                  key: const ValueKey('digital-time-optical-offset'),
+                  offset: _digitalOpticalOffset(time, fontSize),
+                  child: Text(
+                    time,
+                    key: const ValueKey('digital-time'),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'DSEG7Classic',
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.w700,
+                      height: 1,
+                    ),
                   ),
                 ),
                 if (snapshot.period != null) ...[
@@ -182,4 +187,11 @@ class DigitalClockFace extends StatelessWidget {
       ),
     );
   }
+}
+
+Offset _digitalOpticalOffset(String time, double fontSize) {
+  const oneCompensation = 0.28;
+  final leading = time.startsWith('1') ? -oneCompensation : 0.0;
+  final trailing = time.endsWith('1') ? oneCompensation : 0.0;
+  return Offset((leading + trailing) * fontSize, 0);
 }

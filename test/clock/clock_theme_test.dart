@@ -105,6 +105,26 @@ void main() {
     container.dispose();
   });
 
+  testWidgets('Digital clock optically centers a leading one', (tester) async {
+    const snapshot = ClockSnapshot(
+      hour: 10,
+      minute: 50,
+      dateLabel: 'THU · AUG 20',
+    );
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: DigitalClockFace(snapshot: snapshot, landscape: true),
+      ),
+    );
+
+    final transform = tester.widget<Transform>(
+      find.byKey(const ValueKey('digital-time-optical-offset')),
+    );
+    expect(transform.transform.getTranslation().x, closeTo(-50.4, 0.001));
+    expect(transform.transform.getTranslation().y, 0);
+  });
+
   testWidgets('ClockTheme sheet does not overflow in landscape', (
     tester,
   ) async {
