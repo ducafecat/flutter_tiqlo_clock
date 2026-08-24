@@ -45,6 +45,9 @@ dependencies:
   # 屏幕亮度
   screen_brightness: ^2.1.11
 
+  # 启动屏幕
+  flutter_native_splash: ^2.4.8
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -84,3 +87,19 @@ icons_launcher:
       enable: true
     android:
       enable: true
+    web:
+      enable: true
+    macos:
+      enable: true
+    windows:
+      enable: true
+    linux:
+      enable: true
+
+flutter_native_splash:
+  color: "#F9F6EF"
+  color_dark: "#2D2A24"
+  image: "assets/icons/ic_logo.png"
+  fullscreen: true
+  android: true
+  ios: true
