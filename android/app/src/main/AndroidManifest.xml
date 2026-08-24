@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
     <application
-        android:label="flutter_tiqlo_clock"
+        android:label="Tiqlo"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -1,6 +1,6 @@
 name: flutter_tiqlo_clock
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
@@ -32,9 +32,17 @@ dependencies:
 
   # 日期格式
   intl: ^0.20.2
+
+  # 本地消息
   flutter_local_notifications: ^22.3.0
+
+  # 时区
   timezone: ^0.11.1
+
+  # 屏幕常亮
   wakelock_plus: ^1.7.0
+
+  # 屏幕亮度
   screen_brightness: ^2.1.11
 
 dev_dependencies:
@@ -51,6 +59,9 @@ dev_dependencies:
   freezed: ^3.2.3
   json_serializable: ^6.14.1
 
+  # 图标生成
+  icons_launcher: ^3.1.0
+
   # 测试
   shared_preferences_platform_interface: ^2.4.2
 
@@ -65,3 +76,11 @@ flutter:
       fonts:
         - asset: fonts/DSEG7Classic-Bold.ttf
           weight: 700
+
+icons_launcher:
+  image_path: "assets/icons/ic_logo.png"
+  platforms:
+    ios:
+      enable: true
+    android:
+      enable: true
