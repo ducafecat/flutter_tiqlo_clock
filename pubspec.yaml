@@ -45,6 +45,9 @@ dependencies:
   # 屏幕亮度
   screen_brightness: ^2.1.11
 
+  # 桌面端与 Web 全屏
+  flutter_fullscreen: ^1.2.0
+
   # 启动屏幕
   flutter_native_splash: ^2.4.8
 

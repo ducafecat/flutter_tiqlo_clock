@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +20,8 @@ void main() {
   testWidgets('tap shows Theme and More without Focus or Timer', (
     tester,
   ) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+    addTearDown(() => debugDefaultTargetPlatformOverride = null);
     final container = await _pumpClock(tester);
 
     expect(find.text('Theme'), findsNothing);
@@ -30,6 +33,7 @@ void main() {
     expect(find.text('Focus'), findsNothing);
     expect(find.text('Timer'), findsNothing);
     expect(find.text('More'), findsOneWidget);
+    expect(find.text('Fullscreen'), findsOneWidget);
     expect(find.byKey(const ValueKey('clock-chrome')), findsOneWidget);
 
     await tester.tap(find.byType(ClockPage));
@@ -38,6 +42,7 @@ void main() {
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
+    debugDefaultTargetPlatformOverride = null;
   });
 
   testWidgets('chrome hides after 3 seconds then tap shows again', (

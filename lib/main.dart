@@ -9,9 +9,11 @@ import 'clock/system_clock.dart';
 import 'core/config/app_config.dart';
 import 'core/router/app_router.dart';
 import 'core/ui/app_theme.dart';
+import 'core/ui/clock_full_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await ClockFullScreen.ensureInitialized();
   await initializeDateFormatting();
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   final prefs = await SharedPreferences.getInstance();

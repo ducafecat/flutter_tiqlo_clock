@@ -12,6 +12,7 @@ import '../../../clock/flip_palette.dart';
 import '../../../clock/clock_providers.dart';
 import '../../../clock/clock_theme.dart';
 import '../../../core/router/app_router.dart';
+import '../../../core/ui/clock_full_screen.dart';
 import '../../../core/ui/clock_system_ui.dart';
 import '../../../core/ui/clock_wake.dart';
 import '../widgets/clock_face.dart';
@@ -26,6 +27,7 @@ class ClockPage extends ConsumerStatefulWidget {
 class _ClockPageState extends ConsumerState<ClockPage>
     with WidgetsBindingObserver {
   bool _chromeVisible = false;
+  bool _isFullScreen = ClockFullScreen.isFullScreen.value;
   Timer? _hideChromeTimer;
 
   @override
@@ -33,6 +35,9 @@ class _ClockPageState extends ConsumerState<ClockPage>
     super.initState();
     ClockSystemUi.hide();
     WidgetsBinding.instance.addObserver(this);
+    if (ClockFullScreen.isSupported) {
+      ClockFullScreen.isFullScreen.addListener(_onFullScreenChanged);
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final engine = ref.read(clockEngineProvider);
       final session = engine.snapshot.session;
@@ -47,8 +52,22 @@ class _ClockPageState extends ConsumerState<ClockPage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    if (ClockFullScreen.isSupported) {
+      ClockFullScreen.isFullScreen.removeListener(_onFullScreenChanged);
+    }
     _hideChromeTimer?.cancel();
     super.dispose();
+  }
+
+  void _onFullScreenChanged() {
+    if (mounted) {
+      setState(() => _isFullScreen = ClockFullScreen.isFullScreen.value);
+    }
+  }
+
+  void _toggleFullScreen() {
+    ClockFullScreen.toggle();
+    _showChrome();
   }
 
   @override
@@ -381,10 +400,17 @@ class _ClockPageState extends ConsumerState<ClockPage>
 
   List<Widget> _chromeButtons(ClockSnapshot snapshot) {
     final session = snapshot.session;
+    final fullScreenButton = ClockFullScreen.isSupported
+        ? _ChromeButton(
+            label: _isFullScreen ? 'Exit Fullscreen' : 'Fullscreen',
+            onPressed: _toggleFullScreen,
+          )
+        : null;
     if (session == null) {
       return [
         _ChromeButton(label: 'Theme', onPressed: _openClockTheme),
         _ChromeButton(label: 'More', onPressed: _openMore),
+        ?fullScreenButton,
       ];
     }
     if (session.status == SessionStatus.complete) {
@@ -397,6 +423,7 @@ class _ClockPageState extends ConsumerState<ClockPage>
             _showChrome();
           },
         ),
+        ?fullScreenButton,
       ];
     }
     return [
@@ -422,6 +449,7 @@ class _ClockPageState extends ConsumerState<ClockPage>
           _showChrome();
         },
       ),
+      ?fullScreenButton,
     ];
   }
 }
