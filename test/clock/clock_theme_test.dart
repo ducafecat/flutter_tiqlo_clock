@@ -151,6 +151,47 @@ void main() {
     expect(transform.transform.getTranslation().y, 0);
   });
 
+  testWidgets('Digital clock does not grow when a large window is stretched', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1600, 1280);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const snapshot = ClockSnapshot(
+      hour: 22,
+      minute: 48,
+      second: 51,
+      dateLabel: 'MON · AUG 24',
+      showSeconds: true,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: DigitalClockFace(
+            snapshot: snapshot,
+            landscape: true,
+            theme: DigitalThemeId.pureDark.theme,
+          ),
+        ),
+      ),
+    );
+
+    final timeFinder = find.byKey(const ValueKey('digital-time'));
+    final layoutSize = tester.getSize(timeFinder);
+    final paintedRect = tester.getRect(timeFinder);
+    final transform = tester.widget<Transform>(
+      find.byKey(const ValueKey('digital-time-optical-offset')),
+    );
+
+    expect(paintedRect.width, lessThanOrEqualTo(layoutSize.width + 0.1));
+    expect(paintedRect.left, greaterThanOrEqualTo(24));
+    expect(paintedRect.right, lessThanOrEqualTo(1600 - 24));
+    expect(transform.transform.getTranslation().x, 0);
+  });
+
   testWidgets('Digital theme colors time, period, and date independently', (
     tester,
   ) async {

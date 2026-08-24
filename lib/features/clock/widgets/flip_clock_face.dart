@@ -52,7 +52,7 @@ class FlipClockFace extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       child: SizedBox.expand(
         child: FittedBox(
-          fit: BoxFit.contain,
+          fit: BoxFit.scaleDown,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

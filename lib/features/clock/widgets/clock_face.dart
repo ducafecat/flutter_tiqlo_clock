@@ -84,7 +84,7 @@ class _SessionFace extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       child: SizedBox.expand(
         child: FittedBox(
-          fit: BoxFit.contain,
+          fit: BoxFit.scaleDown,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -149,7 +149,7 @@ class DigitalClockFace extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       child: SizedBox.expand(
         child: FittedBox(
-          fit: BoxFit.contain,
+          fit: BoxFit.scaleDown,
           child: Semantics(
             label: snapshot.timeLabel,
             child: Column(
@@ -157,7 +157,9 @@ class DigitalClockFace extends StatelessWidget {
               children: [
                 Transform.translate(
                   key: const ValueKey('digital-time-optical-offset'),
-                  offset: _digitalOpticalOffset(time, fontSize),
+                  offset: snapshot.showSeconds
+                      ? Offset.zero
+                      : _digitalOpticalOffset(time, fontSize),
                   child: Text(
                     time,
                     key: const ValueKey('digital-time'),
