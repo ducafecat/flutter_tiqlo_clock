@@ -6,11 +6,13 @@ import 'package:flutter_tiqlo_clock/clock/digital_theme.dart';
 import 'package:flutter_tiqlo_clock/clock/flip_palette.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_providers.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
+import 'package:flutter_tiqlo_clock/clock/prefs_clock_settings_store.dart';
 import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_face.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/flip_clock_face.dart';
 import 'package:flutter_tiqlo_clock/main.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'fake_clock.dart';
 
@@ -21,12 +23,28 @@ void main() {
     await initializeDateFormatting('en');
   });
 
+  test(
+    'Clock style defaults to Flip and keeps a saved Digital choice',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      var prefs = await SharedPreferences.getInstance();
+      var store = PrefsClockSettingsStore(prefs);
+      expect(store.loadClockThemeId(), ClockThemeId.flip);
+
+      SharedPreferences.setMockInitialValues({'clock.theme_id': 'digital'});
+      prefs = await SharedPreferences.getInstance();
+      store = PrefsClockSettingsStore(prefs);
+      expect(store.loadClockThemeId(), ClockThemeId.digital);
+    },
+  );
+
   testWidgets('Digital and Flip keep independent theme selections', (
     tester,
   ) async {
     final engine = ClockEngine(
       clock: FakeClock(wall: DateTime(2026, 8, 20, 21, 38)),
       locale: const Locale('en'),
+      clockThemeId: ClockThemeId.digital,
     );
     final container = ProviderContainer(
       overrides: [clockEngineProvider.overrideWithValue(engine)],
@@ -420,8 +438,12 @@ void main() {
 
     final hourCenter = tester.getCenter(find.text('9').first);
     final minuteCenter = tester.getCenter(find.text('00').first);
+    final cardFinder = find.byKey(const ValueKey('flip-card-stack')).first;
+    final cardLayoutSize = tester.getSize(cardFinder);
+    final cardPaintedRect = tester.getRect(cardFinder);
     expect(hourCenter.dx, closeTo(minuteCenter.dx, 0.1));
     expect(hourCenter.dy, lessThan(minuteCenter.dy));
+    expect(cardPaintedRect.width, greaterThan(cardLayoutSize.width));
     expect(tester.takeException(), isNull);
   });
 

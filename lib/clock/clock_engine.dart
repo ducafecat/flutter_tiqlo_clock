@@ -118,7 +118,7 @@ class ClockEngine {
        showDate = store?.loadShowDate() ?? showDate,
        showLeadingZero = store?.loadShowLeadingZero() ?? showLeadingZero,
        clockThemeId =
-           store?.loadClockThemeId() ?? clockThemeId ?? ClockThemeId.digital,
+           store?.loadClockThemeId() ?? clockThemeId ?? ClockThemeId.flip,
        digitalThemeId =
            store?.loadDigitalThemeId() ??
            digitalThemeId ??
@@ -212,59 +212,59 @@ class ClockEngine {
     return nextMinute.difference(now);
   }
 
-  void setTimeFormat(TimeFormat format) {
+  Future<void> setTimeFormat(TimeFormat format) {
     _timeFormat = format;
-    _store?.saveTimeFormat(format);
+    return _store?.saveTimeFormat(format) ?? Future<void>.value();
   }
 
-  void setShowSeconds(bool value) {
+  Future<void> setShowSeconds(bool value) {
     showSeconds = value;
-    _store?.saveShowSeconds(value);
+    return _store?.saveShowSeconds(value) ?? Future<void>.value();
   }
 
-  void setShowDate(bool value) {
+  Future<void> setShowDate(bool value) {
     showDate = value;
-    _store?.saveShowDate(value);
+    return _store?.saveShowDate(value) ?? Future<void>.value();
   }
 
-  void setShowLeadingZero(bool value) {
+  Future<void> setShowLeadingZero(bool value) {
     showLeadingZero = value;
-    _store?.saveShowLeadingZero(value);
+    return _store?.saveShowLeadingZero(value) ?? Future<void>.value();
   }
 
-  void setClockTheme(ClockThemeId id) {
+  Future<void> setClockTheme(ClockThemeId id) {
     clockThemeId = id;
-    _store?.saveClockThemeId(id);
+    return _store?.saveClockThemeId(id) ?? Future<void>.value();
   }
 
-  void setDigitalTheme(DigitalThemeId id) {
+  Future<void> setDigitalTheme(DigitalThemeId id) {
     digitalThemeId = id;
-    _store?.saveDigitalThemeId(id);
+    return _store?.saveDigitalThemeId(id) ?? Future<void>.value();
   }
 
-  void setFlipPalette(FlipPaletteId id) {
+  Future<void> setFlipPalette(FlipPaletteId id) {
     flipPaletteId = id;
-    _store?.saveFlipPaletteId(id);
+    return _store?.saveFlipPaletteId(id) ?? Future<void>.value();
   }
 
-  void setSoundEnabled(bool value) {
+  Future<void> setSoundEnabled(bool value) {
     soundEnabled = value;
-    _store?.saveSoundEnabled(value);
+    return _store?.saveSoundEnabled(value) ?? Future<void>.value();
   }
 
-  void setVibrationEnabled(bool value) {
+  Future<void> setVibrationEnabled(bool value) {
     vibrationEnabled = value;
-    _store?.saveVibrationEnabled(value);
+    return _store?.saveVibrationEnabled(value) ?? Future<void>.value();
   }
 
-  void setNightMode(bool value) {
+  Future<void> setNightMode(bool value) {
     nightMode = value;
-    _store?.saveNightMode(value);
+    return _store?.saveNightMode(value) ?? Future<void>.value();
   }
 
-  void setKeepAwake(bool value) {
+  Future<void> setKeepAwake(bool value) {
     keepAwake = value;
-    _store?.saveKeepAwake(value);
+    return _store?.saveKeepAwake(value) ?? Future<void>.value();
   }
 
   void start(SessionKind kind, Duration duration) {

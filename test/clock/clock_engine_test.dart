@@ -138,17 +138,17 @@ void main() {
     expect(reloaded.snapshot.showDate, isTrue);
   });
 
-  test('clock theme defaults to Digital and persists across reload', () {
+  test('clock theme defaults to Flip and persists across reload', () {
     final store = MemoryClockSettingsStore();
     final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
     final engine = ClockEngine(clock: clock, store: store);
 
-    expect(engine.clockThemeId, ClockThemeId.digital);
+    expect(engine.clockThemeId, ClockThemeId.flip);
 
-    engine.setClockTheme(ClockThemeId.flip);
+    engine.setClockTheme(ClockThemeId.digital);
 
     final reloaded = ClockEngine(clock: clock, store: store);
-    expect(reloaded.clockThemeId, ClockThemeId.flip);
+    expect(reloaded.clockThemeId, ClockThemeId.digital);
   });
 
   test('clock palette defaults to Pure Dark and persists across reload', () {
@@ -162,7 +162,7 @@ void main() {
 
     final reloaded = ClockEngine(clock: clock, store: store);
     expect(reloaded.flipPaletteId, FlipPaletteId.purple);
-    expect(reloaded.clockThemeId, ClockThemeId.digital);
+    expect(reloaded.clockThemeId, ClockThemeId.flip);
   });
 
   test('Digital theme defaults to Pure Dark and persists across reload', () {

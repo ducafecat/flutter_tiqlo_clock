@@ -54,10 +54,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       SwitchListTile(
                         title: const Text('24 Hour'),
                         value: engine.is24Hour,
-                        onChanged: (value) {
-                          engine.setTimeFormat(
+                        onChanged: (value) async {
+                          await engine.setTimeFormat(
                             value ? TimeFormat.h24 : TimeFormat.h12,
                           );
+                          if (!mounted) return;
                           ref.invalidate(clockSnapshotProvider);
                           setState(() {});
                         },
@@ -65,8 +66,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       SwitchListTile(
                         title: const Text('Show Leading Zero'),
                         value: engine.showLeadingZero,
-                        onChanged: (value) {
-                          engine.setShowLeadingZero(value);
+                        onChanged: (value) async {
+                          await engine.setShowLeadingZero(value);
+                          if (!mounted) return;
                           ref.invalidate(clockSnapshotProvider);
                           setState(() {});
                         },
@@ -74,8 +76,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       SwitchListTile(
                         title: const Text('Show Seconds'),
                         value: engine.showSeconds,
-                        onChanged: (value) {
-                          engine.setShowSeconds(value);
+                        onChanged: (value) async {
+                          await engine.setShowSeconds(value);
+                          if (!mounted) return;
                           ref.invalidate(clockSnapshotProvider);
                           setState(() {});
                         },
@@ -83,8 +86,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       SwitchListTile(
                         title: const Text('Date & Weekday'),
                         value: engine.showDate,
-                        onChanged: (value) {
-                          engine.setShowDate(value);
+                        onChanged: (value) async {
+                          await engine.setShowDate(value);
+                          if (!mounted) return;
                           ref.invalidate(clockSnapshotProvider);
                           setState(() {});
                         },
@@ -99,16 +103,18 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       SwitchListTile(
                         title: const Text('Keep Screen Awake'),
                         value: engine.keepAwake,
-                        onChanged: (value) {
-                          engine.setKeepAwake(value);
+                        onChanged: (value) async {
+                          await engine.setKeepAwake(value);
+                          if (!mounted) return;
                           setState(() {});
                         },
                       ),
                       SwitchListTile(
                         title: const Text('Night Mode'),
                         value: engine.nightMode,
-                        onChanged: (value) {
-                          engine.setNightMode(value);
+                        onChanged: (value) async {
+                          await engine.setNightMode(value);
+                          if (!mounted) return;
                           ref.invalidate(clockSnapshotProvider);
                           setState(() {});
                         },
@@ -123,16 +129,18 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       SwitchListTile(
                         title: const Text('Sound'),
                         value: engine.soundEnabled,
-                        onChanged: (value) {
-                          engine.setSoundEnabled(value);
+                        onChanged: (value) async {
+                          await engine.setSoundEnabled(value);
+                          if (!mounted) return;
                           setState(() {});
                         },
                       ),
                       SwitchListTile(
                         title: const Text('Vibration'),
                         value: engine.vibrationEnabled,
-                        onChanged: (value) {
-                          engine.setVibrationEnabled(value);
+                        onChanged: (value) async {
+                          await engine.setVibrationEnabled(value);
+                          if (!mounted) return;
                           setState(() {});
                         },
                       ),

@@ -24,8 +24,8 @@ class LocalSessionAlerts implements SessionAlerts {
       await _ensureReady();
       granted = await _requestPermission();
     } catch (_) {}
-    _store.saveNotificationAsked(true);
-    _store.saveNotificationGranted(granted);
+    await _store.saveNotificationAsked(true);
+    await _store.saveNotificationGranted(granted);
   }
 
   @override

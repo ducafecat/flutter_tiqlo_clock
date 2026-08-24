@@ -71,7 +71,7 @@ void main() {
       var store = PrefsClockSettingsStore(prefs);
 
       expect(store.loadDigitalThemeId(), DigitalThemeId.pureDark);
-      store.saveDigitalThemeId(DigitalThemeId.digitalBlue);
+      await store.saveDigitalThemeId(DigitalThemeId.digitalBlue);
       expect(store.loadDigitalThemeId(), DigitalThemeId.digitalBlue);
       expect(prefs.getString('clock.digital_theme_id'), 'digitalBlue');
 

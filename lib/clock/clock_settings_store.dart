@@ -12,29 +12,29 @@ abstract class ClockSettingsStore {
   FlipPaletteId loadFlipPaletteId();
   bool loadShowDate();
   bool loadShowLeadingZero();
-  void saveTimeFormat(TimeFormat format);
-  void saveShowSeconds(bool value);
-  void saveClockThemeId(ClockThemeId id);
-  void saveDigitalThemeId(DigitalThemeId id);
-  void saveFlipPaletteId(FlipPaletteId id);
-  void saveShowDate(bool value);
-  void saveShowLeadingZero(bool value);
+  Future<void> saveTimeFormat(TimeFormat format);
+  Future<void> saveShowSeconds(bool value);
+  Future<void> saveClockThemeId(ClockThemeId id);
+  Future<void> saveDigitalThemeId(DigitalThemeId id);
+  Future<void> saveFlipPaletteId(FlipPaletteId id);
+  Future<void> saveShowDate(bool value);
+  Future<void> saveShowLeadingZero(bool value);
   StoredSession? loadSession();
-  void saveSession(StoredSession? session);
+  Future<void> saveSession(StoredSession? session);
   List<StoredFocusComplete> loadFocusCompletes();
-  void saveFocusCompletes(List<StoredFocusComplete> completes);
+  Future<void> saveFocusCompletes(List<StoredFocusComplete> completes);
   bool loadSoundEnabled();
   bool loadVibrationEnabled();
-  void saveSoundEnabled(bool value);
-  void saveVibrationEnabled(bool value);
+  Future<void> saveSoundEnabled(bool value);
+  Future<void> saveVibrationEnabled(bool value);
   bool loadNotificationAsked();
   bool loadNotificationGranted();
-  void saveNotificationAsked(bool value);
-  void saveNotificationGranted(bool value);
+  Future<void> saveNotificationAsked(bool value);
+  Future<void> saveNotificationGranted(bool value);
   bool loadNightMode();
   bool loadKeepAwake();
-  void saveNightMode(bool value);
-  void saveKeepAwake(bool value);
+  Future<void> saveNightMode(bool value);
+  Future<void> saveKeepAwake(bool value);
 }
 
 class StoredSession {
@@ -65,7 +65,7 @@ class StoredFocusComplete {
 class MemoryClockSettingsStore implements ClockSettingsStore {
   TimeFormat? timeFormat;
   bool showSeconds = false;
-  ClockThemeId clockThemeId = ClockThemeId.digital;
+  ClockThemeId clockThemeId = ClockThemeId.flip;
   DigitalThemeId digitalThemeId = DigitalThemeId.pureDark;
   FlipPaletteId flipPaletteId = FlipPaletteId.pureDark;
   bool showDate = false;
@@ -101,37 +101,37 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   bool loadShowLeadingZero() => showLeadingZero;
 
   @override
-  void saveTimeFormat(TimeFormat format) {
+  Future<void> saveTimeFormat(TimeFormat format) async {
     timeFormat = format;
   }
 
   @override
-  void saveShowSeconds(bool value) {
+  Future<void> saveShowSeconds(bool value) async {
     showSeconds = value;
   }
 
   @override
-  void saveClockThemeId(ClockThemeId id) {
+  Future<void> saveClockThemeId(ClockThemeId id) async {
     clockThemeId = id;
   }
 
   @override
-  void saveDigitalThemeId(DigitalThemeId id) {
+  Future<void> saveDigitalThemeId(DigitalThemeId id) async {
     digitalThemeId = id;
   }
 
   @override
-  void saveFlipPaletteId(FlipPaletteId id) {
+  Future<void> saveFlipPaletteId(FlipPaletteId id) async {
     flipPaletteId = id;
   }
 
   @override
-  void saveShowDate(bool value) {
+  Future<void> saveShowDate(bool value) async {
     showDate = value;
   }
 
   @override
-  void saveShowLeadingZero(bool value) {
+  Future<void> saveShowLeadingZero(bool value) async {
     showLeadingZero = value;
   }
 
@@ -139,7 +139,7 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   StoredSession? loadSession() => session;
 
   @override
-  void saveSession(StoredSession? value) {
+  Future<void> saveSession(StoredSession? value) async {
     session = value;
   }
 
@@ -147,7 +147,7 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   List<StoredFocusComplete> loadFocusCompletes() => List.of(completes);
 
   @override
-  void saveFocusCompletes(List<StoredFocusComplete> value) {
+  Future<void> saveFocusCompletes(List<StoredFocusComplete> value) async {
     completes = List.of(value);
   }
 
@@ -158,12 +158,12 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   bool loadVibrationEnabled() => vibrationEnabled;
 
   @override
-  void saveSoundEnabled(bool value) {
+  Future<void> saveSoundEnabled(bool value) async {
     soundEnabled = value;
   }
 
   @override
-  void saveVibrationEnabled(bool value) {
+  Future<void> saveVibrationEnabled(bool value) async {
     vibrationEnabled = value;
   }
 
@@ -174,12 +174,12 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   bool loadNotificationGranted() => notificationGranted;
 
   @override
-  void saveNotificationAsked(bool value) {
+  Future<void> saveNotificationAsked(bool value) async {
     notificationAsked = value;
   }
 
   @override
-  void saveNotificationGranted(bool value) {
+  Future<void> saveNotificationGranted(bool value) async {
     notificationGranted = value;
   }
 
@@ -190,12 +190,12 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   bool loadKeepAwake() => keepAwake;
 
   @override
-  void saveNightMode(bool value) {
+  Future<void> saveNightMode(bool value) async {
     nightMode = value;
   }
 
   @override
-  void saveKeepAwake(bool value) {
+  Future<void> saveKeepAwake(bool value) async {
     keepAwake = value;
   }
 }

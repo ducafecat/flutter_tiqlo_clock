@@ -26,6 +26,20 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   static const _keepAwakeKey = 'clock.keep_awake';
 
   final SharedPreferences _prefs;
+  Future<void> _pendingWrite = Future<void>.value();
+
+  Future<void> _enqueue(Future<bool> Function() write) {
+    final operation = _pendingWrite.then((_) async {
+      if (!await write()) {
+        throw StateError('Failed to persist clock settings.');
+      }
+    });
+    _pendingWrite = operation.then<void>(
+      (_) {},
+      onError: (Object _, StackTrace _) {},
+    );
+    return operation;
+  }
 
   @override
   TimeFormat? loadTimeFormat() {
@@ -40,13 +54,16 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   bool loadShowSeconds() => _prefs.getBool(_secondsKey) ?? false;
 
   @override
-  void saveTimeFormat(TimeFormat format) {
-    _prefs.setString(_formatKey, format == TimeFormat.h12 ? '12' : '24');
+  Future<void> saveTimeFormat(TimeFormat format) {
+    return _enqueue(
+      () =>
+          _prefs.setString(_formatKey, format == TimeFormat.h12 ? '12' : '24'),
+    );
   }
 
   @override
-  void saveShowSeconds(bool value) {
-    _prefs.setBool(_secondsKey, value);
+  Future<void> saveShowSeconds(bool value) {
+    return _enqueue(() => _prefs.setBool(_secondsKey, value));
   }
 
   @override
@@ -54,13 +71,13 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
     return switch (_prefs.getString(_themeKey)) {
       'flip' => ClockThemeId.flip,
       'digital' => ClockThemeId.digital,
-      _ => ClockThemeId.digital,
+      _ => ClockThemeId.flip,
     };
   }
 
   @override
-  void saveClockThemeId(ClockThemeId id) {
-    _prefs.setString(_themeKey, id.name);
+  Future<void> saveClockThemeId(ClockThemeId id) {
+    return _enqueue(() => _prefs.setString(_themeKey, id.name));
   }
 
   @override
@@ -73,8 +90,8 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   }
 
   @override
-  void saveDigitalThemeId(DigitalThemeId id) {
-    _prefs.setString(_digitalThemeKey, id.name);
+  Future<void> saveDigitalThemeId(DigitalThemeId id) {
+    return _enqueue(() => _prefs.setString(_digitalThemeKey, id.name));
   }
 
   @override
@@ -89,24 +106,24 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   }
 
   @override
-  void saveFlipPaletteId(FlipPaletteId id) {
-    _prefs.setString(_flipPaletteKey, id.name);
+  Future<void> saveFlipPaletteId(FlipPaletteId id) {
+    return _enqueue(() => _prefs.setString(_flipPaletteKey, id.name));
   }
 
   @override
   bool loadShowDate() => _prefs.getBool(_dateKey) ?? false;
 
   @override
-  void saveShowDate(bool value) {
-    _prefs.setBool(_dateKey, value);
+  Future<void> saveShowDate(bool value) {
+    return _enqueue(() => _prefs.setBool(_dateKey, value));
   }
 
   @override
   bool loadShowLeadingZero() => _prefs.getBool(_leadingZeroKey) ?? false;
 
   @override
-  void saveShowLeadingZero(bool value) {
-    _prefs.setBool(_leadingZeroKey, value);
+  Future<void> saveShowLeadingZero(bool value) {
+    return _enqueue(() => _prefs.setBool(_leadingZeroKey, value));
   }
 
   @override
@@ -128,21 +145,22 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   }
 
   @override
-  void saveSession(StoredSession? session) {
+  Future<void> saveSession(StoredSession? session) {
     if (session == null) {
-      _prefs.remove(_sessionKey);
-      return;
+      return _enqueue(() => _prefs.remove(_sessionKey));
     }
-    _prefs.setString(
-      _sessionKey,
-      [
-        session.kind,
-        session.durationMs,
-        session.startedElapsedMs,
-        session.status,
-        session.frozenRemainingMs ?? '',
-        session.recorded ? '1' : '0',
-      ].join(','),
+    return _enqueue(
+      () => _prefs.setString(
+        _sessionKey,
+        [
+          session.kind,
+          session.durationMs,
+          session.startedElapsedMs,
+          session.status,
+          session.frozenRemainingMs ?? '',
+          session.recorded ? '1' : '0',
+        ].join(','),
+      ),
     );
   }
 
@@ -161,14 +179,15 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   }
 
   @override
-  void saveFocusCompletes(List<StoredFocusComplete> completes) {
+  Future<void> saveFocusCompletes(List<StoredFocusComplete> completes) {
     if (completes.isEmpty) {
-      _prefs.remove(_completesKey);
-      return;
+      return _enqueue(() => _prefs.remove(_completesKey));
     }
-    _prefs.setString(
-      _completesKey,
-      completes.map((e) => '${e.localDate},${e.minutes}').join(';'),
+    return _enqueue(
+      () => _prefs.setString(
+        _completesKey,
+        completes.map((e) => '${e.localDate},${e.minutes}').join(';'),
+      ),
     );
   }
 
@@ -179,13 +198,13 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   bool loadVibrationEnabled() => _prefs.getBool(_vibrationKey) ?? true;
 
   @override
-  void saveSoundEnabled(bool value) {
-    _prefs.setBool(_soundKey, value);
+  Future<void> saveSoundEnabled(bool value) {
+    return _enqueue(() => _prefs.setBool(_soundKey, value));
   }
 
   @override
-  void saveVibrationEnabled(bool value) {
-    _prefs.setBool(_vibrationKey, value);
+  Future<void> saveVibrationEnabled(bool value) {
+    return _enqueue(() => _prefs.setBool(_vibrationKey, value));
   }
 
   @override
@@ -197,13 +216,13 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
       _prefs.getBool(_notificationGrantedKey) ?? false;
 
   @override
-  void saveNotificationAsked(bool value) {
-    _prefs.setBool(_notificationAskedKey, value);
+  Future<void> saveNotificationAsked(bool value) {
+    return _enqueue(() => _prefs.setBool(_notificationAskedKey, value));
   }
 
   @override
-  void saveNotificationGranted(bool value) {
-    _prefs.setBool(_notificationGrantedKey, value);
+  Future<void> saveNotificationGranted(bool value) {
+    return _enqueue(() => _prefs.setBool(_notificationGrantedKey, value));
   }
 
   @override
@@ -213,12 +232,12 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   bool loadKeepAwake() => _prefs.getBool(_keepAwakeKey) ?? true;
 
   @override
-  void saveNightMode(bool value) {
-    _prefs.setBool(_nightModeKey, value);
+  Future<void> saveNightMode(bool value) {
+    return _enqueue(() => _prefs.setBool(_nightModeKey, value));
   }
 
   @override
-  void saveKeepAwake(bool value) {
-    _prefs.setBool(_keepAwakeKey, value);
+  Future<void> saveKeepAwake(bool value) {
+    return _enqueue(() => _prefs.setBool(_keepAwakeKey, value));
   }
 }

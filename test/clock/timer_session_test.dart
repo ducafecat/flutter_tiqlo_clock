@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_engine.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_providers.dart';
 import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
+import 'package:flutter_tiqlo_clock/features/clock/widgets/flip_clock_face.dart';
 import 'package:flutter_tiqlo_clock/main.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -44,7 +45,9 @@ void main() {
 
     await tester.tap(find.text('Stop'));
     await tester.pump();
-    expect(find.text('21:38'), findsOneWidget);
+    expect(find.byType(FlipClockFace), findsOneWidget);
+    expect(find.text('21'), findsNWidgets(2));
+    expect(find.text('38'), findsNWidgets(2));
     expect(find.text('TIMER'), findsNothing);
     expect(engine.snapshot.session, isNull);
 
@@ -70,7 +73,9 @@ void main() {
     await tester.pump();
     await tester.tap(find.text('Done'));
     await tester.pump();
-    expect(find.text('21:38'), findsOneWidget);
+    expect(find.byType(FlipClockFace), findsOneWidget);
+    expect(find.text('21'), findsNWidgets(2));
+    expect(find.text('38'), findsNWidgets(2));
     expect(engine.snapshot.todayFocusCount, 0);
 
     await tester.pumpWidget(const SizedBox.shrink());

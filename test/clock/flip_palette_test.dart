@@ -106,7 +106,7 @@ void main() {
 
       expect(store.loadFlipPaletteId(), FlipPaletteId.pureDark);
 
-      store.saveFlipPaletteId(FlipPaletteId.blue);
+      await store.saveFlipPaletteId(FlipPaletteId.blue);
       expect(store.loadFlipPaletteId(), FlipPaletteId.blue);
       expect(prefs.getString('clock.flip_palette_id'), 'blue');
     },
@@ -129,7 +129,7 @@ void main() {
     final store = PrefsClockSettingsStore(prefs);
 
     expect(store.loadFlipPaletteId(), FlipPaletteId.blue);
-    store.saveFlipPaletteId(FlipPaletteId.purple);
+    await store.saveFlipPaletteId(FlipPaletteId.purple);
     expect(prefs.getString('clock.flip_palette_id'), 'purple');
   });
 

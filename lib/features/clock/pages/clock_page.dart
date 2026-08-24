@@ -151,8 +151,9 @@ class _ClockPageState extends ConsumerState<ClockPage>
                         selected: currentStyle == id,
                         selectedColor: Colors.white,
                         selectedTileColor: Colors.white.withValues(alpha: 0.08),
-                        onTap: () {
-                          engine.setClockTheme(id);
+                        onTap: () async {
+                          await engine.setClockTheme(id);
+                          if (!mounted || !sheetContext.mounted) return;
                           ref.invalidate(clockSnapshotProvider);
                           setState(() {});
                           setSheetState(() {});
@@ -196,8 +197,9 @@ class _ClockPageState extends ConsumerState<ClockPage>
                               ),
                               labelStyle: const TextStyle(color: Colors.white),
                               checkmarkColor: Colors.white,
-                              onSelected: (_) {
-                                engine.setFlipPalette(id);
+                              onSelected: (_) async {
+                                await engine.setFlipPalette(id);
+                                if (!mounted || !sheetContext.mounted) return;
                                 ref.invalidate(clockSnapshotProvider);
                                 setState(() {});
                                 setSheetState(() {});
@@ -243,8 +245,9 @@ class _ClockPageState extends ConsumerState<ClockPage>
                               ),
                               labelStyle: const TextStyle(color: Colors.white),
                               checkmarkColor: Colors.white,
-                              onSelected: (_) {
-                                engine.setDigitalTheme(id);
+                              onSelected: (_) async {
+                                await engine.setDigitalTheme(id);
+                                if (!mounted || !sheetContext.mounted) return;
                                 ref.invalidate(clockSnapshotProvider);
                                 setState(() {});
                                 setSheetState(() {});
@@ -284,8 +287,9 @@ class _ClockPageState extends ConsumerState<ClockPage>
                       style: TextStyle(color: Colors.white),
                     ),
                     value: engine.nightMode,
-                    onChanged: (value) {
-                      engine.setNightMode(value);
+                    onChanged: (value) async {
+                      await engine.setNightMode(value);
+                      if (!mounted || !sheetContext.mounted) return;
                       ref.invalidate(clockSnapshotProvider);
                       setSheetState(() {});
                       setState(() {});

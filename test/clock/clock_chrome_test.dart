@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_engine.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_providers.dart';
+import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
 import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
 import 'package:flutter_tiqlo_clock/main.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -148,6 +149,7 @@ Future<ProviderContainer> _pumpClock(WidgetTester tester) async {
   final engine = ClockEngine(
     clock: FakeClock(wall: DateTime(2026, 8, 20, 21, 38)),
     locale: const Locale('en'),
+    clockThemeId: ClockThemeId.digital,
   );
   final container = ProviderContainer(
     overrides: [clockEngineProvider.overrideWithValue(engine)],
