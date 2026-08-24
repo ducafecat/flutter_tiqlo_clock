@@ -8,6 +8,7 @@ import 'package:flutter_tiqlo_clock/clock/clock_providers.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
 import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
 import 'package:flutter_tiqlo_clock/main.dart';
+import 'package:flutter_tiqlo_clock/shared/widgets/settings_tile.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'fake_clock.dart';
@@ -208,6 +209,27 @@ void main() {
     container.dispose();
   });
 
+  testWidgets('Settings options are arranged into semantic groups', (
+    tester,
+  ) async {
+    final container = await _pumpClock(tester);
+
+    await tester.tap(find.byType(ClockPage));
+    await tester.pump();
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('TIME & DATE'), findsOneWidget);
+    expect(find.text('DISPLAY'), findsOneWidget);
+    expect(find.text('ALERTS'), findsOneWidget);
+    expect(find.byType(SettingsGroup), findsNWidgets(3));
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
+
   testWidgets('Settings can turn off Sound and Vibration', (tester) async {
     final engine = ClockEngine(
       clock: FakeClock(wall: DateTime(2026, 8, 20, 21, 38)),
@@ -227,8 +249,12 @@ void main() {
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(find.text('Sound'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Sound'));
     await tester.pump();
+    await tester.ensureVisible(find.text('Vibration'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Vibration'));
     await tester.pump();
 

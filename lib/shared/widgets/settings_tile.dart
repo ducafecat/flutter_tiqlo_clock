@@ -64,18 +64,13 @@ class SettingsGroup extends StatelessWidget {
       }
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: context.appCard,
+    return Material(
+      color: context.appCard,
+      elevation: 1,
+      shadowColor: const Color(0x14000000),
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(color: context.appBorder),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 3,
-            offset: Offset(0, 1),
-          ),
-        ],
+        side: BorderSide(color: context.appBorder),
       ),
       clipBehavior: Clip.hardEdge,
       child: Column(children: items),
