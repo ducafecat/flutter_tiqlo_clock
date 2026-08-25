@@ -475,14 +475,16 @@ void main() {
     final hourCardRect = tester.getRect(
       find.byKey(const ValueKey('flip-card-stack')).first,
     );
-    expect(periodRect.left, closeTo(hourCardRect.left, 0.1));
-    expect(periodRect.bottom, lessThanOrEqualTo(hourCardRect.top));
+    expect(periodRect.left, greaterThan(hourCardRect.left));
+    expect(periodRect.top, greaterThan(hourCardRect.top));
+    expect(periodRect.right, lessThan(hourCardRect.right));
+    expect(periodRect.bottom, lessThan(hourCardRect.bottom));
     expect(
       find.ancestor(
         of: find.text('AM'),
         matching: find.byKey(const ValueKey('flip-card-stack')),
       ),
-      findsNothing,
+      findsOneWidget,
     );
     expect(find.text(':'), findsNothing);
     expect(tester.takeException(), isNull);

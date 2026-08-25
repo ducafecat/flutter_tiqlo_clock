@@ -32,6 +32,7 @@ class FlipClockFace extends StatelessWidget {
         width: cardWidth,
         height: cardHeight,
         palette: palette,
+        badge: period,
       ),
       _FlipCard(
         value: snapshot.displayMinute,
@@ -67,14 +68,7 @@ class FlipClockFace extends StatelessWidget {
                         width: landscape ? gap : 0,
                         height: landscape ? 0 : gap,
                       ),
-                    _FlipCardSlot(
-                      card: cards[index],
-                      badge: index == 0 ? period : null,
-                      reserveBadgeSpace: landscape && period != null,
-                      cardWidth: cardWidth,
-                      cardHeight: cardHeight,
-                      palette: palette,
-                    ),
+                    cards[index],
                   ],
                 ],
               ),
@@ -98,73 +92,20 @@ class FlipClockFace extends StatelessWidget {
   }
 }
 
-class _FlipCardSlot extends StatelessWidget {
-  const _FlipCardSlot({
-    required this.card,
-    required this.cardWidth,
-    required this.cardHeight,
-    required this.palette,
-    required this.reserveBadgeSpace,
-    this.badge,
-  });
-
-  final Widget card;
-  final double cardWidth;
-  final double cardHeight;
-  final FlipPalette palette;
-  final bool reserveBadgeSpace;
-  final String? badge;
-
-  @override
-  Widget build(BuildContext context) {
-    final badgeHeight = cardHeight * 0.16;
-    final showBadgeRow = badge != null || reserveBadgeSpace;
-    return SizedBox(
-      width: cardWidth,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (showBadgeRow)
-            SizedBox(
-              height: badgeHeight,
-              child: badge == null
-                  ? null
-                  : Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        badge!,
-                        key: const ValueKey('flip-period'),
-                        style: TextStyle(
-                          color: palette.digit,
-                          fontFamily: _flipFont,
-                          fontSize: cardHeight * 0.12,
-                          fontWeight: FontWeight.w900,
-                          height: 1,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-            ),
-          card,
-        ],
-      ),
-    );
-  }
-}
-
 class _FlipCard extends StatefulWidget {
   const _FlipCard({
     required this.value,
     required this.width,
     required this.height,
     required this.palette,
+    this.badge,
   });
 
   final String value;
   final double width;
   final double height;
   final FlipPalette palette;
+  final String? badge;
 
   @override
   State<_FlipCard> createState() => _FlipCardState();
@@ -281,6 +222,23 @@ class _FlipCardState extends State<_FlipCard>
                                 value: _current,
                                 top: false,
                                 angle: bottomAngle,
+                              ),
+                            ),
+                          if (widget.badge != null)
+                            Positioned(
+                              left: widget.width * 0.09,
+                              top: widget.height * 0.075,
+                              child: Text(
+                                widget.badge!,
+                                key: const ValueKey('flip-period'),
+                                style: TextStyle(
+                                  color: widget.palette.digit,
+                                  fontFamily: _flipFont,
+                                  fontSize: widget.height * 0.12,
+                                  fontWeight: FontWeight.w900,
+                                  height: 1,
+                                  letterSpacing: 0.5,
+                                ),
                               ),
                             ),
                           Center(child: _divider()),
