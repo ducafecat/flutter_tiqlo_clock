@@ -46,7 +46,7 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
     return switch (_prefs.getString(_formatKey)) {
       '12' => TimeFormat.h12,
       '24' => TimeFormat.h24,
-      _ => null,
+      _ => TimeFormat.h12,
     };
   }
 

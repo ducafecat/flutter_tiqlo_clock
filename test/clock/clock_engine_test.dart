@@ -26,6 +26,25 @@ void main() {
     expect(engine.snapshot.showDate, isFalse);
   });
 
+  test('stored settings use the product defaults', () {
+    final store = MemoryClockSettingsStore();
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
+    final engine = ClockEngine(
+      clock: clock,
+      store: store,
+      deviceUses24Hour: true,
+    );
+
+    expect(engine.is24Hour, isFalse);
+    expect(engine.showLeadingZero, isFalse);
+    expect(engine.showSeconds, isFalse);
+    expect(engine.showDate, isFalse);
+    expect(engine.keepAwake, isTrue);
+    expect(engine.nightMode, isFalse);
+    expect(engine.soundEnabled, isTrue);
+    expect(engine.vibrationEnabled, isTrue);
+  });
+
   test('snapshot date is weekday · month day in English', () {
     final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));
     final engine = ClockEngine(clock: clock, locale: const Locale('en'));
@@ -474,7 +493,7 @@ void main() {
     engine.setDigitalTheme(DigitalThemeId.digitalBlue);
     engine.setFlipPalette(FlipPaletteId.orange);
 
-    expect(engine.snapshot.timeLabel, '21:38:20');
+    expect(engine.snapshot.timeLabel, '09:38:20 PM');
     expect(engine.snapshot.showDate, isTrue);
     expect(engine.snapshot.nightMode, isFalse);
 
@@ -486,7 +505,7 @@ void main() {
     expect(engine.snapshot.nightMode, isTrue);
     expect(engine.snapshot.showSeconds, isFalse);
     expect(engine.snapshot.showDate, isFalse);
-    expect(engine.snapshot.timeLabel, '21:38');
+    expect(engine.snapshot.timeLabel, '09:38 PM');
     expect(engine.untilNextWallTick, const Duration(seconds: 40));
 
     final reloaded = ClockEngine(clock: clock, store: store);
@@ -494,7 +513,7 @@ void main() {
     expect(reloaded.clockThemeId, ClockThemeId.flip);
     expect(reloaded.digitalThemeId, DigitalThemeId.digitalBlue);
     expect(reloaded.flipPaletteId, FlipPaletteId.orange);
-    expect(reloaded.snapshot.timeLabel, '21:38');
+    expect(reloaded.snapshot.timeLabel, '09:38 PM');
   });
 
   test('keep awake defaults on and persists', () {

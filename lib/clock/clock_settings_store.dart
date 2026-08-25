@@ -63,7 +63,7 @@ class StoredFocusComplete {
 }
 
 class MemoryClockSettingsStore implements ClockSettingsStore {
-  TimeFormat? timeFormat;
+  TimeFormat? timeFormat = TimeFormat.h12;
   bool showSeconds = false;
   ClockThemeId clockThemeId = ClockThemeId.flip;
   DigitalThemeId digitalThemeId = DigitalThemeId.pureDark;
