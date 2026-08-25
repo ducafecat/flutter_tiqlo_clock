@@ -239,6 +239,11 @@ void main() {
     expect(time.style!.color, theme.digit);
     expect(time.style!.shadows, theme.glow);
     expect(tester.widget<Text>(find.text('AM')).style!.color, theme.secondary);
+    expect(tester.widget<Text>(find.text('AM')).style!.fontSize, 24);
+    expect(
+      tester.widget<Text>(find.text('AM')).style!.fontWeight,
+      FontWeight.w900,
+    );
     expect(
       tester.widget<Text>(find.text('THU · AUG 20')).style!.color,
       theme.secondary,
@@ -406,6 +411,13 @@ void main() {
     expect(find.text('9'), findsNWidgets(2));
     expect(find.text('00'), findsNWidgets(2));
     expect(find.text('AM'), findsOneWidget);
+    final period = tester.widget<Text>(find.text('AM'));
+    expect(period.style!.fontSize, 260 * 0.11);
+    expect(period.style!.fontWeight, FontWeight.w900);
+    final periodPosition = tester.widget<Positioned>(
+      find.ancestor(of: find.text('AM'), matching: find.byType(Positioned)),
+    );
+    expect(periodPosition.top, 260 * 0.08);
     expect(find.text(':'), findsNothing);
     expect(tester.takeException(), isNull);
   });

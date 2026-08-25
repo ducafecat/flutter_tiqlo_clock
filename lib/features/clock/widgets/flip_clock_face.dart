@@ -221,14 +221,14 @@ class _FlipCardState extends State<_FlipCard>
                     if (widget.badge != null)
                       Positioned(
                         left: widget.width * 0.07,
-                        top: widget.height * 0.12,
+                        top: widget.height * 0.08,
                         child: Text(
                           widget.badge!,
                           style: TextStyle(
                             color: widget.palette.digit,
                             fontFamily: _flipFont,
-                            fontSize: widget.height * 0.085,
-                            fontWeight: FontWeight.w700,
+                            fontSize: widget.height * 0.11,
+                            fontWeight: FontWeight.w900,
                             height: 1,
                           ),
                         ),

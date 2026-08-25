@@ -174,13 +174,13 @@ class DigitalClockFace extends StatelessWidget {
                   ),
                 ),
                 if (snapshot.period != null) ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 6),
                   Text(
                     snapshot.period!,
                     style: TextStyle(
                       color: theme.secondary,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
                       letterSpacing: 3,
                     ),
                   ),
