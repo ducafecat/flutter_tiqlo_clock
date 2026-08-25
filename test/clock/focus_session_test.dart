@@ -137,7 +137,10 @@ Future<ProviderContainer> _pumpClock(
     overrides: [clockEngineProvider.overrideWithValue(clockEngine)],
   );
   await tester.pumpWidget(
-    UncontrolledProviderScope(container: container, child: const MyApp()),
+    UncontrolledProviderScope(
+      container: container,
+      child: const MyApp(showOnboarding: false),
+    ),
   );
   return container;
 }

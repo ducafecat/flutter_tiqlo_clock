@@ -10,12 +10,13 @@ import 'core/config/app_config.dart';
 import 'core/router/app_router.dart';
 import 'core/ui/app_theme.dart';
 import 'core/ui/clock_full_screen.dart';
+import 'core/ui/clock_system_ui.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ClockFullScreen.ensureInitialized();
   await initializeDateFormatting();
-  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  await ClockSystemUi.hide();
   final prefs = await SharedPreferences.getInstance();
   var bootElapsed = Duration.zero;
   try {
@@ -37,11 +38,14 @@ Future<void> main() async {
 }
 
 class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, this.showOnboarding = true});
+
+  /// 页面级测试可关闭启动流程，直接验证时钟功能。
+  final bool showOnboarding;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(appRouterProvider);
+    final router = ref.watch(appRouterProvider(showOnboarding: showOnboarding));
 
     return MaterialApp.router(
       title: AppConfig.appName,

@@ -56,7 +56,10 @@ void main() {
       overrides: [clockEngineProvider.overrideWithValue(engine)],
     );
     await tester.pumpWidget(
-      UncontrolledProviderScope(container: container, child: const MyApp()),
+      UncontrolledProviderScope(
+        container: container,
+        child: const MyApp(showOnboarding: false),
+      ),
     );
 
     await tester.tap(find.byType(ClockPage));
@@ -273,7 +276,10 @@ void main() {
       overrides: [clockEngineProvider.overrideWithValue(engine)],
     );
     await tester.pumpWidget(
-      UncontrolledProviderScope(container: container, child: const MyApp()),
+      UncontrolledProviderScope(
+        container: container,
+        child: const MyApp(showOnboarding: false),
+      ),
     );
 
     await tester.tap(find.byType(ClockPage));

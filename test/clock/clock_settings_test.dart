@@ -75,7 +75,10 @@ void main() {
       overrides: [clockEngineProvider.overrideWithValue(engine)],
     );
     await tester.pumpWidget(
-      UncontrolledProviderScope(container: container, child: const MyApp()),
+      UncontrolledProviderScope(
+        container: container,
+        child: const MyApp(showOnboarding: false),
+      ),
     );
 
     expect(find.text('9'), findsNWidgets(2));
@@ -152,7 +155,10 @@ void main() {
       overrides: [clockEngineProvider.overrideWithValue(engine)],
     );
     await tester.pumpWidget(
-      UncontrolledProviderScope(container: container, child: const MyApp()),
+      UncontrolledProviderScope(
+        container: container,
+        child: const MyApp(showOnboarding: false),
+      ),
     );
 
     expect(find.text('THU · AUG 20'), findsOneWidget);
@@ -186,7 +192,10 @@ void main() {
       overrides: [clockEngineProvider.overrideWithValue(engine)],
     );
     await tester.pumpWidget(
-      UncontrolledProviderScope(container: container, child: const MyApp()),
+      UncontrolledProviderScope(
+        container: container,
+        child: const MyApp(showOnboarding: false),
+      ),
     );
 
     await tester.tap(find.byType(ClockPage));
@@ -239,7 +248,10 @@ void main() {
       overrides: [clockEngineProvider.overrideWithValue(engine)],
     );
     await tester.pumpWidget(
-      UncontrolledProviderScope(container: container, child: const MyApp()),
+      UncontrolledProviderScope(
+        container: container,
+        child: const MyApp(showOnboarding: false),
+      ),
     );
 
     await tester.tap(find.byType(ClockPage));
@@ -275,7 +287,10 @@ Future<ProviderContainer> _pumpClock(WidgetTester tester) async {
     overrides: [clockEngineProvider.overrideWithValue(engine)],
   );
   await tester.pumpWidget(
-    UncontrolledProviderScope(container: container, child: const MyApp()),
+    UncontrolledProviderScope(
+      container: container,
+      child: const MyApp(showOnboarding: false),
+    ),
   );
   return container;
 }
