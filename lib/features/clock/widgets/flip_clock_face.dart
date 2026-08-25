@@ -173,10 +173,10 @@ class _FlipCardState extends State<_FlipCard>
                     borderRadius: radius,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.32),
-                        blurRadius: widget.height * 0.07,
-                        spreadRadius: -widget.height * 0.02,
-                        offset: Offset(0, widget.height * 0.025),
+                        color: Colors.black.withValues(alpha: 0.18),
+                        blurRadius: widget.height * 0.045,
+                        spreadRadius: -widget.height * 0.025,
+                        offset: Offset(0, widget.height * 0.015),
                       ),
                     ],
                   ),
