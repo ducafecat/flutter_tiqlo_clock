@@ -1,4 +1,6 @@
-# Tiqlo 时钟 App MVP PRD
+# Tiqlo 当前 MVP PRD
+
+> 文档状态：与当前代码实现对齐（版本 1.0.0）。本文描述已面向用户交付的能力；仅存在于内部状态层、尚无 UI 入口的能力会单独标注，不视为已交付功能。
 
 ## 1. 产品概述
 
@@ -8,1041 +10,180 @@
 
 ### 1.2 产品定位
 
-Tiqlo 是一款基于 Flutter 开发的极简桌面时钟 App。
+Tiqlo 是一款 Flutter 时钟应用，将设备变为沉浸、清晰、可长时间摆放的桌面时钟。当前 MVP 的中心是大字号数字时钟与可切换的 Flip / Digital 视觉风格，而非复杂的效率工具集合。
 
-核心定位：
+核心体验：
 
-> **把手机变成一台漂亮、沉浸、适合专注的桌面时钟。**
+> 打开应用即可看清时间；在需要时切换外观、显示信息和夜间显示方式。
 
-Tiqlo 第一版不追求“功能最多”，而是重点做好：
+### 1.3 当前产品目标
 
-- 漂亮的全屏时钟
-- 横屏桌面使用
-- Focus 专注计时
-- 多种时钟主题
-- 夜间床头时钟
+- 让用户在竖屏与横屏下都能清晰查看当前时间。
+- 以少量交互维持沉浸式桌面时钟体验。
+- 提供可持久化的外观与显示偏好。
+- 在夜间及长时间展示时控制亮度和设备休眠。
 
-------
+## 2. 目标用户与场景
 
-## 2. 产品目标
+| 用户 | 场景 |
+| --- | --- |
+| 办公与创作用户 | 将手机或电脑置于桌面，快速查看时间 |
+| 学生 | 学习或阅读时，以低干扰的大字时钟查看时间 |
+| 居家用户 | 床头、客厅等夜间查看时间 |
+| 偏好数字时钟的用户 | 在翻页、电子管与不同配色之间切换 |
 
-MVP 主要验证以下几件事：
+## 3. 信息架构与启动流程
 
-1. 用户是否愿意把 Tiqlo 长时间放在桌面显示。
-2. 用户是否喜欢不同 Clock Theme。
-3. Focus 是否能够提高用户使用频率。
-4. Theme / Widget 是否具备后续付费价值。
-
-核心目标：
-
-> 让用户打开 Tiqlo 后，愿意把手机放在桌面上一小时以上。
-
-------
-
-# 3. 目标用户
-
-| 用户     | 使用场景                   |
-| -------- | -------------------------- |
-| 程序员   | 工作、编码时作为桌面时钟   |
-| 学生     | 学习、复习、番茄专注       |
-| 办公用户 | 手机横放显示时间           |
-| 创作者   | 剪辑、设计、写作时专注计时 |
-| 居家用户 | 床头时钟、夜间查看时间     |
-
-------
-
-# 4. 核心产品结构
-
-Tiqlo 不采用传统复杂工具 App 的结构。
-
-核心围绕：
+应用不使用底部导航。时钟页是唯一主页面，设置与关于为二级页面。
 
 ```text
-Tiqlo
+移动端首次启动
+Splash（约 1.1 秒） → Welcome（三页，可跳过） → Clock
 
-        Clock
-          │
-    ┌─────┼─────┐
-    ↓     ↓     ↓
-
- Theme  Focus  Timer
-
-    │     │     │
-    └─────┼─────┘
-          ↓
-
-       Settings
-```
-
-默认打开 App：
-
-> **直接进入 Clock。**
-
-不显示复杂首页。
-
-------
-
-# 5. MVP 功能范围
-
-## P0 核心功能
-
-| 功能         | 说明               |
-| ------------ | ------------------ |
-| 当前时间     | 实时显示小时和分钟 |
-| 日期         | 星期、年月日       |
-| 全屏时钟     | 沉浸式显示         |
-| 横屏模式     | 桌面主要使用场景   |
-| 竖屏模式     | 普通手机使用       |
-| 屏幕常亮     | 防止桌面使用时熄屏 |
-| Clock Theme  | 多种时钟视觉主题   |
-| Focus        | 专注倒计时         |
-| Timer        | 普通倒计时         |
-| Night Mode   | 夜间床头模式       |
-| 12/24 小时制 | 用户自由选择       |
-| 本地设置保存 | 重启后保持设置     |
-
-------
-
-# 6. MVP 暂不包含
-
-以下功能不进入 V1.0：
-
-- Alarm 闹钟
-- Stopwatch 秒表
-- 世界时钟
-- 天气
-- 用户登录
-- 云同步
-- 后端服务
-- AI
-- 社交
-- Todo
-- 任务管理
-- 睡眠监测
-- Apple Health
-- Health Connect
-- 白噪音
-- Home Widget
-- Lock Screen Widget
-- Dynamic Island
-- Apple Watch
-- Wear OS
-
-原则：
-
-> **MVP 先把 Clock + Focus 做好。**
-
-------
-
-# 7. 首页 Clock
-
-## 7.1 页面目标
-
-用户打开 App 后立即看到时间。
-
-页面尽量不出现：
-
-- AppBar
-- Bottom Navigation
-- 大量按钮
-- 广告
-- 复杂文字
-
-默认界面：
-
-```text
-        21:38
-
-     THU · AUG 20
-```
-
-------
-
-# 8. 时钟显示
-
-默认显示：
-
-- Hour
-- Minute
-- Weekday
-- Date
-
-可选显示：
-
-- Second
-- AM / PM
-
-示例：
-
-```text
-21:38
-
-THU · AUG 20
-```
-
-或者：
-
-```text
-09:38 PM
-
-THU · AUG 20
-```
-
-------
-
-# 9. 全屏模式
-
-进入 Clock 后默认采用沉浸式设计。
-
-点击屏幕显示操作栏：
-
-```text
-Theme     Focus     Timer     More
-```
-
-几秒无操作后自动隐藏。
-
-再次点击屏幕可以重新显示。
-
-目标：
-
-> 大部分时间屏幕上只有“时间”。
-
-------
-
-# 10. 横屏模式
-
-用户横置手机后自动进入桌面布局。
-
-示例：
-
-```text
-┌──────────────────────────────┐
-│                              │
-│            21:38             │
-│                              │
-│        THU · AUG 20          │
-│                              │
-└──────────────────────────────┘
-```
-
-要求：
-
-- 字号自动放大
-- 内容保持居中
-- 不出现 Overflow
-- 操作按钮自动隐藏
-- 横屏体验优先于竖屏
-
-------
-
-# 11. Clock Theme
-
-Theme 是 Tiqlo MVP 的核心功能。
-
-第一版提供至少 4 套主题。
-
-## 11.1 Minimal
-
-极简数字时钟。
-
-```text
-21:38
-```
-
-## 11.2 Flip
-
-经典翻页时钟。
-
-```text
-┌────┐ ┌────┐
-│ 21 │ │ 38 │
-└────┘ └────┘
-```
-
-支持简单翻页动画。
-
-## 11.3 OLED
-
-黑色背景、大数字、低干扰。
-
-适合：
-
-- 夜间
-- OLED 屏幕
-- 床头
-
-## 11.4 Retro
-
-复古电子时钟风格。
-
-```text
-21:38
-THU 20
-```
-
-------
-
-# 12. Theme 数据结构
-
-Theme 不只是简单颜色。
-
-每个 Theme 包含：
-
-```text
-Theme
-
-id
-name
-
-background
-
-timeFont
-timeSize
-timeStyle
-
-dateFont
-dateStyle
-
-showSeconds
-
-animation
-
-layout
-```
-
-后续可以方便扩展：
-
-```text
-Pixel
-Terminal
-Cyber
-Studio
-Analog
-Mechanical
-```
-
-------
-
-# 13. Theme 选择
-
-点击：
-
-**Theme**
-
-从底部弹出主题选择：
-
-```text
-Themes
-
-Minimal
-
-Flip
-
-OLED
-
-Retro
-```
-
-点击后即时预览。
-
-选择完成后：
-
-- 自动保存
-- 下次打开继续使用该 Theme
-
-------
-
-# 14. Focus
-
-Focus 是 Tiqlo MVP 第二核心模块。
-
-设计原则：
-
-> Focus 不能让用户离开 Clock。
-
-点击：
-
-**Focus**
-
-显示：
-
-```text
-Focus
-
-15 min
-
-25 min
-
-45 min
-
-60 min
-
-Custom
-```
-
-默认突出：
-
-**25 min**
-
-------
-
-# 15. 开始 Focus
-
-用户点击：
-
-```text
-25 min
-```
-
-然后：
-
-```text
-Start
-```
-
-进入：
-
-```text
-        24:59
-
-        FOCUS
-```
-
-Clock 自动变成 Focus Clock。
-
-------
-
-# 16. Focus 操作
-
-Focus 运行过程中支持：
-
-- Pause
-- Resume
-- Stop
-
-点击屏幕显示：
-
-```text
-Pause
-
-Stop
-```
-
-无操作时自动隐藏。
-
-------
-
-# 17. Focus 完成
-
-时间结束：
-
-```text
-25:00
-
-Focus Complete ✓
-```
-
-同时：
-
-- 播放提示音
-- 震动一次
-
-显示：
-
-```text
-Done
-```
-
-点击后返回普通 Clock。
-
-------
-
-# 18. Focus 数据
-
-MVP 只记录简单数据。
-
-显示：
-
-```text
-Today
-
-3 Sessions
-
-75 Minutes
-```
-
-只统计：
-
-- 今日完成次数
-- 今日专注分钟数
-
-暂不做：
-
-- 周统计
-- 月统计
-- 图表
-- 排行榜
-- Achievement
-- Streak
-
-------
-
-# 19. Timer
-
-Timer 为普通倒计时。
-
-入口：
-
-```text
-Timer
-```
-
-提供快捷选项：
-
-```text
-1 min
-
-5 min
-
-10 min
-
-30 min
-
-Custom
-```
-
-开始后：
-
-```text
-09:58
-
-TIMER
-```
-
-支持：
-
-- Pause
-- Resume
-- Cancel
-
-结束后：
-
-- 声音提醒
-- 震动提醒
-
-------
-
-# 20. Night Mode
-
-Night Mode 用于床头场景。
-
-进入后：
-
-- 黑色背景
-- 降低视觉亮度
-- 时间颜色变暗
-- 隐藏日期或减少信息
-- 保持屏幕常亮
-
-示例：
-
-```text
-03:26
-```
-
-尽可能减少光线干扰。
-
-------
-
-# 21. 屏幕常亮
-
-设置项：
-
-```text
-Keep Screen Awake
-
-ON / OFF
-```
-
-开启后：
-
-Clock、Focus、Timer 页面不会自动熄屏。
-
-离开相关页面后恢复正常系统策略。
-
-------
-
-# 22. 设置
-
-Settings 页面：
-
-```text
-Settings
-
-Time Format
-24 Hour
-
-Show Seconds
-OFF
-
-Keep Screen Awake
-ON
-
-Sound
-ON
-
-Vibration
-ON
-
-Default Theme
-Minimal
-
-Night Mode
-Auto / Manual
-
-About Tiqlo
-
-Version 1.0.0
-```
-
-------
-
-# 23. 导航设计
-
-MVP 不使用传统 Bottom Navigation。
-
-主页面点击后出现：
-
-```text
-Theme
-
-Focus
-
-Timer
-
-More
-```
-
-More 中：
-
-```text
-Night Mode
-
-Settings
-
-About
-```
-
-这样可以保证：
-
-> Clock 永远是整个 App 的中心。
-
-------
-
-# 24. 本地数据
-
-Tiqlo MVP 不需要服务器。
-
-全部数据存储在本机。
-
-包含：
-
-```text
-Theme Settings
-
-Clock Settings
-
-Focus Settings
-
-Focus Sessions
-
-Timer Settings
-
-App Settings
-```
-
-------
-
-# 25. 数据模型
-
-## AppSettings
-
-```text
-AppSettings
-
-timeFormat
-
-showSeconds
-
-keepAwake
-
-soundEnabled
-
-vibrationEnabled
-
-themeId
-
-nightMode
-```
-
-------
-
-## FocusSession
-
-```text
-FocusSession
-
-id
-
-duration
-
-startTime
-
-endTime
-
-completed
-```
-
-------
-
-## ClockTheme
-
-```text
-ClockTheme
-
-id
-
-name
-
-type
-
-config
-```
-
-------
-
-# 26. 页面清单
-
-MVP 页面控制在：
-
-| 页面           | 优先级 |
-| -------------- | ------ |
-| Clock          | P0     |
-| Clock 横屏     | P0     |
-| Theme Selector | P0     |
-| Focus Selector | P0     |
-| Focus Running  | P0     |
-| Focus Complete | P0     |
-| Timer Selector | P0     |
-| Timer Running  | P0     |
-| Night Clock    | P0     |
-| Settings       | P0     |
-| About          | P1     |
-
-约：
-
-**10 个核心页面。**
-
-------
-
-# 27. 核心用户流程
-
-## Clock
-
-```text
-启动 Tiqlo
-    ↓
+后续启动 / 非移动端
 Clock
-    ↓
-选择 Theme
-    ↓
-横屏
-    ↓
-全屏桌面使用
+  ├─ Theme
+  ├─ More → Night Mode
+  ├─ More → Settings
+  ├─ More → About
+  └─ Fullscreen（Web 与桌面端）
 ```
 
-------
+- Splash 与 Welcome 仅在 iOS、Android 默认启用。
+- Welcome 完成或跳过后会本地记录，之后直接进入 Clock。
+- Clock 页面隐藏系统 UI；进入设置或关于时恢复系统 UI，返回后再次隐藏。
 
-## Focus
+## 4. 已交付功能范围
+
+### 4.1 时钟展示（P0）
+
+- 实时显示小时、分钟；启用秒数后按秒刷新，否则按分钟刷新。
+- 支持 12 / 24 小时制；12 小时制显示 AM / PM。
+- 可选显示星期与日期，日期按设备 locale 格式化。
+- 可选显示小时前导零。
+- 支持竖屏与横屏；横屏使用更大的基础字号，并通过自适应布局保证内容居中、不溢出。
+- 主界面默认不显示工具栏。点击空白处显示操作栏，3 秒无操作自动隐藏；再次点击可隐藏或重新显示。
+
+### 4.2 时钟样式与主题（P0）
+
+时钟页工具栏中的 **Theme** 打开底部选择器。选择即时生效并保存，下次启动自动恢复。
+
+| 时钟样式 | 已提供能力 |
+| --- | --- |
+| Flip | 翻页卡片式时钟，分钟变化时播放翻页动画；支持 10 组配色：Pure Dark、Dark、Light、Green、Blue、Red、Orange、Yellow、Purple、Pink。 |
+| Digital | 七段数码管时钟；支持 9 组配色：Digital、Digital-Blue、Digital-Red、Digital-Amber、Digital-Orange、Pure Dark、Dark、Light、Classic。 |
+
+默认样式为 Flip，默认配色为 Pure Dark。主题选择器先选择样式，再呈现该样式的配色选项。
+
+### 4.3 夜间模式与屏幕常亮（P0）
+
+- **Night Mode** 可从 More 或 Settings 开关。
+- 开启后隐藏秒数及日期，将时钟视觉透明度降至 35%，并尝试将应用亮度设置为 15%。关闭后恢复系统亮度。
+- **Keep Screen Awake** 默认为开启，可在 Settings 关闭；时钟页会根据该设置申请或释放屏幕常亮。
+- 具体亮度、常亮效果受平台与系统权限限制。
+
+### 4.4 设置与关于（P0）
+
+Settings 包含以下分组：
+
+| 分组 | 设置项 |
+| --- | --- |
+| Time & Date | 24 Hour、Show Leading Zero、Show Seconds、Date & Weekday |
+| Display | Keep Screen Awake、Night Mode |
+| Alerts | Sound、Vibration |
+
+About 页面显示当前版本号（1.0.0）。
+
+### 4.5 全屏（P0，受平台限制）
+
+- Web、macOS、Windows、Linux 支持从主工具栏进入或退出全屏。
+- iOS、Android 当前不展示该全屏按钮；移动端通过沉浸式系统 UI 获得无干扰时钟体验。
+
+### 4.6 本地持久化（P0）
+
+应用不依赖账号、后端或云同步。以下数据使用 SharedPreferences 保存在本机：
+
+- 首次欢迎页完成状态。
+- 时间格式、秒数、日期、前导零、屏幕常亮与夜间模式。
+- 时钟样式、Digital 配色与 Flip 配色。
+- 声音、振动与通知授权状态。
+
+## 5. 当前未面向用户交付的能力
+
+代码中已存在 Focus / Timer 的会话状态机、暂停/继续/停止、会话恢复、完成提醒调度以及当日 Focus 完成统计的底层能力，但当前主界面没有 Focus 或 Timer 的入口、时长选择器和统计页面。因此它们不是本 MVP 的可用功能，也不应作为验收项或对外承诺。
+
+当会话由未来入口启动时，现有底层行为为：
+
+- 同一时间只能存在一个 Focus 或 Timer 会话。
+- 运行中的会话可暂停、继续、停止；结束后需要确认完成。
+- 完成的 Focus 会记入本地「当天完成次数 / 分钟数」；Timer 不计入该统计。
+- 应用进入后台时会尝试排程本地通知；前台完成时按 Sound / Vibration 设置播放系统提示音或振动。
+- 设备重启导致单调计时基准回退时，运行中的会话会恢复为暂停，避免错误扣减时间。
+
+## 6. 暂不包含
+
+- 可由用户启动的 Focus、Timer、统计或自定义时长界面。
+- 闹钟、秒表、世界时钟、天气。
+- 账号、云同步、后端服务、社交与任务管理。
+- Widget、锁屏组件、Dynamic Island、Apple Watch、Wear OS。
+- 付费订阅、主题商店、广告。
+- 自动夜间模式、环境光感知、白噪音与睡眠监测。
+
+## 7. 核心交互规范
+
+### 7.1 Clock
 
 ```text
-Clock
-  ↓
-Focus
-  ↓
-25 min
-  ↓
-Start
-  ↓
-Focus Clock
-  ↓
-完成
-  ↓
-返回 Clock
+打开应用 → Clock
+点击时钟区域 → Theme / More / Fullscreen（受支持平台）
+3 秒无操作 → 隐藏工具栏
 ```
 
-------
-
-## Timer
+### 7.2 Theme
 
 ```text
-Clock
-  ↓
-Timer
-  ↓
-选择时间
-  ↓
-Start
-  ↓
-倒计时
-  ↓
-完成提醒
+Clock → Theme → 选择 Flip 或 Digital → 选择配色 → 即时预览并自动保存
 ```
 
-------
-
-# 28. Flutter 技术方案
-
-建议：
+### 7.3 More
 
 ```text
-Flutter
-
-Riverpod
-
-GoRouter
-
-Freezed
-
-SharedPreferences / Isar
-
-wakelock_plus
-
-just_audio
-
-vibration
+Clock → More → Night Mode / Settings / About
 ```
 
-时间核心：
-
-```text
-Clock Engine
-
-├── System Clock
-├── Focus Countdown
-└── Timer Countdown
-```
-
-Theme：
-
-```text
-Clock Engine
-       ↓
-Theme Renderer
-       ↓
-UI
-```
-
-这样不同主题可以复用相同时间逻辑。
-
-------
-
-# 29. Flutter 工程结构
-
-```text
-lib/
-
-├── app/
-
-├── core/
-│   ├── theme/
-│   ├── storage/
-│   ├── timer/
-│   └── utils/
-
-├── features/
-│   ├── clock/
-│   ├── focus/
-│   ├── timer/
-│   ├── theme/
-│   ├── night/
-│   └── settings/
-
-└── main.dart
-```
-
-每个模块：
-
-```text
-feature/
-
-├── data/
-├── domain/
-└── presentation/
-```
-
-------
-
-# 30. 性能要求
-
-Clock 属于长时间运行页面，需要特别关注性能。
-
-要求：
-
-- 时间更新不能造成整个页面频繁 rebuild
-- 分钟模式不需要每秒 rebuild
-- 显示秒时只刷新时间区域
-- Flip 动画保持流畅
-- 横竖屏切换无明显卡顿
-- 长时间运行内存稳定
-- 尽量降低电量消耗
-
-------
-
-# 31. MVP 验收标准
-
--  App 打开后立即显示 Clock
--  时间显示准确
--  日期显示准确
--  支持 12 / 24 小时制
--  支持横屏
--  支持竖屏
--  支持全屏
--  支持屏幕常亮
--  至少提供 4 套 Theme
--  Theme 可以即时切换
--  Theme 设置可以持久保存
--  Flip 动画正常
--  Focus 可以选择时长
--  Focus 可以开始
--  Focus 可以暂停
--  Focus 可以继续
--  Focus 可以停止
--  Focus 完成正常提醒
--  Focus 数据可以保存
--  Timer 可以正常运行
--  Timer 完成可以提醒
--  Night Mode 正常
--  App 重启后设置不丢失
--  长时间运行无明显内存异常
--  iOS 正常运行
--  Android 正常运行
--  无严重 Crash
-
-------
-
-# 32. V1.0 上线范围
-
-最终 MVP：
-
-```text
-Tiqlo V1.0
-
-Clock
-│
-├── Minimal
-├── Flip
-├── OLED
-└── Retro
-
-Focus
-
-Timer
-
-Night Mode
-
-Landscape
-
-Fullscreen
-
-Keep Awake
-
-Settings
-```
-
-------
-
-# 33. V1.5
-
-上线后优先开发：
-
-```text
-Home Widget
-
-Lock Screen Widget
-
-StandBy
-
-更多 Theme
-
-Theme Pro
-```
-
-这个阶段开始强化：
-
-> **Clock Everywhere**
-
-------
-
-# 34. V2.0
-
-```text
-Clock Scene
-
-Ambient Sound
-
-Focus Statistics
-
-Custom Background
-
-Custom Font
-
-Premium Theme
-```
-
-产品从单纯 Clock 升级为：
-
-> **Focus Clock Experience**
-
-------
-
-# 35. V2.5
-
-再考虑加入：
-
-```text
-Alarm
-
-Gentle Wake
-
-Smart Alarm
-
-Snooze
-
-Wake-up Missions
-```
-
-不建议普通 Alarm 提前进入 MVP。
-
-------
-
-# 36. MVP 核心原则
-
-Tiqlo 第一版开发过程中始终遵循三个原则：
-
-### 1. Clock First
-
-用户打开 App 第一眼必须是漂亮的 Clock。
-
-### 2. Less Interaction
-
-尽可能减少按钮、菜单和页面跳转。
-
-### 3. Design is Feature
-
-Theme、字体、布局、动画本身就是 Tiqlo 的核心功能。
-
-最终产品应该让用户产生这样的感觉：
-
-> **打开 Tiqlo，不是在使用一个工具，而是把手机变成了一台漂亮的桌面时钟。**
+## 8. 设计原则
+
+1. **Clock First**：进入应用后，时钟应是第一且最重要的信息。
+2. **Less Interaction**：操作收纳到短暂出现的工具栏和底部面板中。
+3. **Theme as Feature**：翻页动画、数字字体和配色是主要产品价值。
+4. **Long-running Friendly**：根据显示精度安排刷新频率，减少无意义更新；让横竖屏、夜间模式和常亮适合长时间展示。
+
+## 9. 技术实现边界
+
+| 领域 | 当前实现 |
+| --- | --- |
+| 应用框架 | Flutter + Material |
+| 状态与路由 | Riverpod + go_router |
+| 本地存储 | SharedPreferences |
+| 时间引擎 | wall clock 显示 + 单调 elapsed time 会话计时 |
+| 本地提醒 | flutter_local_notifications（通知授权后） |
+| 设备能力 | wakelock_plus、screen_brightness、flutter_fullscreen |
+
+## 10. 当前 MVP 验收标准
+
+- 移动端首次启动完成 Splash / Welcome 后进入 Clock，后续启动不重复展示 Welcome。
+- 时钟时间准确；12 / 24 小时、秒数、日期与前导零设置即时生效且重启后保留。
+- Flip 与 Digital 样式和各自配色可即时切换、重启后保留。
+- 工具栏点击出现、3 秒后隐藏；More 可进入夜间模式、设置与关于。
+- 竖屏、横屏均保持时钟居中且无布局溢出。
+- Night Mode 会降低时钟干扰、隐藏秒数和日期，并尝试降低亮度。
+- Keep Screen Awake 可开关，并在时钟页按设置生效。
+- 支持的平台可以进入与退出全屏。
+- 设置页和关于页正常进入、返回后恢复时钟的沉浸式 UI。
+- 不发生严重崩溃；本地设置在应用重启后不丢失。
+
+## 11. 后续演进方向（非当前承诺）
+
+1. 为已存在的会话引擎补齐 Focus / Timer 的入口、时长选择、进行中控制与每日统计展示。
+2. 扩展主题种类与主题预览能力。
+3. 在确认核心时钟留存后，再评估 Widget、锁屏展示、付费主题或云同步等投入。
