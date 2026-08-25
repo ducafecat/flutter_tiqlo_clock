@@ -372,7 +372,7 @@ void main() {
     expect(flapIndex, greaterThanOrEqualTo(0));
     expect(dividerIndex, greaterThan(flapIndex));
 
-    await tester.pump(const Duration(milliseconds: 349));
+    await tester.pump(const Duration(milliseconds: 499));
     expect(tester.getSize(divider), initialSize);
     expect(tester.getCenter(divider), initialCenter);
 
@@ -429,7 +429,7 @@ void main() {
     await tester.pumpWidget(face(38));
     await tester.pumpWidget(face(39));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 340));
+    await tester.pump(const Duration(milliseconds: 490));
     final distanceBeforeMidpoint = math.pi / 2 - flapAngle();
 
     await tester.pump(const Duration(milliseconds: 20));
@@ -527,56 +527,47 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Flip face consumes card, digit, and divider palette colors', (
-    tester,
-  ) async {
-    const snapshot = ClockSnapshot(
-      hour: 9,
-      minute: 0,
-      dateLabel: 'THU · AUG 20',
-    );
-    final palette = FlipPaletteId.yellow.palette;
+  testWidgets(
+    'Flip face consumes flat card, digit, and divider palette colors',
+    (tester) async {
+      const snapshot = ClockSnapshot(
+        hour: 9,
+        minute: 0,
+        dateLabel: 'THU · AUG 20',
+      );
+      final palette = FlipPaletteId.yellow.palette;
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: FlipClockFace(
-            snapshot: snapshot,
-            landscape: true,
-            palette: palette,
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: FlipClockFace(
+              snapshot: snapshot,
+              landscape: true,
+              palette: palette,
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    final top = tester.widget<Container>(
-      find.byKey(const ValueKey('flip-card-top')).first,
-    );
-    final bottom = tester.widget<Container>(
-      find.byKey(const ValueKey('flip-card-bottom')).first,
-    );
-    final divider = tester.widget<Container>(
-      find.byKey(const ValueKey('flip-divider')).first,
-    );
+      final top = tester.widget<Container>(
+        find.byKey(const ValueKey('flip-card-top')).first,
+      );
+      final bottom = tester.widget<Container>(
+        find.byKey(const ValueKey('flip-card-bottom')).first,
+      );
+      final divider = tester.widget<Container>(
+        find.byKey(const ValueKey('flip-divider')).first,
+      );
 
-    final topGradient = (top.decoration! as BoxDecoration).gradient!;
-    final bottomGradient = (bottom.decoration! as BoxDecoration).gradient!;
-    final dividerGradient =
-        (divider.decoration! as BoxDecoration).gradient! as LinearGradient;
-    expect((topGradient as LinearGradient).colors, contains(palette.cardTop));
-    expect(
-      (bottomGradient as LinearGradient).colors,
-      contains(palette.cardBottom),
-    );
-    expect(
-      dividerGradient.colors,
-      contains(Color.lerp(Colors.transparent, palette.divider, 0.72)),
-    );
-    expect(
-      tester.widget<Text>(find.text('9').first).style!.color,
-      palette.digit,
-    );
-  });
+      expect((top.decoration! as BoxDecoration).color, palette.cardTop);
+      expect((bottom.decoration! as BoxDecoration).color, palette.cardBottom);
+      expect((divider.decoration! as BoxDecoration).color, palette.divider);
+      expect(
+        tester.widget<Text>(find.text('9').first).style!.color,
+        palette.digit,
+      );
+    },
+  );
 
   testWidgets('Flip face fits seconds and date in a compact portrait', (
     tester,

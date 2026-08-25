@@ -6,6 +6,7 @@ import '../../../clock/clock_engine.dart';
 import '../../../clock/flip_palette.dart';
 
 const _flipFont = 'FlipClock';
+const _flipDuration = Duration(milliseconds: 1000);
 
 class FlipClockFace extends StatelessWidget {
   const FlipClockFace({
@@ -122,15 +123,12 @@ class _FlipCardState extends State<_FlipCard>
     super.initState();
     _current = widget.value;
     _previous = widget.value;
-    _controller =
-        AnimationController(
-          vsync: this,
-          duration: const Duration(milliseconds: 700),
-        )..addStatusListener((status) {
-          if (status == AnimationStatus.completed && mounted) {
-            setState(() => _previous = _current);
-          }
-        });
+    _controller = AnimationController(vsync: this, duration: _flipDuration)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed && mounted) {
+          setState(() => _previous = _current);
+        }
+      });
   }
 
   @override
@@ -261,16 +259,7 @@ class _FlipCardState extends State<_FlipCard>
       width: widget.width,
       height: math.max(1.5, widget.height * 0.008),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            widget.palette.digit.withValues(alpha: 0.012),
-            Color.lerp(Colors.transparent, widget.palette.divider, 0.72)!,
-            Colors.black.withValues(alpha: 0.62),
-          ],
-          stops: const [0, 0.48, 1],
-        ),
+        color: widget.palette.divider,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -287,25 +276,24 @@ class _FlipCardState extends State<_FlipCard>
     required bool top,
     required double angle,
   }) {
-    final shade = math.sin(angle.abs()).clamp(0.0, 1.0) * 0.38;
     return Transform(
       alignment: top ? Alignment.bottomCenter : Alignment.topCenter,
       filterQuality: FilterQuality.medium,
       transform: Matrix4.identity()
         ..setEntry(3, 2, 0.0028)
         ..rotateX(angle),
-      child: _half(value, top: top, shade: shade),
+      child: _half(value, top: top),
     );
   }
 
-  Widget _half(String value, {required bool top, double shade = 0}) {
+  Widget _half(String value, {required bool top}) {
     final radius = Radius.circular(widget.width * 0.085);
     return Container(
       key: ValueKey(top ? 'flip-card-top' : 'flip-card-bottom'),
       width: widget.width,
       height: widget.height / 2,
       decoration: BoxDecoration(
-        gradient: _panelGradient(top: top),
+        color: top ? widget.palette.cardTop : widget.palette.cardBottom,
         borderRadius: top
             ? BorderRadius.vertical(top: radius)
             : BorderRadius.vertical(bottom: radius),
@@ -338,23 +326,9 @@ class _FlipCardState extends State<_FlipCard>
                 ),
               ),
             ),
-            if (shade > 0)
-              ColoredBox(color: Colors.black.withValues(alpha: shade)),
           ],
         ),
       ),
-    );
-  }
-
-  LinearGradient _panelGradient({required bool top}) {
-    final base = top ? widget.palette.cardTop : widget.palette.cardBottom;
-    return LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: top
-          ? [base, base, Color.lerp(base, Colors.black, 0.18)!]
-          : [Color.lerp(base, Colors.black, 0.2)!, base, base],
-      stops: const [0, 0.56, 1],
     );
   }
 }
