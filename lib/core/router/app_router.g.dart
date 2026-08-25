@@ -17,7 +17,7 @@ final class AppRouterProvider
     with $Provider<GoRouter> {
   AppRouterProvider._({
     required AppRouterFamily super.from,
-    required bool super.argument,
+    required ({bool showOnboarding, bool showWelcome}) super.argument,
   }) : super(
          retry: null,
          name: r'appRouterProvider',
@@ -33,7 +33,7 @@ final class AppRouterProvider
   String toString() {
     return r'appRouterProvider'
         ''
-        '($argument)';
+        '$argument';
   }
 
   @$internal
@@ -43,8 +43,12 @@ final class AppRouterProvider
 
   @override
   GoRouter create(Ref ref) {
-    final argument = this.argument as bool;
-    return appRouter(ref, showOnboarding: argument);
+    final argument = this.argument as ({bool showOnboarding, bool showWelcome});
+    return appRouter(
+      ref,
+      showOnboarding: argument.showOnboarding,
+      showWelcome: argument.showWelcome,
+    );
   }
 
   /// {@macro riverpod.override_with_value}
@@ -66,10 +70,14 @@ final class AppRouterProvider
   }
 }
 
-String _$appRouterHash() => r'd582fb1a0d9980e46c027f2fe3de7c78238c812d';
+String _$appRouterHash() => r'a21d6ca71a6fe434627a4718ce20e58bcc67f85c';
 
 final class AppRouterFamily extends $Family
-    with $FunctionalFamilyOverride<GoRouter, bool> {
+    with
+        $FunctionalFamilyOverride<
+          GoRouter,
+          ({bool showOnboarding, bool showWelcome})
+        > {
   AppRouterFamily._()
     : super(
         retry: null,
@@ -79,8 +87,13 @@ final class AppRouterFamily extends $Family
         isAutoDispose: false,
       );
 
-  AppRouterProvider call({bool showOnboarding = true}) =>
-      AppRouterProvider._(argument: showOnboarding, from: this);
+  AppRouterProvider call({
+    bool showOnboarding = true,
+    bool showWelcome = true,
+  }) => AppRouterProvider._(
+    argument: (showOnboarding: showOnboarding, showWelcome: showWelcome),
+    from: this,
+  );
 
   @override
   String toString() => r'appRouterProvider';

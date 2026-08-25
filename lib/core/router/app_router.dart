@@ -19,13 +19,20 @@ abstract final class AppRoutes {
 }
 
 @Riverpod(keepAlive: true)
-GoRouter appRouter(Ref ref, {bool showOnboarding = true}) {
+GoRouter appRouter(
+  Ref ref, {
+  bool showOnboarding = true,
+  bool showWelcome = true,
+}) {
   return GoRouter(
     initialLocation: showOnboarding ? AppRoutes.splash : AppRoutes.clock,
     redirect: (_, state) {
       if (!showOnboarding) return null;
       final location = state.matchedLocation;
       if (location == AppRoutes.splash) return null;
+      if (!showWelcome) {
+        return location == AppRoutes.welcome ? AppRoutes.clock : null;
+      }
 
       final hasSeenWelcome = ref.read(appLaunchStorageProvider).hasSeenWelcome;
       if (!hasSeenWelcome) {
@@ -35,7 +42,10 @@ GoRouter appRouter(Ref ref, {bool showOnboarding = true}) {
       return null;
     },
     routes: [
-      GoRoute(path: AppRoutes.splash, builder: (_, _) => const SplashPage()),
+      GoRoute(
+        path: AppRoutes.splash,
+        builder: (_, _) => SplashPage(showWelcome: showWelcome),
+      ),
       GoRoute(path: AppRoutes.welcome, builder: (_, _) => const WelcomePage()),
       GoRoute(
         path: AppRoutes.clock,

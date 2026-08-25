@@ -9,7 +9,9 @@ import '../../../core/ui/clock_system_ui.dart';
 
 /// 启动视觉与首次启动分流。
 class SplashPage extends ConsumerStatefulWidget {
-  const SplashPage({super.key});
+  const SplashPage({super.key, required this.showWelcome});
+
+  final bool showWelcome;
 
   @override
   ConsumerState<SplashPage> createState() => _SplashPageState();
@@ -27,7 +29,9 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     await Future<void>.delayed(const Duration(milliseconds: 1100));
     if (!mounted) return;
 
-    final hasSeenWelcome = ref.read(appLaunchStorageProvider).hasSeenWelcome;
+    final hasSeenWelcome =
+        !widget.showWelcome ||
+        ref.read(appLaunchStorageProvider).hasSeenWelcome;
     context.go(hasSeenWelcome ? AppRoutes.clock : AppRoutes.welcome);
   }
 

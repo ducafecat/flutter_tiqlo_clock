@@ -35,7 +35,10 @@ void main() {
     );
 
     await tester.pumpWidget(
-      UncontrolledProviderScope(container: container, child: const MyApp()),
+      UncontrolledProviderScope(
+        container: container,
+        child: const MyApp(showOnboarding: true, showWelcome: true),
+      ),
     );
 
     expect(find.byType(SplashPage), findsOneWidget);
@@ -62,7 +65,10 @@ void main() {
     );
 
     await tester.pumpWidget(
-      UncontrolledProviderScope(container: container, child: const MyApp()),
+      UncontrolledProviderScope(
+        container: container,
+        child: const MyApp(showOnboarding: true, showWelcome: true),
+      ),
     );
     await tester.pump(const Duration(milliseconds: 1100));
     await tester.pumpAndSettle();
@@ -83,6 +89,28 @@ void main() {
 
     expect(find.byType(ClockPage), findsOneWidget);
     expect(preferences.getBool('app.has_seen_welcome'), isTrue);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
+
+  testWidgets('non-mobile startup skips splash and welcome', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    final container = ProviderContainer(
+      overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+    );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MyApp(showOnboarding: false, showWelcome: false),
+      ),
+    );
+
+    expect(find.byType(ClockPage), findsOneWidget);
+    expect(find.byType(SplashPage), findsNothing);
+    expect(find.byType(WelcomePage), findsNothing);
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();

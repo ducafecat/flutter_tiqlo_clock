@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,14 +39,28 @@ Future<void> main() async {
 }
 
 class MyApp extends ConsumerWidget {
-  const MyApp({super.key, this.showOnboarding = true});
+  const MyApp({super.key, this.showOnboarding, this.showWelcome});
 
-  /// 页面级测试可关闭启动流程，直接验证时钟功能。
-  final bool showOnboarding;
+  /// 默认为仅在 iOS、Android 显示 Splash，测试可显式覆盖。
+  final bool? showOnboarding;
+
+  /// 默认为仅在 iOS、Android 显示，测试可显式覆盖。
+  final bool? showWelcome;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(appRouterProvider(showOnboarding: showOnboarding));
+    final isMobile =
+        !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.android);
+    final onboardingEnabled = showOnboarding ?? isMobile;
+    final welcomeEnabled = showWelcome ?? isMobile;
+    final router = ref.watch(
+      appRouterProvider(
+        showOnboarding: onboardingEnabled,
+        showWelcome: welcomeEnabled,
+      ),
+    );
 
     return MaterialApp.router(
       title: AppConfig.appName,
