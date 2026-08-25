@@ -13,6 +13,10 @@ dependencies:
   # UI
   cupertino_icons: ^1.0.8
 
+  # 图片资源生成
+  image: ^4.8.0
+  path: ^1.9.1
+
   # 状态管理
   flutter_riverpod: 3.3.2
   riverpod_annotation: 4.0.3
@@ -73,6 +77,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/
   fonts:
     - family: FlipClock
       fonts:
