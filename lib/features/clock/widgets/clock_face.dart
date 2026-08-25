@@ -72,9 +72,6 @@ class _SessionFace extends StatelessWidget {
     final secondaryColor = themeId == ClockThemeId.flip
         ? flipPalette.digit.withValues(alpha: 0.7)
         : digitalTheme.secondary;
-    final glow = themeId == ClockThemeId.digital
-        ? digitalTheme.glow
-        : const <Shadow>[];
     final timeSize = switch (themeId) {
       ClockThemeId.digital => landscape ? 136.0 : 88.0,
       ClockThemeId.flip => landscape ? 120.0 : 72.0,
@@ -94,7 +91,6 @@ class _SessionFace extends StatelessWidget {
                     : session.remainingLabel,
                 style: TextStyle(
                   color: digitColor,
-                  shadows: glow,
                   fontSize: timeSize,
                   fontWeight: FontWeight.w300,
                   letterSpacing: 2,
@@ -149,7 +145,7 @@ class DigitalClockFace extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       child: SizedBox.expand(
         child: FittedBox(
-          fit: BoxFit.scaleDown,
+          fit: BoxFit.contain,
           child: Semantics(
             label: snapshot.timeLabel,
             child: Column(
@@ -169,7 +165,6 @@ class DigitalClockFace extends StatelessWidget {
                       fontSize: fontSize,
                       fontWeight: FontWeight.w700,
                       height: 1,
-                      shadows: theme.glow,
                     ),
                   ),
                 ),

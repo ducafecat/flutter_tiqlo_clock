@@ -91,7 +91,7 @@ void main() {
       find.byKey(const ValueKey('digital-time')),
     );
     expect(digitalTime.style!.color, DigitalThemeId.digitalRed.theme.digit);
-    expect(digitalTime.style!.shadows, DigitalThemeId.digitalRed.theme.glow);
+    expect(digitalTime.style!.shadows, isNull);
 
     await tester.tap(find.widgetWithText(ListTile, 'Flip'));
     await tester.pump();
@@ -178,7 +178,7 @@ void main() {
     expect(transform.transform.getTranslation().y, 0);
   });
 
-  testWidgets('Digital clock does not grow when a large window is stretched', (
+  testWidgets('Digital clock expands to the available screen width', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1600, 1280);
@@ -213,7 +213,7 @@ void main() {
       find.byKey(const ValueKey('digital-time-optical-offset')),
     );
 
-    expect(paintedRect.width, lessThanOrEqualTo(layoutSize.width + 0.1));
+    expect(paintedRect.width, closeTo(1600 - 48, 0.1));
     expect(paintedRect.left, greaterThanOrEqualTo(24));
     expect(paintedRect.right, lessThanOrEqualTo(1600 - 24));
     expect(transform.transform.getTranslation().x, 0);
@@ -246,7 +246,7 @@ void main() {
       find.byKey(const ValueKey('digital-time')),
     );
     expect(time.style!.color, theme.digit);
-    expect(time.style!.shadows, theme.glow);
+    expect(time.style!.shadows, isNull);
     expect(tester.widget<Text>(find.text('AM')).style!.color, theme.secondary);
     expect(tester.widget<Text>(find.text('AM')).style!.fontSize, 24);
     expect(
@@ -728,10 +728,7 @@ void main() {
       digitalSession.style!.color,
       DigitalThemeId.digitalAmber.theme.digit,
     );
-    expect(
-      digitalSession.style!.shadows,
-      DigitalThemeId.digitalAmber.theme.glow,
-    );
+    expect(digitalSession.style!.shadows, isNull);
 
     await tester.pumpWidget(
       MaterialApp(

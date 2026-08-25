@@ -47,20 +47,6 @@ void main() {
         reason: entry.key.label,
       );
     }
-
-    for (final id in DigitalThemeId.values.take(5)) {
-      final glow = id.theme.glow;
-      expect(glow, hasLength(2));
-      expect(glow[0].blurRadius, 4);
-      expect(glow[0].color.a, closeTo(0.8, 0.01));
-      expect(glow[1].blurRadius, 14);
-      expect(glow[1].color.a, closeTo(0.35, 0.01));
-    }
-    expect(DigitalThemeId.pureDark.theme.glow, isEmpty);
-    expect(DigitalThemeId.dark.theme.glow, isEmpty);
-    expect(DigitalThemeId.light.theme.glow, isEmpty);
-    expect(DigitalThemeId.classic.theme.glow, hasLength(1));
-    expect(DigitalThemeId.classic.theme.glow.single.blurRadius, 3);
   });
 
   test(
