@@ -71,6 +71,13 @@ flutter build web --release
 - shared_preferences
 - intl
 
+## 開發 Skills
+
+專案開發中使用了以下 skills：
+
+- [mattpocock/skills](https://github.com/mattpocock/skills)
+- [ducafecat/skills](https://github.com/ducafecat/skills)
+
 ## 設計原則
 
 - Clock 一律顯示牆上時間；Focus 和 Timer 僅在執行期間暫時取代顯示內容。

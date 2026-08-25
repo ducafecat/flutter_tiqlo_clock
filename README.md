@@ -71,6 +71,13 @@ Deploy the entire generated `build/web/` directory to a static server. When serv
 - shared_preferences
 - intl
 
+## Development Skills
+
+This project uses development skills from:
+
+- [mattpocock/skills](https://github.com/mattpocock/skills)
+- [ducafecat/skills](https://github.com/ducafecat/skills)
+
 ## Principles
 
 - Clock always represents wall-clock time; Focus and Timer temporarily replace the display only while active.
