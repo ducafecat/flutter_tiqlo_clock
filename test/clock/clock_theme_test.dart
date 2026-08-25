@@ -1,4 +1,7 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_engine.dart';
@@ -21,6 +24,9 @@ void main() {
 
   setUpAll(() async {
     await initializeDateFormatting('en');
+    final flipFont = FontLoader('FlipClock')
+      ..addFont(rootBundle.load('fonts/RobotoCondensed-Bold.ttf'));
+    await flipFont.load();
   });
 
   test(
@@ -385,6 +391,50 @@ void main() {
     expect(tester.getCenter(divider), initialCenter);
   });
 
+  testWidgets('Flip flap keeps a continuous speed through the midpoint', (
+    tester,
+  ) async {
+    ClockSnapshot snap(int minute) =>
+        ClockSnapshot(hour: 21, minute: minute, dateLabel: 'THU · AUG 20');
+
+    Widget face(int minute) => MaterialApp(
+      home: Scaffold(
+        body: FlipClockFace(
+          snapshot: snap(minute),
+          landscape: true,
+          palette: FlipPaletteId.pureDark.palette,
+        ),
+      ),
+    );
+
+    double flapAngle() {
+      final flap = find.byKey(const ValueKey('flip-flap'));
+      final transform = tester.widget<Transform>(
+        find.descendant(of: flap, matching: find.byType(Transform)),
+      );
+      return math
+          .atan2(
+            transform.transform.entry(2, 1),
+            transform.transform.entry(1, 1),
+          )
+          .abs();
+    }
+
+    await tester.pumpWidget(face(38));
+    await tester.pumpWidget(face(39));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 340));
+    final distanceBeforeMidpoint = math.pi / 2 - flapAngle();
+
+    await tester.pump(const Duration(milliseconds: 20));
+    final distanceAfterMidpoint = math.pi / 2 - flapAngle();
+
+    expect(
+      (distanceBeforeMidpoint - distanceAfterMidpoint).abs(),
+      lessThan(0.01),
+    );
+  });
+
   testWidgets('Flip face groups hour and minute into two cards', (
     tester,
   ) async {
@@ -412,12 +462,22 @@ void main() {
     expect(find.text('00'), findsNWidgets(2));
     expect(find.text('AM'), findsOneWidget);
     final period = tester.widget<Text>(find.text('AM'));
-    expect(period.style!.fontSize, 260 * 0.11);
+    expect(period.key, const ValueKey('flip-period'));
+    expect(period.style!.fontSize, 260 * 0.12);
     expect(period.style!.fontWeight, FontWeight.w900);
-    final periodPosition = tester.widget<Positioned>(
-      find.ancestor(of: find.text('AM'), matching: find.byType(Positioned)),
+    final periodRect = tester.getRect(find.text('AM'));
+    final hourCardRect = tester.getRect(
+      find.byKey(const ValueKey('flip-card-stack')).first,
     );
-    expect(periodPosition.top, 260 * 0.08);
+    expect(periodRect.left, closeTo(hourCardRect.left, 0.1));
+    expect(periodRect.bottom, lessThanOrEqualTo(hourCardRect.top));
+    expect(
+      find.ancestor(
+        of: find.text('AM'),
+        matching: find.byKey(const ValueKey('flip-card-stack')),
+      ),
+      findsNothing,
+    );
     expect(find.text(':'), findsNothing);
     expect(tester.takeException(), isNull);
   });
@@ -487,16 +547,144 @@ void main() {
     final bottom = tester.widget<Container>(
       find.byKey(const ValueKey('flip-card-bottom')).first,
     );
-    final divider = tester.widget<ColoredBox>(
+    final divider = tester.widget<Container>(
       find.byKey(const ValueKey('flip-divider')).first,
     );
 
-    expect((top.decoration! as BoxDecoration).color, palette.cardTop);
-    expect((bottom.decoration! as BoxDecoration).color, palette.cardBottom);
-    expect(divider.color, palette.divider);
+    final topGradient = (top.decoration! as BoxDecoration).gradient!;
+    final bottomGradient = (bottom.decoration! as BoxDecoration).gradient!;
+    final dividerGradient =
+        (divider.decoration! as BoxDecoration).gradient! as LinearGradient;
+    expect((topGradient as LinearGradient).colors, contains(palette.cardTop));
+    expect(
+      (bottomGradient as LinearGradient).colors,
+      contains(palette.cardBottom),
+    );
+    expect(
+      dividerGradient.colors,
+      contains(Color.lerp(Colors.transparent, palette.divider, 0.72)),
+    );
     expect(
       tester.widget<Text>(find.text('9').first).style!.color,
       palette.digit,
+    );
+  });
+
+  testWidgets('Flip face fits seconds and date in a compact portrait', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const snapshot = ClockSnapshot(
+      hour: 9,
+      minute: 5,
+      second: 7,
+      dateLabel: 'THU · AUG 20',
+      showSeconds: true,
+      showDate: true,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: FlipClockFace(
+            snapshot: snapshot,
+            landscape: false,
+            palette: FlipPaletteId.blue.palette,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byKey(const ValueKey('flip-card-stack')), findsNWidgets(3));
+    expect(find.text('THU · AUG 20'), findsOneWidget);
+    final cards = find.byKey(const ValueKey('flip-card-stack'));
+    final centers = [
+      tester.getCenter(cards.at(0)),
+      tester.getCenter(cards.at(1)),
+      tester.getCenter(cards.at(2)),
+    ];
+    expect(centers[0].dy, lessThan(centers[1].dy));
+    expect(centers[1].dy, lessThan(centers[2].dy));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Flip face matches the portrait visual baseline', (tester) async {
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const snapshot = ClockSnapshot(
+      hour: 9,
+      minute: 25,
+      dateLabel: 'THU · AUG 20',
+      period: 'AM',
+      is24Hour: false,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          backgroundColor: FlipPaletteId.pureDark.palette.background,
+          body: RepaintBoundary(
+            key: const ValueKey('flip-golden-surface'),
+            child: FlipClockFace(
+              snapshot: snapshot,
+              landscape: false,
+              palette: FlipPaletteId.pureDark.palette,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await expectLater(
+      find.byKey(const ValueKey('flip-golden-surface')),
+      matchesGoldenFile('goldens/flip_clock_pure_dark_portrait.png'),
+    );
+  });
+
+  testWidgets('Flip face matches the landscape visual baseline', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const snapshot = ClockSnapshot(
+      hour: 9,
+      minute: 25,
+      dateLabel: 'THU · AUG 20',
+      period: 'AM',
+      is24Hour: false,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          backgroundColor: FlipPaletteId.pureDark.palette.background,
+          body: RepaintBoundary(
+            key: const ValueKey('flip-golden-surface'),
+            child: FlipClockFace(
+              snapshot: snapshot,
+              landscape: true,
+              palette: FlipPaletteId.pureDark.palette,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await expectLater(
+      find.byKey(const ValueKey('flip-golden-surface')),
+      matchesGoldenFile('goldens/flip_clock_pure_dark_landscape.png'),
     );
   });
 
