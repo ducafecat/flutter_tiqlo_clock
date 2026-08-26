@@ -245,6 +245,11 @@ void main() {
 
     expect(find.text('TIME & DATE'), findsOneWidget);
     expect(find.text('DISPLAY'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('ALERTS'),
+      200,
+      scrollable: find.byType(Scrollable),
+    );
     expect(find.text('ALERTS'), findsOneWidget);
     expect(find.byType(PixelSection), findsNWidgets(3));
 
@@ -274,11 +279,19 @@ void main() {
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
 
-    await tester.ensureVisible(find.text('Sound'));
+    await tester.scrollUntilVisible(
+      find.text('Sound'),
+      200,
+      scrollable: find.byType(Scrollable),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Sound'));
     await tester.pump();
-    await tester.ensureVisible(find.text('Vibration'));
+    await tester.scrollUntilVisible(
+      find.text('Vibration'),
+      200,
+      scrollable: find.byType(Scrollable),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Vibration'));
     await tester.pump();
@@ -286,6 +299,36 @@ void main() {
     expect(engine.soundEnabled, isFalse);
     expect(engine.vibrationEnabled, isFalse);
 
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
+
+  testWidgets('Settings keeps Vibration reachable at 360dp and 2x text', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 640);
+    tester.view.devicePixelRatio = 1;
+    tester.binding.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(
+      tester.binding.platformDispatcher.clearTextScaleFactorTestValue,
+    );
+    final container = await _pumpClock(tester);
+
+    await tester.tap(find.byType(ClockPage));
+    await tester.pump();
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Vibration'),
+      240,
+      scrollable: find.byType(Scrollable),
+    );
+
+    expect(find.text('Vibration'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
   });

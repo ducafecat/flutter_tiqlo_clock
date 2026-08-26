@@ -101,8 +101,10 @@ void main() {
     );
   });
 
-  testWidgets('Settings matches the tablet visual baseline', (tester) async {
-    _configureView(tester, const Size(1024, 768), 2, textScale: 2);
+  testWidgets('Settings matches the 426 by 923 reference baseline', (
+    tester,
+  ) async {
+    _configureView(tester, const Size(426, 923), 1);
     final container = ProviderContainer(
       overrides: [
         clockEngineProvider.overrideWithValue(
@@ -124,7 +126,7 @@ void main() {
     await tester.pumpAndSettle();
     await expectLater(
       find.byKey(const ValueKey('settings-golden')),
-      matchesGoldenFile('goldens/settings_tablet_1024x768_2x.png'),
+      matchesGoldenFile('goldens/settings_reference_426x923.png'),
     );
   });
 

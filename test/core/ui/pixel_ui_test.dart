@@ -43,6 +43,28 @@ void main() {
     expect(enabled, isFalse);
   });
 
+  testWidgets('PixelSwitch uses the Settings 64 by 40 control geometry', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: PixelTheme.darkTheme,
+        home: const Scaffold(
+          body: PixelSwitch(
+            label: 'Show Seconds',
+            value: false,
+            onChanged: null,
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      tester.getSize(find.byKey(const ValueKey('pixel-switch-control'))),
+      const Size(64, 40),
+    );
+  });
+
   testWidgets('PixelTheme provides fixed semantic tokens', (tester) async {
     late PixelTokens tokens;
 
