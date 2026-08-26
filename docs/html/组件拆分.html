@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#171612" />
+    <title>Tiqlo Settings · 组件拆分</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              pixel: ['Pixelify Sans', 'ui-monospace', 'monospace'],
+              system: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      @font-face {
+        font-family: 'Pixelify Sans';
+        src: url('../../fonts/PixelifySans-Regular.ttf') format('truetype');
+        font-weight: 400;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: 'Pixelify Sans';
+        src: url('../../fonts/PixelifySans-SemiBold.ttf') format('truetype');
+        font-weight: 600;
+        font-display: swap;
+      }
+
+      :root {
+        color-scheme: dark;
+        --chrome: #171612;
+        --surface: #26231f;
+        --surface-high: #2b2823;
+        --text: #fffdf7;
+        --section: #b8a77c;
+        --outline: #5b554b;
+        --shadow: #050504;
+        --accent: #d96b0c;
+        --panel-cut: polygon(
+          10px 0,
+          calc(100% - 10px) 0,
+          calc(100% - 10px) 2px,
+          calc(100% - 6px) 2px,
+          calc(100% - 6px) 4px,
+          calc(100% - 4px) 4px,
+          calc(100% - 4px) 6px,
+          calc(100% - 2px) 6px,
+          calc(100% - 2px) 10px,
+          100% 10px,
+          100% calc(100% - 10px),
+          calc(100% - 2px) calc(100% - 10px),
+          calc(100% - 2px) calc(100% - 6px),
+          calc(100% - 4px) calc(100% - 6px),
+          calc(100% - 4px) calc(100% - 4px),
+          calc(100% - 6px) calc(100% - 4px),
+          calc(100% - 6px) calc(100% - 2px),
+          calc(100% - 10px) calc(100% - 2px),
+          calc(100% - 10px) 100%,
+          10px 100%,
+          10px calc(100% - 2px),
+          6px calc(100% - 2px),
+          6px calc(100% - 4px),
+          4px calc(100% - 4px),
+          4px calc(100% - 6px),
+          2px calc(100% - 6px),
+          2px calc(100% - 10px),
+          0 calc(100% - 10px),
+          0 10px,
+          2px 10px,
+          2px 6px,
+          4px 6px,
+          4px 4px,
+          6px 4px,
+          6px 2px,
+          10px 2px
+        );
+        --panel-middle: polygon(
+          8px 0,
+          calc(100% - 8px) 0,
+          calc(100% - 8px) 2px,
+          calc(100% - 4px) 2px,
+          calc(100% - 4px) 4px,
+          calc(100% - 2px) 4px,
+          calc(100% - 2px) 8px,
+          100% 8px,
+          100% calc(100% - 8px),
+          calc(100% - 2px) calc(100% - 8px),
+          calc(100% - 2px) calc(100% - 4px),
+          calc(100% - 4px) calc(100% - 4px),
+          calc(100% - 4px) calc(100% - 2px),
+          calc(100% - 8px) calc(100% - 2px),
+          calc(100% - 8px) 100%,
+          8px 100%,
+          8px calc(100% - 2px),
+          4px calc(100% - 2px),
+          4px calc(100% - 4px),
+          2px calc(100% - 4px),
+          2px calc(100% - 8px),
+          0 calc(100% - 8px),
+          0 8px,
+          2px 8px,
+          2px 4px,
+          4px 4px,
+          4px 2px,
+          8px 2px
+        );
+        --panel-inner: polygon(
+          6px 0,
+          calc(100% - 6px) 0,
+          calc(100% - 6px) 2px,
+          calc(100% - 2px) 2px,
+          calc(100% - 2px) 6px,
+          100% 6px,
+          100% calc(100% - 6px),
+          calc(100% - 2px) calc(100% - 6px),
+          calc(100% - 2px) calc(100% - 2px),
+          calc(100% - 6px) calc(100% - 2px),
+          calc(100% - 6px) 100%,
+          6px 100%,
+          6px calc(100% - 2px),
+          2px calc(100% - 2px),
+          2px calc(100% - 6px),
+          0 calc(100% - 6px),
+          0 6px,
+          2px 6px,
+          2px 2px,
+          6px 2px
+        );
+        --switch-cut: polygon(
+          14px 0,
+          calc(100% - 14px) 0,
+          calc(100% - 14px) 2px,
+          calc(100% - 10px) 2px,
+          calc(100% - 10px) 4px,
+          calc(100% - 6px) 4px,
+          calc(100% - 6px) 6px,
+          calc(100% - 4px) 6px,
+          calc(100% - 4px) 10px,
+          calc(100% - 2px) 10px,
+          calc(100% - 2px) 14px,
+          100% 14px,
+          100% 26px,
+          calc(100% - 2px) 26px,
+          calc(100% - 2px) 30px,
+          calc(100% - 4px) 30px,
+          calc(100% - 4px) 34px,
+          calc(100% - 6px) 34px,
+          calc(100% - 6px) 36px,
+          calc(100% - 10px) 36px,
+          calc(100% - 10px) 38px,
+          calc(100% - 14px) 38px,
+          calc(100% - 14px) 40px,
+          14px 40px,
+          14px 38px,
+          10px 38px,
+          10px 36px,
+          6px 36px,
+          6px 34px,
+          4px 34px,
+          4px 30px,
+          2px 30px,
+          2px 26px,
+          0 26px,
+          0 14px,
+          2px 14px,
+          2px 10px,
+          4px 10px,
+          4px 6px,
+          6px 6px,
+          6px 4px,
+          10px 4px,
+          10px 2px,
+          14px 2px
+        );
+        --knob-cut: polygon(
+          6px 0,
+          16px 0,
+          16px 3px,
+          19px 3px,
+          19px 6px,
+          22px 6px,
+          22px 18px,
+          19px 18px,
+          19px 21px,
+          16px 21px,
+          16px 24px,
+          6px 24px,
+          6px 21px,
+          3px 21px,
+          3px 18px,
+          0 18px,
+          0 6px,
+          3px 6px,
+          3px 3px,
+          6px 3px
+        );
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 76% 10%, rgba(91, 85, 75, 0.17), transparent 24rem),
+          #11100e;
+        color: var(--text);
+      }
+
+      .doc-card {
+        border: 1px solid #3d3932;
+        background: rgba(32, 30, 26, 0.9);
+        box-shadow: 4px 4px 0 #080807;
+      }
+
+      .token-chip {
+        border: 1px solid #403b34;
+        background: #181714;
+      }
+
+      .layer-row {
+        display: grid;
+        grid-template-columns: 9rem 1fr auto;
+        align-items: center;
+        gap: 1rem;
+        min-height: 52px;
+        border-bottom: 1px solid #39352f;
+      }
+
+      .layer-row:last-child {
+        border-bottom: 0;
+      }
+
+      .layer-swatch {
+        height: 24px;
+        clip-path: var(--panel-cut);
+      }
+
+      .demo-panel-shell {
+        position: relative;
+        isolation: isolate;
+      }
+
+      .demo-panel-shell::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background: var(--shadow);
+        clip-path: var(--panel-cut);
+        transform: translate(1px, 1px);
+      }
+
+      .demo-panel-frame {
+        position: relative;
+        z-index: 1;
+        padding: 2px;
+        background: #0b0a09;
+        clip-path: var(--panel-cut);
+      }
+
+      .demo-panel-outline {
+        padding: 2px;
+        background: linear-gradient(180deg, #756b5b 0%, #5b554b 18%, #5b554b 82%, #39352f 100%);
+        clip-path: var(--panel-middle);
+      }
+
+      .demo-panel-content {
+        overflow: hidden;
+        background: var(--surface);
+        clip-path: var(--panel-inner);
+      }
+
+      .demo-row {
+        position: relative;
+        display: flex;
+        min-height: 63px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 19px;
+        background: linear-gradient(90deg, #27241f 0%, #2a2722 54%, #26231f 100%);
+      }
+
+      .demo-row:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 5px;
+        background: linear-gradient(to bottom, #100f0d 0 1px, #5b554b 1px 3px, #090807 3px 5px);
+      }
+
+      .pixel-switch {
+        position: relative;
+        width: 64px;
+        height: 40px;
+        flex: 0 0 64px;
+      }
+
+      .pixel-switch::before,
+      .pixel-switch::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        clip-path: var(--switch-cut);
+      }
+
+      .pixel-switch::before {
+        z-index: 0;
+        background: #050504;
+        transform: translate(1px, 1px);
+      }
+
+      .pixel-switch::after {
+        z-index: 1;
+        background: #0b0a09;
+      }
+
+      .pixel-switch input {
+        position: absolute;
+        opacity: 0;
+      }
+
+      .switch-track {
+        position: absolute;
+        inset: 2px;
+        z-index: 2;
+        cursor: pointer;
+        background: #5b554b;
+        clip-path: polygon(
+          10px 0,
+          calc(100% - 10px) 0,
+          calc(100% - 10px) 2px,
+          calc(100% - 6px) 2px,
+          calc(100% - 6px) 4px,
+          calc(100% - 3px) 4px,
+          calc(100% - 3px) 8px,
+          calc(100% - 1px) 8px,
+          calc(100% - 1px) 10px,
+          100% 10px,
+          100% 26px,
+          calc(100% - 1px) 26px,
+          calc(100% - 1px) 28px,
+          calc(100% - 3px) 28px,
+          calc(100% - 3px) 32px,
+          calc(100% - 6px) 32px,
+          calc(100% - 6px) 34px,
+          calc(100% - 10px) 34px,
+          calc(100% - 10px) 36px,
+          10px 36px,
+          10px 34px,
+          6px 34px,
+          6px 32px,
+          3px 32px,
+          3px 28px,
+          1px 28px,
+          1px 26px,
+          0 26px,
+          0 10px,
+          1px 10px,
+          1px 8px,
+          3px 8px,
+          3px 4px,
+          6px 4px,
+          6px 2px,
+          10px 2px
+        );
+      }
+
+      .switch-track::before {
+        content: '';
+        position: absolute;
+        inset: 2px;
+        background: #171612;
+        clip-path: polygon(
+          8px 0,
+          calc(100% - 8px) 0,
+          calc(100% - 8px) 2px,
+          calc(100% - 4px) 2px,
+          calc(100% - 4px) 4px,
+          calc(100% - 2px) 4px,
+          calc(100% - 2px) 8px,
+          100% 8px,
+          100% 24px,
+          calc(100% - 2px) 24px,
+          calc(100% - 2px) 28px,
+          calc(100% - 4px) 28px,
+          calc(100% - 4px) 30px,
+          calc(100% - 8px) 30px,
+          calc(100% - 8px) 32px,
+          8px 32px,
+          8px 30px,
+          4px 30px,
+          4px 28px,
+          2px 28px,
+          2px 24px,
+          0 24px,
+          0 8px,
+          2px 8px,
+          2px 4px,
+          4px 4px,
+          4px 2px,
+          8px 2px
+        );
+        box-shadow: inset 0 2px 0 #39352f, inset 0 -1px 0 #0b0b09;
+      }
+
+      .switch-knob {
+        position: absolute;
+        top: 50%;
+        left: 7px;
+        width: 22px;
+        height: 24px;
+        z-index: 3;
+        transform: translateY(-50%);
+        transition: transform 150ms steps(2, end);
+      }
+
+      .switch-knob::before,
+      .switch-knob::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        clip-path: var(--knob-cut);
+      }
+
+      .switch-knob::before {
+        z-index: 0;
+        background: #2b2925;
+        transform: translateY(1px);
+      }
+
+      .switch-knob::after {
+        z-index: 1;
+        background: #55524d;
+        box-shadow: inset 1px 1px 0 #69655f, inset -1px -1px 0 #403d38;
+      }
+
+      .pixel-switch input:checked + .switch-track {
+        background: #a3480b;
+      }
+
+      .pixel-switch input:checked + .switch-track::before {
+        background: linear-gradient(to bottom, #e88a2a 0 2px, #d96b0c 2px calc(100% - 2px), #a74608 calc(100% - 2px));
+        box-shadow: inset 0 2px 0 #ed9232, inset 0 -1px 0 #b55410;
+      }
+
+      .pixel-switch input:checked + .switch-track .switch-knob {
+        transform: translate(24px, -50%);
+      }
+
+      .pixel-switch input:checked + .switch-track .switch-knob::before {
+        background: #783006;
+      }
+
+      .pixel-switch input:checked + .switch-track .switch-knob::after {
+        background: #f4f0e6;
+        box-shadow: inset 1px 1px 0 #fffdf7, inset -1px -1px 0 #d8d1c4;
+      }
+
+      .component-tree code {
+        color: #d4c7a4;
+      }
+
+      @media (max-width: 720px) {
+        .layer-row {
+          grid-template-columns: 1fr;
+          gap: 0.4rem;
+          padding: 0.8rem 0;
+        }
+      }
+    </style>
+  </head>
+
+  <body class="font-system">
+    <main class="mx-auto max-w-6xl px-5 py-10 sm:px-8">
+      <header class="mb-10 border-b border-[#3d3932] pb-8">
+        <p class="mb-3 font-pixel text-sm font-semibold uppercase tracking-[0.18em] text-[#b8a77c]">Tiqlo Pixel UI</p>
+        <h1 class="font-pixel text-4xl font-semibold text-[#fffdf7] sm:text-5xl">Settings 组件拆分</h1>
+        <p class="mt-4 max-w-3xl text-sm leading-7 text-[#aaa59b]">
+          本页依据 <a href="./setting.html" class="text-[#e88a2a] underline underline-offset-4">setting.html</a>
+          拆分页面结构、像素分层与交互状态。详细参数见
+          <a href="./样式规范.md" class="text-[#e88a2a] underline underline-offset-4">样式规范.md</a>。
+        </p>
+      </header>
+
+      <section class="mb-8 grid gap-5 lg:grid-cols-2">
+        <article class="doc-card p-5 sm:p-6">
+          <h2 class="mb-5 font-pixel text-2xl font-semibold text-[#b8a77c]">01 / Design Tokens</h2>
+          <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div class="token-chip p-3"><i class="mb-3 block h-10 bg-[#171612]"></i><b class="text-sm">Chrome</b><code class="mt-1 block text-xs text-[#aaa59b]">#171612</code></div>
+            <div class="token-chip p-3"><i class="mb-3 block h-10 bg-[#26231f]"></i><b class="text-sm">Surface</b><code class="mt-1 block text-xs text-[#aaa59b]">#26231F</code></div>
+            <div class="token-chip p-3"><i class="mb-3 block h-10 bg-[#5b554b]"></i><b class="text-sm">Outline</b><code class="mt-1 block text-xs text-[#aaa59b]">#5B554B</code></div>
+            <div class="token-chip p-3"><i class="mb-3 block h-10 bg-[#b8a77c]"></i><b class="text-sm">Section</b><code class="mt-1 block text-xs text-[#aaa59b]">#B8A77C</code></div>
+            <div class="token-chip p-3"><i class="mb-3 block h-10 bg-[#d96b0c]"></i><b class="text-sm">Accent</b><code class="mt-1 block text-xs text-[#aaa59b]">#D96B0C</code></div>
+            <div class="token-chip p-3"><i class="mb-3 block h-10 bg-[#f4f0e6]"></i><b class="text-sm">Knob</b><code class="mt-1 block text-xs text-[#aaa59b]">#F4F0E6</code></div>
+          </div>
+        </article>
+
+        <article class="doc-card p-5 sm:p-6">
+          <h2 class="mb-5 font-pixel text-2xl font-semibold text-[#b8a77c]">02 / Typography</h2>
+          <div class="space-y-5">
+            <div><span class="text-xs uppercase tracking-widest text-[#777168]">Page title · 31 / 600</span><p class="mt-1 font-pixel text-[31px] font-semibold">Settings</p></div>
+            <div><span class="text-xs uppercase tracking-widest text-[#777168]">Section · 19 / 600</span><p class="mt-1 font-pixel text-[19px] font-semibold uppercase tracking-[0.08em] text-[#b8a77c]">Display</p></div>
+            <div><span class="text-xs uppercase tracking-widest text-[#777168]">Setting row · 22 / 400</span><p class="mt-1 font-pixel text-[22px] font-normal">Keep Screen Awake</p></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="doc-card mb-8 p-5 sm:p-6">
+        <h2 class="mb-5 font-pixel text-2xl font-semibold text-[#b8a77c]">03 / PixelPanel Layers</h2>
+        <div class="layer-row px-2"><code>PanelShadow</code><div class="layer-swatch bg-[#050504]"></div><span class="text-xs text-[#aaa59b]">1px ↘</span></div>
+        <div class="layer-row px-2"><code>PanelFrame</code><div class="layer-swatch bg-[#0b0a09]"></div><span class="text-xs text-[#aaa59b]">2px</span></div>
+        <div class="layer-row px-2"><code>PanelOutline</code><div class="layer-swatch bg-[#5b554b]"></div><span class="text-xs text-[#aaa59b]">2px</span></div>
+        <div class="layer-row px-2"><code>PanelContent</code><div class="layer-swatch bg-[#26231f]"></div><span class="text-xs text-[#aaa59b]">surface</span></div>
+      </section>
+
+      <section class="mb-8 grid gap-5 lg:grid-cols-[1fr_0.9fr]">
+        <article class="doc-card p-5 sm:p-6">
+          <div class="mb-6 flex items-center justify-between gap-4">
+            <h2 class="font-pixel text-2xl font-semibold text-[#b8a77c]">04 / Live SettingGroup</h2>
+            <span class="text-xs text-[#777168]">整行可点击</span>
+          </div>
+          <div class="mx-auto max-w-[390px] font-pixel">
+            <h3 class="mb-[9px] pl-1 text-[19px] font-semibold uppercase tracking-[0.08em] text-[#b8a77c]">Display</h3>
+            <div class="demo-panel-shell">
+              <div class="demo-panel-frame">
+                <div class="demo-panel-outline">
+                  <div class="demo-panel-content">
+                    <label class="demo-row cursor-pointer">
+                      <span class="text-[22px]">Keep Screen Awake</span>
+                      <span class="pixel-switch"><input type="checkbox" checked aria-label="Keep Screen Awake" /><span class="switch-track"><span class="switch-knob"></span></span></span>
+                    </label>
+                    <label class="demo-row cursor-pointer">
+                      <span class="text-[22px]">Night Mode</span>
+                      <span class="pixel-switch"><input type="checkbox" aria-label="Night Mode" /><span class="switch-track"><span class="switch-knob"></span></span></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="doc-card p-5 sm:p-6">
+          <h2 class="mb-6 font-pixel text-2xl font-semibold text-[#b8a77c]">05 / PixelSwitch</h2>
+          <div class="mb-8 flex items-center justify-around gap-8 rounded-sm bg-[#171612] px-6 py-8 font-pixel">
+            <label class="text-center"><span class="pixel-switch mx-auto block"><input type="checkbox" aria-label="关闭状态" /><span class="switch-track"><span class="switch-knob"></span></span></span><b class="mt-4 block font-normal text-[#aaa59b]">OFF</b></label>
+            <label class="text-center"><span class="pixel-switch mx-auto block"><input type="checkbox" checked aria-label="开启状态" /><span class="switch-track"><span class="switch-knob"></span></span></span><b class="mt-4 block font-normal text-[#aaa59b]">ON</b></label>
+          </div>
+          <dl class="grid grid-cols-2 gap-x-5 gap-y-3 text-sm">
+            <dt class="text-[#777168]">外框</dt><dd class="text-right font-mono">64 × 40</dd>
+            <dt class="text-[#777168]">滑块</dt><dd class="text-right font-mono">22 × 24</dd>
+            <dt class="text-[#777168]">位移</dt><dd class="text-right font-mono">24px</dd>
+            <dt class="text-[#777168]">阴影</dt><dd class="text-right font-mono">1px</dd>
+          </dl>
+        </article>
+      </section>
+
+      <section class="doc-card component-tree p-5 sm:p-6">
+        <h2 class="mb-5 font-pixel text-2xl font-semibold text-[#b8a77c]">06 / Component Tree</h2>
+        <pre class="overflow-x-auto rounded-sm bg-[#0b0b09] p-5 text-sm leading-7 text-[#aaa59b]"><code>SettingsScreen
+├── StatusBar
+├── SettingsHeader
+└── SettingsSection[]
+    ├── SectionTitle
+    └── PixelPanelShell
+        ├── PanelShadow
+        └── PixelPanelFrame
+            └── PixelPanelOutline
+                └── PixelPanelContent
+                    └── SettingRow[]
+                        ├── SettingLabel
+                        └── PixelSwitch
+                            ├── SwitchShadow
+                            ├── SwitchFrame
+                            ├── SwitchTrack
+                            └── SwitchKnob</code></pre>
+      </section>
+    </main>
+  </body>
+</html>
