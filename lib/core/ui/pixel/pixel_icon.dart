@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'pixel_tokens.dart';
 
-enum PixelIconKind { back, check, dragHandle }
+enum PixelIconKind { back, settingsBack, check, dragHandle }
 
 class PixelIcon extends StatelessWidget {
   const PixelIcon({super.key, required this.kind, this.color, this.size = 24});
@@ -50,6 +50,9 @@ class _PixelIconPainter extends CustomPainter {
           Rect.fromLTWH(3 * unit, 3.5 * unit, 4 * unit, unit),
           paint,
         );
+      case PixelIconKind.settingsBack:
+        paint.isAntiAlias = false;
+        _paintSettingsBack(canvas, size, paint);
       case PixelIconKind.check:
         final path = Path()
           ..moveTo(unit, 4 * unit)
@@ -69,6 +72,24 @@ class _PixelIconPainter extends CustomPainter {
           Rect.fromLTWH(2 * unit, 5 * unit, 4 * unit, unit),
           paint,
         );
+    }
+  }
+
+  void _paintSettingsBack(Canvas canvas, Size size, Paint paint) {
+    // setting.html: 22x30 viewBox，由五个 6x6 的阶梯色块组成。
+    final scale = size.height / 30;
+    final left = (size.width - 22 * scale) / 2;
+    for (var index = 0; index < 5; index++) {
+      final step = index <= 2 ? index : 4 - index;
+      canvas.drawRect(
+        Rect.fromLTWH(
+          left + (14 - step * 6) * scale,
+          index * 6 * scale,
+          6 * scale,
+          6 * scale,
+        ),
+        paint,
+      );
     }
   }
 

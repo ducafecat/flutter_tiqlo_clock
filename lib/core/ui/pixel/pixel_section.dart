@@ -24,9 +24,14 @@ class PixelSection extends StatelessWidget {
       children: [
         Semantics(
           header: true,
-          child: Text(
-            title.toUpperCase(),
-            style: tokens.heading(fontSize: 19).copyWith(color: tokens.section),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: Text(
+              title.toUpperCase(),
+              style: tokens
+                  .heading(fontSize: 19)
+                  .copyWith(color: tokens.section, letterSpacing: 1.52),
+            ),
           ),
         ),
         const SizedBox(height: 9),
@@ -43,57 +48,69 @@ class _SettingsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: Transform.translate(
-            offset: const Offset(1, 1),
-            child: const _PanelLayer(color: Color(0xFF050504), cut: 10),
-          ),
+    return CustomPaint(
+      painter: const _SettingsPanelPainter(),
+      child: Padding(
+        padding: const EdgeInsets.all(4),
+        child: ClipPath(
+          clipper: const _PanelContentClipper(),
+          child: ColoredBox(color: const Color(0xFF26231F), child: child),
         ),
-        Positioned.fill(
-          child: const _PanelLayer(color: Color(0xFF0B0A09), cut: 10),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(2),
-          child: _PanelLayer(
-            color: const Color(0xFF5B554B),
-            cut: 8,
-            padding: 2,
-            child: _PanelLayer(
-              color: const Color(0xFF26231F),
-              cut: 6,
-              child: child,
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
-class _PanelLayer extends StatelessWidget {
-  const _PanelLayer({
-    required this.color,
-    required this.cut,
-    this.padding = 0,
-    this.child,
-  });
-
-  final Color color;
-  final double cut;
-  final double padding;
-  final Widget? child;
+class _SettingsPanelPainter extends CustomPainter {
+  const _SettingsPanelPainter();
 
   @override
-  Widget build(BuildContext context) => ClipPath(
-    clipper: PixelCutClipper(cut),
-    child: Container(
-      color: color,
-      padding: EdgeInsets.all(padding),
-      child: child,
-    ),
-  );
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final outer = pixelPanelOuterPath(rect);
+
+    canvas.drawPath(
+      outer.shift(const Offset(1, 1)),
+      Paint()..color = const Color(0xFF050504),
+    );
+    canvas.drawPath(outer, Paint()..color = const Color(0xFF0B0A09));
+
+    final outlineRect = rect.deflate(2);
+    canvas.drawPath(
+      pixelPanelMiddlePath(outlineRect),
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF756B5B),
+            Color(0xFF5B554B),
+            Color(0xFF5B554B),
+            Color(0xFF39352F),
+          ],
+          stops: [0, 0.18, 0.82, 1],
+        ).createShader(outlineRect),
+    );
+
+    final contentRect = rect.deflate(4);
+    canvas.drawPath(
+      pixelPanelInnerPath(contentRect),
+      Paint()..color = const Color(0xFF26231F),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _SettingsPanelPainter oldDelegate) => false;
+}
+
+class _PanelContentClipper extends CustomClipper<Path> {
+  const _PanelContentClipper();
+
+  @override
+  Path getClip(Size size) => pixelPanelInnerPath(Offset.zero & size);
+
+  @override
+  bool shouldReclip(covariant _PanelContentClipper oldClipper) => false;
 }
 
 class _SettingsDivider extends StatelessWidget {
@@ -103,6 +120,7 @@ class _SettingsDivider extends StatelessWidget {
   Widget build(BuildContext context) => const SizedBox(
     height: 5,
     child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(child: ColoredBox(color: Color(0xFF100F0D))),
         Expanded(flex: 2, child: ColoredBox(color: Color(0xFF5B554B))),

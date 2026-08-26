@@ -176,6 +176,7 @@ class _SettingsHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = PixelTokens.of(context);
     return Container(
+      width: double.infinity,
       height: 71,
       padding: const EdgeInsets.symmetric(horizontal: 22),
       decoration: const BoxDecoration(
@@ -184,12 +185,15 @@ class _SettingsHeader extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
+          Positioned(
+            left: -10,
+            top: 11.5,
             child: SizedBox(
+              key: const ValueKey('settings-back-button'),
               width: 48,
               height: 48,
               child: Semantics(
+                container: true,
                 button: true,
                 label: 'Back',
                 onTap: onBack,
@@ -198,14 +202,30 @@ class _SettingsHeader extends StatelessWidget {
                     behavior: HitTestBehavior.opaque,
                     onTap: onBack,
                     child: const Center(
-                      child: PixelIcon(kind: PixelIconKind.back, size: 30),
+                      child: PixelIcon(
+                        kind: PixelIconKind.settingsBack,
+                        color: Color(0xFFFFFDF7),
+                        size: 30,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-          Text('Settings', style: tokens.heading(fontSize: 31)),
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              'Settings',
+              style: tokens
+                  .heading(fontSize: 31)
+                  .copyWith(
+                    color: const Color(0xFFFFFDF7),
+                    height: 1,
+                    letterSpacing: -0.62,
+                  ),
+            ),
+          ),
         ],
       ),
     );

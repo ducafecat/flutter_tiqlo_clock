@@ -36,13 +36,8 @@ class _PixelSwitchState extends State<PixelSwitch> {
     final tokens = PixelTokens.of(context);
     final foreground = !_enabled
         ? tokens.disabledText
-        : _hovered
-        ? tokens.textPrimary
-        : tokens.textPrimary;
-    final motionDuration = tokens.motionDuration(
-      context,
-      tokens.switchDuration,
-    );
+        : const Color(0xFFFFFDF7);
+    final motionDuration = tokens.motionDuration(context, tokens.pressDuration);
     return Semantics(
       label: widget.label,
       enabled: _enabled,
@@ -70,39 +65,51 @@ class _PixelSwitchState extends State<PixelSwitch> {
             onTapUp: (_) => setState(() => _pressed = false),
             child: AnimatedContainer(
               duration: motionDuration,
-              transform: Matrix4.translationValues(
-                0,
-                _pressed ? tokens.pressedOffset : 0,
-                0,
-              ),
+              curve: const _StepsTwoEnd(),
               constraints: const BoxConstraints(minHeight: 63, minWidth: 48),
               padding: const EdgeInsets.symmetric(horizontal: 19, vertical: 12),
               decoration: BoxDecoration(
-                color: _hovered && _enabled
-                    ? Color.alphaBlend(tokens.hoverOverlay, tokens.surface)
-                    : tokens.surface,
-                border: _focused
-                    ? Border.all(
-                        color: tokens.focus,
-                        width: tokens.outlineWidth,
+                color: _pressed
+                    ? const Color(0xFF302C27)
+                    : _hovered && _enabled
+                    ? Color.alphaBlend(
+                        tokens.hoverOverlay,
+                        const Color(0xFF2A2722),
                       )
                     : null,
+                gradient: _pressed || (_hovered && _enabled)
+                    ? null
+                    : const LinearGradient(
+                        colors: [
+                          Color(0xFF27241F),
+                          Color(0xFF2A2722),
+                          Color(0xFF26231F),
+                        ],
+                        stops: [0, 0.54, 1],
+                      ),
               ),
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
                       widget.label,
-                      style: tokens.body(fontSize: 22, color: foreground),
+                      style: tokens
+                          .body(fontSize: 22, color: foreground)
+                          .copyWith(height: 1.25),
                     ),
                   ),
                   SizedBox(width: tokens.spacingMd),
-                  _SwitchGlyph(
-                    enabled: _enabled,
-                    value: widget.value,
-                    pressed: _pressed,
-                    focused: _focused,
-                    motionDuration: motionDuration,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 1),
+                    child: _SwitchGlyph(
+                      enabled: _enabled,
+                      value: widget.value,
+                      focused: _focused,
+                      motionDuration: tokens.motionDuration(
+                        context,
+                        tokens.switchDuration,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -118,94 +125,56 @@ class _SwitchGlyph extends StatelessWidget {
   const _SwitchGlyph({
     required this.enabled,
     required this.value,
-    required this.pressed,
     required this.focused,
     required this.motionDuration,
   });
 
   final bool enabled;
   final bool value;
-  final bool pressed;
   final bool focused;
   final Duration motionDuration;
 
   @override
   Widget build(BuildContext context) {
     final tokens = PixelTokens.of(context);
-    final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
-    final track = !enabled
-        ? tokens.disabledSurface
-        : value
-        ? const Color(0xFFD96B0C)
-        : const Color(0xFF171612);
     return SizedBox(
       key: const ValueKey('pixel-switch-control'),
       width: 64,
       height: 40,
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           Positioned.fill(
-            child: Transform.translate(
-              offset: const Offset(1, 1),
-              child: _SwitchSurface(
-                color: const Color(0xFF050504),
-                dpr: devicePixelRatio,
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: _SwitchSurface(
-              color: const Color(0xFF0B0A09),
-              dpr: devicePixelRatio,
-            ),
-          ),
-          Positioned.fill(
-            child: Padding(
-              padding: const EdgeInsets.all(2),
-              child: _SwitchSurface(
-                color: track,
-                border: value
-                    ? const Color(0xFFA3480B)
-                    : const Color(0xFF5B554B),
-                dpr: devicePixelRatio,
+            child: CustomPaint(
+              painter: _SwitchTrackPainter(
+                enabled: enabled,
+                value: value,
+                disabledSurface: tokens.disabledSurface,
               ),
             ),
           ),
           if (focused)
-            Positioned.fill(
+            Positioned(
+              left: -4,
+              top: -4,
+              width: 72,
+              height: 48,
               child: IgnorePointer(
-                child: Container(
-                  margin: const EdgeInsets.all(-4),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: const Color(0xFFFFFDF7),
-                      width: 3,
-                    ),
-                  ),
-                ),
+                child: CustomPaint(painter: const _SwitchFocusPainter()),
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 8),
-            child: Align(
-              alignment: value ? Alignment.centerRight : Alignment.centerLeft,
-              child: AnimatedContainer(
-                duration: motionDuration,
-                width: 22,
-                height: 24,
-                transform: Matrix4.translationValues(0, pressed ? 1 : 0, 0),
-                decoration: ShapeDecoration(
-                  color: !enabled
-                      ? tokens.disabledText
-                      : value
-                      ? const Color(0xFFF4F0E6)
-                      : const Color(0xFF55524D),
-                  shape: _PixelSwitchShape(
-                    value ? const Color(0xFF783006) : const Color(0xFF2B2925),
-                    devicePixelRatio: devicePixelRatio,
-                    strokeWidth: 1,
-                  ),
-                ),
+          AnimatedPositioned(
+            duration: motionDuration,
+            curve: const _StepsTwoEnd(),
+            left: value ? 33 : 9,
+            top: 8,
+            width: 22,
+            height: 24,
+            child: CustomPaint(
+              painter: _SwitchKnobPainter(
+                enabled: enabled,
+                value: value,
+                disabledColor: tokens.disabledText,
               ),
             ),
           ),
@@ -215,73 +184,170 @@ class _SwitchGlyph extends StatelessWidget {
   }
 }
 
-class _SwitchSurface extends StatelessWidget {
-  const _SwitchSurface({required this.color, required this.dpr, this.border});
-
-  final Color color;
-  final Color? border;
-  final double dpr;
-
-  @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: ShapeDecoration(
-      color: color,
-      shape: _PixelSwitchShape(
-        border ?? color,
-        devicePixelRatio: dpr,
-        strokeWidth: border == null ? 0 : 2,
-      ),
-    ),
-  );
-}
-
-class _PixelSwitchShape extends ShapeBorder {
-  const _PixelSwitchShape(
-    this.color, {
-    required this.devicePixelRatio,
-    required this.strokeWidth,
+class _SwitchTrackPainter extends CustomPainter {
+  const _SwitchTrackPainter({
+    required this.enabled,
+    required this.value,
+    required this.disabledSurface,
   });
 
-  final Color color;
-  final double devicePixelRatio;
-  final double strokeWidth;
+  final bool enabled;
+  final bool value;
+  final Color disabledSurface;
 
   @override
-  EdgeInsetsGeometry get dimensions => const EdgeInsets.all(1);
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final outer = pixelSwitchOuterPath(rect);
+    canvas.drawPath(
+      outer.shift(const Offset(1, 1)),
+      Paint()..color = const Color(0xFF050504),
+    );
+    canvas.drawPath(outer, Paint()..color = const Color(0xFF0B0A09));
 
-  @override
-  Path getInnerPath(Rect rect, {TextDirection? textDirection}) {
-    return pixelCutPath(rect.deflate(1), 8);
+    final trackRect = rect.deflate(2);
+    canvas.drawPath(
+      pixelSwitchTrackPath(trackRect),
+      Paint()
+        ..color = !enabled
+            ? disabledSurface
+            : value
+            ? const Color(0xFFA3480B)
+            : const Color(0xFF5B554B),
+    );
+
+    final innerRect = rect.deflate(4);
+    final innerPath = pixelSwitchInnerTrackPath(innerRect);
+    canvas.save();
+    canvas.clipPath(innerPath);
+    if (enabled && value) {
+      canvas.drawRect(
+        innerRect,
+        Paint()
+          ..shader = const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFE88A2A),
+              Color(0xFFD96B0C),
+              Color(0xFFD96B0C),
+              Color(0xFFA74608),
+            ],
+            stops: [0, 0.0625, 0.9375, 1],
+          ).createShader(innerRect),
+      );
+      canvas.drawRect(
+        Rect.fromLTWH(innerRect.left, innerRect.top, innerRect.width, 2),
+        Paint()..color = const Color(0xFFED9232),
+      );
+      canvas.drawRect(
+        Rect.fromLTWH(innerRect.left, innerRect.bottom - 1, innerRect.width, 1),
+        Paint()..color = const Color(0xFFB55410),
+      );
+    } else {
+      canvas.drawRect(
+        innerRect,
+        Paint()..color = enabled ? const Color(0xFF171612) : disabledSurface,
+      );
+      canvas.drawRect(
+        Rect.fromLTWH(innerRect.left, innerRect.top, innerRect.width, 2),
+        Paint()..color = const Color(0xFF39352F),
+      );
+      canvas.drawRect(
+        Rect.fromLTWH(innerRect.left, innerRect.bottom - 1, innerRect.width, 1),
+        Paint()..color = const Color(0xFF0B0B09),
+      );
+    }
+    canvas.restore();
   }
 
   @override
-  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
-    return pixelCutPath(rect, 8);
+  bool shouldRepaint(covariant _SwitchTrackPainter oldDelegate) {
+    return enabled != oldDelegate.enabled ||
+        value != oldDelegate.value ||
+        disabledSurface != oldDelegate.disabledSurface;
   }
+}
+
+class _SwitchKnobPainter extends CustomPainter {
+  const _SwitchKnobPainter({
+    required this.enabled,
+    required this.value,
+    required this.disabledColor,
+  });
+
+  final bool enabled;
+  final bool value;
+  final Color disabledColor;
 
   @override
-  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
-    final alignedStroke = _alignToPhysicalPixel(strokeWidth);
-    final halfStroke = alignedStroke / 2;
-    final alignedRect = Rect.fromLTRB(
-      _alignToPhysicalPixel(rect.left + halfStroke),
-      _alignToPhysicalPixel(rect.top + halfStroke),
-      _alignToPhysicalPixel(rect.right - halfStroke),
-      _alignToPhysicalPixel(rect.bottom - halfStroke),
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final path = pixelSwitchKnobPath(rect);
+    final shadow = value ? const Color(0xFF783006) : const Color(0xFF2B2925);
+    final fill = !enabled
+        ? disabledColor
+        : value
+        ? const Color(0xFFF4F0E6)
+        : const Color(0xFF55524D);
+    final highlight = value ? const Color(0xFFFFFDF7) : const Color(0xFF69655F);
+    final lowlight = value ? const Color(0xFFD8D1C4) : const Color(0xFF403D38);
+
+    canvas.drawPath(path.shift(const Offset(0, 1)), Paint()..color = shadow);
+    canvas.drawPath(path, Paint()..color = fill);
+
+    canvas.save();
+    canvas.clipPath(path);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = highlight
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2,
     );
     canvas.drawPath(
-      pixelCutPath(alignedRect, 8),
+      path.shift(const Offset(-1, -1)),
       Paint()
-        ..color = color
+        ..color = lowlight
         ..style = PaintingStyle.stroke
-        ..strokeWidth = alignedStroke,
+        ..strokeWidth = 2,
     );
-  }
-
-  double _alignToPhysicalPixel(double value) {
-    return (value * devicePixelRatio).roundToDouble() / devicePixelRatio;
+    canvas.restore();
   }
 
   @override
-  ShapeBorder scale(double t) => this;
+  bool shouldRepaint(covariant _SwitchKnobPainter oldDelegate) {
+    return enabled != oldDelegate.enabled ||
+        value != oldDelegate.value ||
+        disabledColor != oldDelegate.disabledColor;
+  }
+}
+
+class _SwitchFocusPainter extends CustomPainter {
+  const _SwitchFocusPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawRect(
+      (Offset.zero & size).deflate(1.5),
+      Paint()
+        ..color = const Color(0xFFFFFDF4)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _SwitchFocusPainter oldDelegate) => false;
+}
+
+class _StepsTwoEnd extends Curve {
+  const _StepsTwoEnd();
+
+  @override
+  double transformInternal(double t) {
+    if (t >= 1) return 1;
+    if (t >= 0.5) return 0.5;
+    return 0;
+  }
 }
