@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
 import '../../../clock/clock_theme.dart';
@@ -34,46 +32,30 @@ class ClockThemeSheet extends StatelessWidget {
       children: [
         _SheetTitle(label: 'Clock Style', tokens: tokens),
         SizedBox(height: tokens.spacingSm),
-        PixelPanel(
-          padding: EdgeInsets.zero,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (
-                var index = 0;
-                index < ClockThemeId.values.length;
-                index++
-              ) ...[
-                if (index > 0) Container(height: 1, color: tokens.outline),
-                PixelSelectionTile(
-                  key: ValueKey(
-                    'clock-style-${ClockThemeId.values[index].name}',
-                  ),
-                  label: ClockThemeId.values[index].label,
-                  selected: clockThemeId == ClockThemeId.values[index],
-                  onSelected: () =>
-                      onClockThemeSelected(ClockThemeId.values[index]),
-                ),
-              ],
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (
+              var index = 0;
+              index < ClockThemeId.values.length;
+              index++
+            ) ...[
+              if (index > 0) SizedBox(height: tokens.spacingSm),
+              PixelSelectionTile(
+                key: ValueKey('clock-style-${ClockThemeId.values[index].name}'),
+                label: ClockThemeId.values[index].label,
+                selected: clockThemeId == ClockThemeId.values[index],
+                onSelected: () =>
+                    onClockThemeSelected(ClockThemeId.values[index]),
+              ),
             ],
-          ),
+          ],
         ),
         SizedBox(height: tokens.spacingLg),
         _SheetTitle(label: 'Color Theme', tokens: tokens),
         SizedBox(height: tokens.spacingSm),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            const minWidth = 144.0;
-            final maxWidth = constraints.maxWidth.isFinite
-                ? constraints.maxWidth
-                : minWidth;
-            final columns = math.max(
-              1,
-              ((maxWidth + tokens.spacingSm) / (minWidth + tokens.spacingSm))
-                  .floor(),
-            );
-            final itemWidth =
-                (maxWidth - tokens.spacingSm * (columns - 1)) / columns;
+        Builder(
+          builder: (context) {
             final options = clockThemeId == ClockThemeId.flip
                 ? [
                     for (final id in FlipPaletteId.values)
@@ -100,15 +82,14 @@ class ClockThemeSheet extends StatelessWidget {
               runSpacing: tokens.spacingSm,
               children: [
                 for (final option in options)
-                  SizedBox(
-                    width: itemWidth,
-                    child: PixelColorOption(
-                      key: ValueKey(option.key),
-                      label: option.label,
-                      colors: option.colors,
-                      selected: option.selected,
-                      onSelected: option.select,
-                    ),
+                  PixelColorOption(
+                    key: ValueKey(option.key),
+                    label: option.label,
+                    colors: option.colors,
+                    selected: option.selected,
+                    onSelected: option.select,
+                    // 按文字内容形成参考稿中的不等宽三列。
+                    minWidth: 0,
                   ),
               ],
             );

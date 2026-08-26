@@ -248,6 +248,56 @@ void main() {
     expect(stopped, isTrue);
   });
 
+  testWidgets(
+    'PixelToolbar uses full-width stacked actions on portrait phones',
+    (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(393, 852);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: PixelTheme.darkTheme,
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: PixelToolbar(
+                actions: [
+                  PixelToolbarAction(label: 'Theme', onPressed: () {}),
+                  PixelToolbarAction(label: 'More', onPressed: () {}),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final themeRect = tester.getRect(find.bySemanticsLabel('Theme'));
+      final moreRect = tester.getRect(find.bySemanticsLabel('More'));
+      expect(themeRect, const Rect.fromLTWH(8, 732, 377, 56));
+      expect(moreRect, const Rect.fromLTWH(8, 796, 377, 56));
+      expect(
+        find.descendant(
+          of: find.byType(PixelToolbar),
+          matching: find.byType(PixelPanel),
+        ),
+        findsNWidgets(2),
+      );
+
+      tester.binding.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(
+        tester.binding.platformDispatcher.clearTextScaleFactorTestValue,
+      );
+      await tester.pump();
+      expect(
+        tester.getSize(find.bySemanticsLabel('Theme')).height,
+        greaterThan(56),
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('PixelSheet closes with Escape and restores trigger focus', (
     tester,
   ) async {

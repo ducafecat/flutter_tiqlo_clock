@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'pixel_action_tile.dart';
 import 'pixel_icon.dart';
+import 'pixel_panel.dart';
 import 'pixel_tokens.dart';
 
 class PixelSelectionTile extends StatelessWidget {
@@ -27,17 +28,18 @@ class PixelSelectionTile extends StatelessWidget {
       label: label,
       onTap: onSelected,
       child: ExcludeSemantics(
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            border: selected
-                ? Border.all(color: tokens.accent, width: tokens.outlineWidth)
-                : null,
-          ),
+        child: PixelPanel(
+          padding: EdgeInsets.zero,
+          borderColor: selected ? tokens.textPrimary : null,
           child: PixelActionTile(
             label: label,
             onPressed: onSelected,
+            minHeight: 56,
             trailing: selected
-                ? PixelIcon(kind: PixelIconKind.check, color: tokens.accent)
+                ? PixelIcon(
+                    kind: PixelIconKind.check,
+                    color: tokens.textPrimary,
+                  )
                 : null,
           ),
         ),

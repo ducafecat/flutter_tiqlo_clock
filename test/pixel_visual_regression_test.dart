@@ -1,23 +1,31 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_engine.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_providers.dart';
+import 'package:flutter_tiqlo_clock/clock/clock_settings_store.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
 import 'package:flutter_tiqlo_clock/clock/digital_theme.dart';
 import 'package:flutter_tiqlo_clock/clock/flip_palette.dart';
 import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_ui.dart';
 import 'package:flutter_tiqlo_clock/features/about/pages/about_page.dart';
+import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_face.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_more_sheet.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_theme_sheet.dart';
 import 'package:flutter_tiqlo_clock/features/settings/pages/settings_page.dart';
 import 'package:flutter_tiqlo_clock/features/welcome/pages/welcome_page.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'clock/fake_clock.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    await initializeDateFormatting('en');
+  });
 
   testWidgets('Digital matches the Android visual baseline', (tester) async {
     _configureView(tester, const Size(360, 640), 1);
@@ -44,6 +52,48 @@ void main() {
       find.byKey(const ValueKey('digital-golden')),
       matchesGoldenFile('goldens/digital_android_360x640.png'),
     );
+  });
+
+  testWidgets('Menu matches the iOS portrait visual baseline', (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    addTearDown(() => debugDefaultTargetPlatformOverride = null);
+    _configureView(tester, const Size(393, 852), 1);
+    tester.view.viewPadding = const FakeViewPadding(bottom: 34);
+    addTearDown(tester.view.resetViewPadding);
+
+    final container = ProviderContainer(
+      overrides: [
+        clockEngineProvider.overrideWithValue(
+          ClockEngine(
+            clock: FakeClock(wall: DateTime(2026, 8, 20, 22, 57)),
+            locale: const Locale('en'),
+            timeFormat: TimeFormat.h12,
+            clockThemeId: ClockThemeId.digital,
+            digitalThemeId: DigitalThemeId.pureDark,
+          ),
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: _goldenApp(
+          key: const ValueKey('menu-golden'),
+          child: const ClockPage(),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(ClockPage));
+    await tester.pump();
+    await expectLater(
+      find.byKey(const ValueKey('menu-golden')),
+      matchesGoldenFile('goldens/menu_ios_393x852.png'),
+    );
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+    debugDefaultTargetPlatformOverride = null;
   });
 
   testWidgets('Theme matches the Android visual baseline', (tester) async {

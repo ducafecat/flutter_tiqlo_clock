@@ -8,12 +8,18 @@ class PixelActionTile extends StatelessWidget {
     super.key,
     required this.label,
     required this.onPressed,
+    this.leading,
     this.trailing,
+    this.minHeight = 64,
+    this.expand = true,
   });
 
   final String label;
   final VoidCallback? onPressed;
+  final Widget? leading;
   final Widget? trailing;
+  final double minHeight;
+  final bool expand;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +48,7 @@ class PixelActionTile extends StatelessWidget {
             state.pressed ? tokens.pressedOffset : 0,
             0,
           ),
-          constraints: const BoxConstraints(minHeight: 64, minWidth: 48),
+          constraints: BoxConstraints(minHeight: minHeight, minWidth: 48),
           padding: EdgeInsets.symmetric(
             horizontal: tokens.spacingMd,
             vertical: tokens.spacingSm,
@@ -54,10 +60,18 @@ class PixelActionTile extends StatelessWidget {
                 : null,
           ),
           child: Row(
+            mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
             children: [
-              Expanded(
-                child: Text(label, style: tokens.body(color: foreground)),
-              ),
+              if (leading != null) ...[
+                leading!,
+                SizedBox(width: tokens.spacingSm),
+              ],
+              if (expand)
+                Expanded(
+                  child: Text(label, style: tokens.body(color: foreground)),
+                )
+              else
+                Text(label, style: tokens.body(color: foreground)),
               if (trailing != null) ...[
                 SizedBox(width: tokens.spacingMd),
                 trailing!,

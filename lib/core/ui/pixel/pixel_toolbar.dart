@@ -26,6 +26,31 @@ class PixelToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = PixelTokens.of(context);
+    final mediaQuery = MediaQuery.maybeOf(context);
+    final usePortraitMenu =
+        mediaQuery != null &&
+        mediaQuery.orientation == Orientation.portrait &&
+        mediaQuery.size.width < 600;
+
+    if (usePortraitMenu) {
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: tokens.spacingSm),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var index = 0; index < actions.length; index++) ...[
+              if (index > 0) SizedBox(height: tokens.spacingSm),
+              ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 56),
+                child: _ToolbarButton(action: actions[index], labelSize: 24),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+
     return PixelPanel(
       color: tokens.chrome,
       cutSize: 12,
@@ -35,16 +60,34 @@ class PixelToolbar extends StatelessWidget {
         spacing: tokens.spacingXs,
         runSpacing: tokens.spacingXs,
         children: [
-          for (final action in actions)
-            PixelButton(
-              label: action.label,
-              tone: action.tone,
-              compact: true,
-              focusNode: action.focusNode,
-              onPressed: action.onPressed,
-            ),
+          for (final action in actions) _ToolbarButton(action: action),
         ],
       ),
+    );
+  }
+}
+
+class _ToolbarButton extends StatelessWidget {
+  const _ToolbarButton({required this.action, this.labelSize});
+
+  final PixelToolbarAction action;
+  final double? labelSize;
+
+  @override
+  Widget build(BuildContext context) {
+    final labelSize = this.labelSize;
+    return PixelButton(
+      label: action.label,
+      tone: action.tone,
+      compact: true,
+      focusNode: action.focusNode,
+      onPressed: action.onPressed,
+      child: labelSize == null
+          ? null
+          : Text(
+              action.label,
+              style: PixelTokens.of(context).body(fontSize: labelSize),
+            ),
     );
   }
 }

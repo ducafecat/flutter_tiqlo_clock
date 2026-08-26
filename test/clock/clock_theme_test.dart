@@ -48,6 +48,53 @@ void main() {
     },
   );
 
+  testWidgets('Theme sheet opens with Flip and Pure Dark selected by default', (
+    tester,
+  ) async {
+    final engine = ClockEngine(
+      clock: FakeClock(wall: DateTime(2026, 8, 20, 21, 38)),
+      locale: const Locale('en'),
+    );
+    final container = ProviderContainer(
+      overrides: [clockEngineProvider.overrideWithValue(engine)],
+    );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MyApp(showOnboarding: false),
+      ),
+    );
+
+    await tester.tap(find.byType(ClockPage));
+    await tester.pump();
+    await tester.tap(find.text('Theme'));
+    await tester.pumpAndSettle();
+
+    final flip = tester.widget<PixelSelectionTile>(
+      find.byKey(const ValueKey('clock-style-flip')),
+    );
+    final digital = tester.widget<PixelSelectionTile>(
+      find.byKey(const ValueKey('clock-style-digital')),
+    );
+    final pureDark = tester.widget<PixelColorOption>(
+      find.byKey(const ValueKey('palette-pureDark')),
+    );
+
+    expect(flip.selected, isTrue);
+    expect(digital.selected, isFalse);
+    expect(pureDark.selected, isTrue);
+    expect(
+      tester
+          .widgetList<PixelColorOption>(find.byType(PixelColorOption))
+          .where((option) => option.selected),
+      hasLength(1),
+    );
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
+
   testWidgets('Digital and Flip keep independent theme selections', (
     tester,
   ) async {
