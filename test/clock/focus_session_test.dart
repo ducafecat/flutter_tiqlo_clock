@@ -80,12 +80,14 @@ void main() {
     expect(find.text('Resume'), findsOneWidget);
     expect(find.text('25:00'), findsOneWidget);
     expect(find.text('FOCUS'), findsOneWidget);
+    expect(find.text('PAUSED'), findsOneWidget);
     expect(engine.snapshot.session!.status, SessionStatus.paused);
 
     await tester.tap(find.text('Resume'));
     await tester.pump();
 
     expect(find.text('Pause'), findsOneWidget);
+    expect(find.text('PAUSED'), findsNothing);
     expect(engine.snapshot.session!.status, SessionStatus.running);
 
     await tester.pumpWidget(const SizedBox.shrink());

@@ -10,6 +10,7 @@ import 'package:flutter_tiqlo_clock/clock/flip_palette.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_providers.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
 import 'package:flutter_tiqlo_clock/clock/prefs_clock_settings_store.dart';
+import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_ui.dart';
 import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_face.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/flip_clock_face.dart';
@@ -70,10 +71,13 @@ void main() {
     await tester.tap(find.text('Theme'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Flip'), findsOneWidget);
-    expect(find.text('Digital'), findsNWidgets(2));
+    expect(find.byType(PixelSelectionTile), findsNWidgets(2));
     expect(find.text('Clock Style'), findsOneWidget);
     expect(find.text('Color Theme'), findsOneWidget);
+    expect(
+      find.byType(PixelColorOption),
+      findsNWidgets(DigitalThemeId.values.length),
+    );
     for (final id in DigitalThemeId.values) {
       expect(find.byKey(ValueKey('digital-theme-${id.name}')), findsOneWidget);
     }
@@ -96,7 +100,7 @@ void main() {
     expect(digitalTime.style!.color, DigitalThemeId.digitalRed.theme.digit);
     expect(digitalTime.style!.shadows, isNull);
 
-    await tester.tap(find.widgetWithText(ListTile, 'Flip'));
+    await tester.tap(find.byKey(const ValueKey('clock-style-flip')));
     await tester.pump();
 
     expect(engine.clockThemeId, ClockThemeId.flip);
@@ -122,7 +126,7 @@ void main() {
       FlipPaletteId.purple.palette.background,
     );
 
-    await tester.tap(find.widgetWithText(ListTile, 'Digital'));
+    await tester.tap(find.byKey(const ValueKey('clock-style-digital')));
     await tester.pump();
     expect(engine.clockThemeId, ClockThemeId.digital);
     expect(engine.flipPaletteId, FlipPaletteId.purple);
@@ -210,7 +214,6 @@ void main() {
     );
 
     final timeFinder = find.byKey(const ValueKey('digital-time'));
-    final layoutSize = tester.getSize(timeFinder);
     final paintedRect = tester.getRect(timeFinder);
     final transform = tester.widget<Transform>(
       find.byKey(const ValueKey('digital-time-optical-offset')),
@@ -254,8 +257,9 @@ void main() {
     expect(tester.widget<Text>(find.text('AM')).style!.fontSize, 24);
     expect(
       tester.widget<Text>(find.text('AM')).style!.fontWeight,
-      FontWeight.w900,
+      FontWeight.w400,
     );
+    expect(tester.widget<Text>(find.text('AM')).style!.fontFamily, 'Tiny5');
     expect(
       tester.widget<Text>(find.text('THU · AUG 20')).style!.color,
       theme.secondary,
@@ -268,8 +272,10 @@ void main() {
   ) async {
     tester.view.physicalSize = const Size(516, 250);
     tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 
     final engine = ClockEngine(
       clock: FakeClock(wall: DateTime(2026, 8, 20, 21, 38)),
@@ -292,15 +298,23 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text('Flip'), findsOneWidget);
-    expect(find.widgetWithText(ListTile, 'Digital'), findsOneWidget);
+    expect(find.byKey(const ValueKey('clock-style-digital')), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('palette-pink')),
+      120,
+      scrollable: find.descendant(
+        of: find.byKey(const ValueKey('pixel-sheet-scroll')),
+        matching: find.byType(Scrollable),
+      ),
+    );
+    expect(find.byKey(const ValueKey('palette-pink')), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
   });
 
-  testWidgets('Flip face animates when the displayed minute changes', (
-    tester,
-  ) async {
+  testWidgets('Flip face completes its animation in 600ms', (tester) async {
     ClockSnapshot snap(int minute) =>
         ClockSnapshot(hour: 21, minute: minute, dateLabel: 'THU · AUG 20');
 
@@ -331,7 +345,15 @@ void main() {
     await tester.pump();
     expect(tester.hasRunningAnimations, isTrue);
 
-    await tester.pumpAndSettle();
+    final duration = const PixelTokens.dark().flipDuration;
+    expect(duration, const Duration(milliseconds: 600));
+    await tester.pump(duration - const Duration(milliseconds: 1));
+    expect(tester.hasRunningAnimations, isTrue);
+
+    await tester.pump(const Duration(milliseconds: 2));
+    expect(find.byKey(const ValueKey('flip-flap')), findsNothing);
+    await tester.pump();
+    expect(tester.hasRunningAnimations, isFalse);
     expect(find.text('39'), findsNWidgets(2));
     expect(find.text('38'), findsNothing);
   });
@@ -400,6 +422,34 @@ void main() {
     expect(tester.getCenter(divider), initialCenter);
   });
 
+  testWidgets('Flip replaces digits immediately when animations are disabled', (
+    tester,
+  ) async {
+    ClockSnapshot snap(int minute) =>
+        ClockSnapshot(hour: 21, minute: minute, dateLabel: 'THU · AUG 20');
+
+    Widget face(int minute) => MaterialApp(
+      home: MediaQuery(
+        data: const MediaQueryData(disableAnimations: true),
+        child: Scaffold(
+          body: FlipClockFace(
+            snapshot: snap(minute),
+            landscape: true,
+            palette: FlipPaletteId.pureDark.palette,
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(face(38));
+    await tester.pumpWidget(face(39));
+    await tester.pump();
+
+    expect(find.text('39'), findsNWidgets(2));
+    expect(find.text('38'), findsNothing);
+    expect(find.byKey(const ValueKey('flip-flap')), findsNothing);
+  });
+
   testWidgets('Flip flap keeps a continuous speed through the midpoint', (
     tester,
   ) async {
@@ -432,7 +482,9 @@ void main() {
     await tester.pumpWidget(face(38));
     await tester.pumpWidget(face(39));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 490));
+    final duration = const PixelTokens.dark().flipDuration;
+    final midpoint = Duration(microseconds: duration.inMicroseconds ~/ 2);
+    await tester.pump(midpoint - const Duration(milliseconds: 10));
     final distanceBeforeMidpoint = math.pi / 2 - flapAngle();
 
     await tester.pump(const Duration(milliseconds: 20));
@@ -492,6 +544,34 @@ void main() {
     );
     expect(find.text(':'), findsNothing);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Flip exposes the complete wall time as one semantic node', (
+    tester,
+  ) async {
+    const snapshot = ClockSnapshot(
+      hour: 9,
+      minute: 5,
+      dateLabel: 'THU · AUG 20',
+      period: 'AM',
+      is24Hour: false,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: FlipClockFace(
+            snapshot: snapshot,
+            landscape: true,
+            palette: FlipPaletteId.pureDark.palette,
+          ),
+        ),
+      ),
+    );
+
+    final time = find.bySemanticsLabel(snapshot.timeLabel);
+    expect(time, findsOneWidget);
+    expect(tester.getSemantics(time), matchesSemantics(label: '09:05 AM'));
   });
 
   testWidgets('Flip face stacks hour above minute in portrait', (tester) async {

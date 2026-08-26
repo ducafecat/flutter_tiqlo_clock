@@ -31,6 +31,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
     required this.pressedOffset,
     required this.pressDuration,
     required this.switchDuration,
+    required this.flipDuration,
   });
 
   const PixelTokens.dark()
@@ -59,7 +60,8 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
       hardShadowOffset = 2,
       pressedOffset = 2,
       pressDuration = const Duration(milliseconds: 100),
-      switchDuration = const Duration(milliseconds: 150);
+      switchDuration = const Duration(milliseconds: 150),
+      flipDuration = const Duration(milliseconds: 600);
 
   final Color background;
   final Color chrome;
@@ -87,6 +89,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
   final double pressedOffset;
   final Duration pressDuration;
   final Duration switchDuration;
+  final Duration flipDuration;
 
   static PixelTokens of(BuildContext context) {
     return Theme.of(context).extension<PixelTokens>() ??
@@ -164,6 +167,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
     double? pressedOffset,
     Duration? pressDuration,
     Duration? switchDuration,
+    Duration? flipDuration,
   }) {
     return PixelTokens(
       background: background ?? this.background,
@@ -192,6 +196,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
       pressedOffset: pressedOffset ?? this.pressedOffset,
       pressDuration: pressDuration ?? this.pressDuration,
       switchDuration: switchDuration ?? this.switchDuration,
+      flipDuration: flipDuration ?? this.flipDuration,
     );
   }
 
@@ -229,6 +234,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
       pressedOffset: lerpDouble(pressedOffset, other.pressedOffset, t)!,
       pressDuration: t < 0.5 ? pressDuration : other.pressDuration,
       switchDuration: t < 0.5 ? switchDuration : other.switchDuration,
+      flipDuration: t < 0.5 ? flipDuration : other.flipDuration,
     );
   }
 }

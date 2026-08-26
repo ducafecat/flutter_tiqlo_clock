@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 
 import '../../../clock/clock_engine.dart';
 import '../../../clock/flip_palette.dart';
+import '../../../core/ui/pixel/pixel_panel.dart';
+import '../../../core/ui/pixel/pixel_tokens.dart';
 
 const _flipFont = 'Silkscreen';
-const _flipDuration = Duration(milliseconds: 1000);
 
 class FlipClockFace extends StatelessWidget {
   const FlipClockFace({
@@ -50,42 +51,49 @@ class FlipClockFace extends StatelessWidget {
         ),
     ];
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-      child: SizedBox.expand(
-        child: FittedBox(
-          fit: BoxFit.contain,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flex(
-                direction: landscape ? Axis.horizontal : Axis.vertical,
+    return Semantics(
+      container: true,
+      label: snapshot.timeLabel,
+      child: ExcludeSemantics(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: SizedBox.expand(
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  for (var index = 0; index < cards.length; index++) ...[
-                    if (index > 0)
-                      SizedBox(
-                        width: landscape ? gap : 0,
-                        height: landscape ? 0 : gap,
+                  Flex(
+                    direction: landscape ? Axis.horizontal : Axis.vertical,
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (var index = 0; index < cards.length; index++) ...[
+                        if (index > 0)
+                          SizedBox(
+                            width: landscape ? gap : 0,
+                            height: landscape ? 0 : gap,
+                          ),
+                        cards[index],
+                      ],
+                    ],
+                  ),
+                  if (snapshot.showDate) ...[
+                    const SizedBox(height: 20),
+                    Text(
+                      snapshot.dateLabel,
+                      style: TextStyle(
+                        color: palette.digit.withValues(alpha: 0.55),
+                        fontFamily: 'PixelifySans',
+                        fontSize: dateSize,
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 1.5,
                       ),
-                    cards[index],
+                    ),
                   ],
                 ],
               ),
-              if (snapshot.showDate) ...[
-                const SizedBox(height: 20),
-                Text(
-                  snapshot.dateLabel,
-                  style: TextStyle(
-                    color: palette.digit.withValues(alpha: 0.55),
-                    fontSize: dateSize,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-              ],
-            ],
+            ),
           ),
         ),
       ),
@@ -123,12 +131,15 @@ class _FlipCardState extends State<_FlipCard>
     super.initState();
     _current = widget.value;
     _previous = widget.value;
-    _controller = AnimationController(vsync: this, duration: _flipDuration)
-      ..addStatusListener((status) {
-        if (status == AnimationStatus.completed && mounted) {
-          setState(() => _previous = _current);
-        }
-      });
+    _controller =
+        AnimationController(
+          vsync: this,
+          duration: const PixelTokens.dark().flipDuration,
+        )..addStatusListener((status) {
+          if (status == AnimationStatus.completed && mounted) {
+            setState(() => _previous = _current);
+          }
+        });
   }
 
   @override
@@ -137,7 +148,15 @@ class _FlipCardState extends State<_FlipCard>
     if (widget.value != oldWidget.value) {
       _previous = oldWidget.value;
       _current = widget.value;
-      _controller.forward(from: 0);
+      final reduceMotion =
+          MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+      if (reduceMotion) {
+        _controller.stop();
+        _controller.value = 1;
+        _previous = _current;
+      } else {
+        _controller.forward(from: 0);
+      }
     }
   }
 
@@ -158,7 +177,6 @@ class _FlipCardState extends State<_FlipCard>
         final topPhase = eased < 0.5;
         final topAngle = math.min(eased * math.pi, math.pi / 2);
         final bottomAngle = math.max(eased * math.pi - math.pi, -math.pi / 2);
-        final radius = BorderRadius.circular(widget.width * 0.085);
         return SizedBox(
           width: widget.width,
           height: widget.height,
@@ -166,90 +184,97 @@ class _FlipCardState extends State<_FlipCard>
             clipBehavior: Clip.none,
             children: [
               Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: radius,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.18),
-                        blurRadius: widget.height * 0.045,
-                        spreadRadius: -widget.height * 0.025,
-                        offset: Offset(0, widget.height * 0.015),
-                      ),
-                    ],
-                  ),
-                  child: DecoratedBox(
-                    position: DecorationPosition.foreground,
-                    decoration: BoxDecoration(
-                      borderRadius: radius,
-                      border: Border.all(
-                        color: Colors.black.withValues(alpha: 0.55),
-                        width: 0.8,
-                      ),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: radius,
-                      child: Stack(
-                        key: const ValueKey('flip-card-stack'),
-                        clipBehavior: Clip.hardEdge,
+                child: PixelPanel(
+                  padding: EdgeInsets.zero,
+                  color: widget.palette.cardBottom,
+                  borderColor: Colors.black.withValues(alpha: 0.65),
+                  cutSize: 16,
+                  shadowOffset: math.max(2, widget.height * 0.018),
+                  child: Stack(
+                    key: const ValueKey('flip-card-stack'),
+                    clipBehavior: Clip.hardEdge,
+                    children: [
+                      Column(
                         children: [
-                          Column(
-                            children: [
-                              _half(_current, top: true),
-                              _half(
-                                flipping ? _previous : _current,
-                                top: false,
-                              ),
-                            ],
-                          ),
-                          if (flipping && topPhase)
-                            Align(
-                              key: const ValueKey('flip-flap'),
-                              alignment: Alignment.topCenter,
-                              child: _flap(
-                                value: _previous,
-                                top: true,
-                                angle: topAngle,
-                              ),
-                            ),
-                          if (flipping && !topPhase)
-                            Align(
-                              key: const ValueKey('flip-flap'),
-                              alignment: Alignment.bottomCenter,
-                              child: _flap(
-                                value: _current,
-                                top: false,
-                                angle: bottomAngle,
-                              ),
-                            ),
-                          if (widget.badge != null)
-                            Positioned(
-                              left: widget.width * 0.09,
-                              top: widget.height * 0.075,
-                              child: Text(
-                                widget.badge!,
-                                key: const ValueKey('flip-period'),
-                                style: TextStyle(
-                                  color: widget.palette.digit,
-                                  fontFamily: 'Tiny5',
-                                  fontSize: math.max(14, widget.height * 0.12),
-                                  fontWeight: FontWeight.w400,
-                                  height: 1,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ),
-                          Center(child: _divider()),
+                          _half(_current, top: true),
+                          _half(flipping ? _previous : _current, top: false),
                         ],
                       ),
-                    ),
+                      if (flipping && topPhase)
+                        Align(
+                          key: const ValueKey('flip-flap'),
+                          alignment: Alignment.topCenter,
+                          child: _flap(
+                            value: _previous,
+                            top: true,
+                            angle: topAngle,
+                          ),
+                        ),
+                      if (flipping && !topPhase)
+                        Align(
+                          key: const ValueKey('flip-flap'),
+                          alignment: Alignment.bottomCenter,
+                          child: _flap(
+                            value: _current,
+                            top: false,
+                            angle: bottomAngle,
+                          ),
+                        ),
+                      if (widget.badge != null)
+                        Positioned(
+                          left: widget.width * 0.09,
+                          top: widget.height * 0.075,
+                          child: Text(
+                            widget.badge!,
+                            key: const ValueKey('flip-period'),
+                            style: TextStyle(
+                              color: widget.palette.digit,
+                              fontFamily: 'Tiny5',
+                              fontSize: math.max(14, widget.height * 0.12),
+                              fontWeight: FontWeight.w400,
+                              height: 1,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      Center(child: _divider()),
+                    ],
                   ),
                 ),
               ),
+              _axle(left: true),
+              _axle(left: false),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _axle({required bool left}) {
+    final axleWidth = math.max(8, widget.width * 0.055).toDouble();
+    final axleHeight = math.max(28, widget.height * 0.2).toDouble();
+    return Positioned(
+      left: left ? -axleWidth * 0.35 : null,
+      right: left ? null : -axleWidth * 0.35,
+      top: (widget.height - axleHeight) / 2,
+      child: ExcludeSemantics(
+        child: Container(
+          key: const ValueKey('flip-axle'),
+          width: axleWidth,
+          height: axleHeight,
+          decoration: BoxDecoration(
+            color: Color.alphaBlend(
+              Colors.white.withValues(alpha: 0.08),
+              widget.palette.cardBottom,
+            ),
+            border: Border.all(
+              color: Colors.black.withValues(alpha: 0.75),
+              width: 2,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -287,47 +312,38 @@ class _FlipCardState extends State<_FlipCard>
   }
 
   Widget _half(String value, {required bool top}) {
-    final radius = Radius.circular(widget.width * 0.085);
     return Container(
       key: ValueKey(top ? 'flip-card-top' : 'flip-card-bottom'),
       width: widget.width,
       height: widget.height / 2,
       decoration: BoxDecoration(
         color: top ? widget.palette.cardTop : widget.palette.cardBottom,
-        borderRadius: top
-            ? BorderRadius.vertical(top: radius)
-            : BorderRadius.vertical(bottom: radius),
       ),
-      child: ClipRRect(
-        borderRadius: top
-            ? BorderRadius.vertical(top: radius)
-            : BorderRadius.vertical(bottom: radius),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            OverflowBox(
-              maxHeight: widget.height,
-              alignment: top ? Alignment.topCenter : Alignment.bottomCenter,
-              child: SizedBox(
-                width: widget.width,
-                height: widget.height,
-                child: Center(
-                  child: Text(
-                    value,
-                    style: TextStyle(
-                      color: widget.palette.digit,
-                      fontFamily: _flipFont,
-                      fontSize: widget.height * 0.82,
-                      fontWeight: FontWeight.w700,
-                      height: 0.94,
-                      letterSpacing: -widget.height * 0.012,
-                    ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          OverflowBox(
+            maxHeight: widget.height,
+            alignment: top ? Alignment.topCenter : Alignment.bottomCenter,
+            child: SizedBox(
+              width: widget.width,
+              height: widget.height,
+              child: Center(
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    color: widget.palette.digit,
+                    fontFamily: _flipFont,
+                    fontSize: widget.height * 0.68,
+                    fontWeight: FontWeight.w700,
+                    height: 0.94,
+                    letterSpacing: -widget.height * 0.012,
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

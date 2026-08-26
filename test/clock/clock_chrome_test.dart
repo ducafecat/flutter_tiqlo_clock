@@ -1,10 +1,11 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_engine.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_providers.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
+import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_ui.dart';
 import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
 import 'package:flutter_tiqlo_clock/main.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -73,6 +74,11 @@ void main() {
     await tester.pump();
     await tester.tap(find.text('More'));
     await tester.pumpAndSettle();
+
+    expect(find.byType(PixelSwitch), findsOneWidget);
+    expect(find.byType(PixelActionTile), findsNWidgets(2));
+    expect(find.byType(SwitchListTile), findsNothing);
+    expect(find.byType(ListTile), findsNothing);
 
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();

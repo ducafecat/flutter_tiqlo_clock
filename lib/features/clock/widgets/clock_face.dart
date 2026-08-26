@@ -76,43 +76,81 @@ class _SessionFace extends StatelessWidget {
       ClockThemeId.digital => landscape ? 136.0 : 88.0,
       ClockThemeId.flip => landscape ? 120.0 : 72.0,
     };
+    final complete = session.status == SessionStatus.complete;
+    final paused = session.status == SessionStatus.paused;
+    final primaryLabel = complete ? 'COMPLETE' : session.remainingLabel;
+    final semanticLabel = [
+      primaryLabel,
+      session.kindLabel,
+      if (paused) 'PAUSED',
+      if (complete) '${session.duration.inMinutes} min',
+    ].join(', ');
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-      child: SizedBox.expand(
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                session.status == SessionStatus.complete
-                    ? 'COMPLETE'
-                    : session.remainingLabel,
-                style: TextStyle(
-                  color: digitColor,
-                  fontSize: timeSize,
-                  fontWeight: FontWeight.w300,
-                  letterSpacing: 2,
-                ),
+    return Semantics(
+      container: true,
+      label: semanticLabel,
+      child: ExcludeSemantics(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: SizedBox.expand(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    primaryLabel,
+                    style: TextStyle(
+                      color: digitColor,
+                      fontFamily: themeId == ClockThemeId.digital
+                          ? 'DSEG7Classic'
+                          : 'Silkscreen',
+                      fontSize: timeSize,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  if (complete) ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      '${session.duration.inMinutes} min',
+                      style: TextStyle(
+                        color: secondaryColor,
+                        fontFamily: 'PixelifySans',
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 16,
+                    runSpacing: 8,
+                    children: [
+                      Text(
+                        session.kindLabel,
+                        style: TextStyle(
+                          color: secondaryColor,
+                          fontFamily: 'Tiny5',
+                          fontSize: 18,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      if (paused)
+                        Text(
+                          'PAUSED',
+                          style: TextStyle(
+                            color: secondaryColor,
+                            fontFamily: 'Tiny5',
+                            fontSize: 18,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
               ),
-              if (session.status == SessionStatus.complete) ...[
-                const SizedBox(height: 16),
-                Text(
-                  '${session.duration.inMinutes} min',
-                  style: TextStyle(color: secondaryColor, fontSize: 18),
-                ),
-              ],
-              const SizedBox(height: 16),
-              Text(
-                session.kindLabel,
-                style: TextStyle(
-                  color: secondaryColor,
-                  fontSize: 18,
-                  letterSpacing: 2,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -141,57 +179,62 @@ class DigitalClockFace extends StatelessWidget {
     ].join(':');
     final fontSize = landscape ? 180.0 : 132.0;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-      child: SizedBox.expand(
-        child: FittedBox(
-          fit: BoxFit.contain,
-          child: Semantics(
-            label: snapshot.timeLabel,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Transform.translate(
-                  key: const ValueKey('digital-time-optical-offset'),
-                  offset: snapshot.showSeconds
-                      ? Offset.zero
-                      : _digitalOpticalOffset(time, fontSize),
-                  child: Text(
-                    time,
-                    key: const ValueKey('digital-time'),
-                    style: TextStyle(
-                      color: theme.digit,
-                      fontFamily: 'DSEG7Classic',
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.w700,
-                      height: 1,
+    return Semantics(
+      container: true,
+      label: snapshot.timeLabel,
+      child: ExcludeSemantics(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: SizedBox.expand(
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Transform.translate(
+                    key: const ValueKey('digital-time-optical-offset'),
+                    offset: snapshot.showSeconds
+                        ? Offset.zero
+                        : _digitalOpticalOffset(time, fontSize),
+                    child: Text(
+                      time,
+                      key: const ValueKey('digital-time'),
+                      style: TextStyle(
+                        color: theme.digit,
+                        fontFamily: 'DSEG7Classic',
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.w700,
+                        height: 1,
+                      ),
                     ),
                   ),
-                ),
-                if (snapshot.period != null) ...[
-                  const SizedBox(height: 6),
-                  Text(
-                    snapshot.period!,
-                    style: TextStyle(
-                      color: theme.secondary,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 3,
+                  if (snapshot.period != null) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      snapshot.period!,
+                      style: TextStyle(
+                        color: theme.secondary,
+                        fontFamily: 'Tiny5',
+                        fontSize: 24,
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 3,
+                      ),
                     ),
-                  ),
+                  ],
+                  if (snapshot.showDate) ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      snapshot.dateLabel,
+                      style: TextStyle(
+                        color: theme.secondary,
+                        fontFamily: 'PixelifySans',
+                        fontSize: 18,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ],
                 ],
-                if (snapshot.showDate) ...[
-                  const SizedBox(height: 16),
-                  Text(
-                    snapshot.dateLabel,
-                    style: TextStyle(
-                      color: theme.secondary,
-                      fontSize: 18,
-                      letterSpacing: 2,
-                    ),
-                  ),
-                ],
-              ],
+              ),
             ),
           ),
         ),
