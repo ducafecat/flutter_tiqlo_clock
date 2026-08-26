@@ -6,6 +6,7 @@ import '../../../core/assets/app_images.dart';
 import '../../../core/providers/app_launch_provider.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/ui/clock_system_ui.dart';
+import '../../../core/ui/pixel/pixel_tokens.dart';
 
 /// 启动视觉与首次启动分流。
 class SplashPage extends ConsumerStatefulWidget {
@@ -18,15 +19,25 @@ class SplashPage extends ConsumerStatefulWidget {
 }
 
 class _SplashPageState extends ConsumerState<SplashPage> {
+  var _navigationStarted = false;
+
   @override
   void initState() {
     super.initState();
     ClockSystemUi.hide();
-    _continueToApp();
   }
 
-  Future<void> _continueToApp() async {
-    await Future<void>.delayed(const Duration(milliseconds: 1100));
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_navigationStarted) return;
+    _navigationStarted = true;
+    final tokens = PixelTokens.of(context);
+    _continueToApp(tokens.motionDuration(context, tokens.splashDuration));
+  }
+
+  Future<void> _continueToApp(Duration duration) async {
+    await Future<void>.delayed(duration);
     if (!mounted) return;
 
     final hasSeenWelcome =
@@ -37,25 +48,22 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = PixelTokens.of(context);
+    final duration = tokens.motionDuration(context, tokens.splashDuration);
+    final splash = SizedBox.expand(
+      child: Image.asset(AppImages.splashPng, fit: BoxFit.cover),
+    );
     return Scaffold(
       backgroundColor: Colors.black,
-      body: TweenAnimationBuilder<double>(
-        duration: const Duration(milliseconds: 900),
-        curve: Curves.easeOutCubic,
-        tween: Tween(begin: 0.88, end: 1),
-        builder: (context, scale, child) {
-          return Transform.scale(
-            scale: scale,
-            child: Opacity(
-              opacity: ((scale - 0.88) / 0.12).clamp(0, 1).toDouble(),
-              child: child,
+      body: duration == Duration.zero
+          ? splash
+          : TweenAnimationBuilder<double>(
+              duration: duration,
+              tween: Tween(begin: 0, end: 1),
+              builder: (context, opacity, child) =>
+                  Opacity(opacity: opacity, child: child),
+              child: splash,
             ),
-          );
-        },
-        child: SizedBox.expand(
-          child: Image.asset(AppImages.splashPng, fit: BoxFit.cover),
-        ),
-      ),
     );
   }
 }

@@ -32,6 +32,9 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
     required this.pressDuration,
     required this.switchDuration,
     required this.flipDuration,
+    required this.splashDuration,
+    required this.welcomePageDuration,
+    required this.welcomeContentDuration,
   });
 
   const PixelTokens.dark()
@@ -41,7 +44,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
       surfaceHigh = const Color(0xFF302C27),
       textPrimary = const Color(0xFFF4F0E6),
       textSecondary = const Color(0xFFAAA59B),
-      outline = const Color(0xFF625A4C),
+      outline = const Color(0xFF756B5A),
       accent = const Color(0xFFED780C),
       section = const Color(0xFFB8A77C),
       shadow = const Color(0xFF000000),
@@ -61,7 +64,10 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
       pressedOffset = 2,
       pressDuration = const Duration(milliseconds: 100),
       switchDuration = const Duration(milliseconds: 150),
-      flipDuration = const Duration(milliseconds: 600);
+      flipDuration = const Duration(milliseconds: 600),
+      splashDuration = const Duration(milliseconds: 300),
+      welcomePageDuration = const Duration(milliseconds: 300),
+      welcomeContentDuration = const Duration(milliseconds: 150);
 
   final Color background;
   final Color chrome;
@@ -90,15 +96,31 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
   final Duration pressDuration;
   final Duration switchDuration;
   final Duration flipDuration;
+  final Duration splashDuration;
+  final Duration welcomePageDuration;
+  final Duration welcomeContentDuration;
 
   static PixelTokens of(BuildContext context) {
     return Theme.of(context).extension<PixelTokens>() ??
         const PixelTokens.dark();
   }
 
+  static const _systemFallback = [
+    'PingFang SC',
+    'Microsoft YaHei',
+    'Noto Sans CJK SC',
+    'sans-serif',
+  ];
+
+  Duration motionDuration(BuildContext context, Duration duration) {
+    return MediaQuery.maybeOf(context)?.disableAnimations ?? false
+        ? Duration.zero
+        : duration;
+  }
+
   TextStyle heading({double fontSize = 20}) => TextStyle(
     fontFamily: 'PixelifySans',
-    fontFamilyFallback: const ['sans-serif'],
+    fontFamilyFallback: _systemFallback,
     fontSize: fontSize,
     fontWeight: FontWeight.w600,
     color: textPrimary,
@@ -107,7 +129,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
 
   TextStyle body({double fontSize = 16, Color? color}) => TextStyle(
     fontFamily: 'PixelifySans',
-    fontFamilyFallback: const ['sans-serif'],
+    fontFamilyFallback: _systemFallback,
     fontSize: fontSize,
     fontWeight: FontWeight.w400,
     color: color ?? textPrimary,
@@ -116,7 +138,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
 
   TextStyle hud({double fontSize = 14}) => TextStyle(
     fontFamily: 'Tiny5',
-    fontFamilyFallback: const ['sans-serif'],
+    fontFamilyFallback: _systemFallback,
     fontSize: fontSize,
     fontWeight: FontWeight.w400,
     color: textPrimary,
@@ -125,7 +147,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
 
   TextStyle flipDisplay({double fontSize = 64, Color? color}) => TextStyle(
     fontFamily: 'Silkscreen',
-    fontFamilyFallback: const ['sans-serif'],
+    fontFamilyFallback: _systemFallback,
     fontSize: fontSize,
     fontWeight: FontWeight.w700,
     color: color ?? textPrimary,
@@ -133,7 +155,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
 
   TextStyle digitalDisplay({double fontSize = 64, Color? color}) => TextStyle(
     fontFamily: 'DSEG7Classic',
-    fontFamilyFallback: const ['sans-serif'],
+    fontFamilyFallback: _systemFallback,
     fontSize: fontSize,
     fontWeight: FontWeight.w700,
     color: color ?? textPrimary,
@@ -168,6 +190,9 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
     Duration? pressDuration,
     Duration? switchDuration,
     Duration? flipDuration,
+    Duration? splashDuration,
+    Duration? welcomePageDuration,
+    Duration? welcomeContentDuration,
   }) {
     return PixelTokens(
       background: background ?? this.background,
@@ -197,6 +222,10 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
       pressDuration: pressDuration ?? this.pressDuration,
       switchDuration: switchDuration ?? this.switchDuration,
       flipDuration: flipDuration ?? this.flipDuration,
+      splashDuration: splashDuration ?? this.splashDuration,
+      welcomePageDuration: welcomePageDuration ?? this.welcomePageDuration,
+      welcomeContentDuration:
+          welcomeContentDuration ?? this.welcomeContentDuration,
     );
   }
 
@@ -235,6 +264,13 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
       pressDuration: t < 0.5 ? pressDuration : other.pressDuration,
       switchDuration: t < 0.5 ? switchDuration : other.switchDuration,
       flipDuration: t < 0.5 ? flipDuration : other.flipDuration,
+      splashDuration: t < 0.5 ? splashDuration : other.splashDuration,
+      welcomePageDuration: t < 0.5
+          ? welcomePageDuration
+          : other.welcomePageDuration,
+      welcomeContentDuration: t < 0.5
+          ? welcomeContentDuration
+          : other.welcomeContentDuration,
     );
   }
 }

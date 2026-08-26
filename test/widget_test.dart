@@ -8,6 +8,7 @@ import 'package:flutter_tiqlo_clock/features/clock/widgets/flip_clock_face.dart'
 import 'package:flutter_tiqlo_clock/features/splash/pages/splash_page.dart';
 import 'package:flutter_tiqlo_clock/features/welcome/pages/welcome_page.dart';
 import 'package:flutter_tiqlo_clock/main.dart';
+import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_ui.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -43,7 +44,7 @@ void main() {
 
     expect(find.byType(SplashPage), findsOneWidget);
 
-    await tester.pump(const Duration(milliseconds: 1100));
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.pumpAndSettle();
 
     expect(find.byType(ClockPage), findsOneWidget);
@@ -70,11 +71,13 @@ void main() {
         child: const MyApp(showOnboarding: true, showWelcome: true),
       ),
     );
-    await tester.pump(const Duration(milliseconds: 1100));
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.pumpAndSettle();
 
     expect(find.byType(WelcomePage), findsOneWidget);
     expect(find.text('翻页时钟，重新想象'), findsOneWidget);
+    expect(find.byType(PixelButton), findsNWidgets(2));
+    expect(find.byType(PixelPageIndicator), findsOneWidget);
 
     await tester.tap(find.text('下一步'));
     await tester.pumpAndSettle();
@@ -111,6 +114,38 @@ void main() {
     expect(find.byType(ClockPage), findsOneWidget);
     expect(find.byType(SplashPage), findsNothing);
     expect(find.byType(WelcomePage), findsNothing);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
+
+  testWidgets('reduced motion skips Splash delay and Welcome page animation', (
+    tester,
+  ) async {
+    tester.binding.platformDispatcher.accessibilityFeaturesTestValue =
+        FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(
+      tester.binding.platformDispatcher.clearAccessibilityFeaturesTestValue,
+    );
+    SharedPreferences.resetStatic();
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    final container = ProviderContainer(
+      overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+    );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MyApp(showOnboarding: true, showWelcome: true),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(WelcomePage), findsOneWidget);
+    await tester.tap(find.text('下一步'));
+    await tester.pump();
+    expect(find.text('一眼，看清时间'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();

@@ -6,6 +6,7 @@ import '../../../core/assets/app_images.dart';
 import '../../../core/providers/app_launch_provider.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/ui/clock_system_ui.dart';
+import '../../../core/ui/pixel/pixel_ui.dart';
 
 class WelcomePage extends ConsumerStatefulWidget {
   const WelcomePage({super.key});
@@ -64,16 +65,24 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
       _finish();
       return;
     }
-    _pageController.nextPage(
-      duration: const Duration(milliseconds: 360),
-      curve: Curves.easeOutCubic,
-    );
+    final tokens = PixelTokens.of(context);
+    final duration = tokens.motionDuration(context, tokens.welcomePageDuration);
+    if (duration == Duration.zero) {
+      _pageController.jumpToPage(_currentPage + 1);
+    } else {
+      _pageController.nextPage(duration: duration, curve: Curves.easeOutCubic);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final tokens = PixelTokens.of(context);
+    final contentDuration = tokens.motionDuration(
+      context,
+      tokens.welcomeContentDuration,
+    );
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: tokens.background,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -85,7 +94,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
               return Image.asset(_slides[index].image, fit: BoxFit.cover);
             },
           ),
-          const IgnorePointer(
+          IgnorePointer(
             child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -93,9 +102,9 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Color(0x00000000),
-                    Color(0xE6000000),
-                    Colors.black,
+                    Colors.transparent,
+                    tokens.background.withValues(alpha: 0.9),
+                    tokens.background,
                   ],
                   stops: [0, 0.5, 0.76, 1],
                 ),
@@ -103,76 +112,54 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
             ),
           ),
           SafeArea(
-            minimum: const EdgeInsets.fromLTRB(24, 12, 24, 20),
+            minimum: EdgeInsets.fromLTRB(
+              tokens.spacingLg,
+              tokens.spacingSm + tokens.spacingXs,
+              tokens.spacingLg,
+              tokens.spacingMd + tokens.spacingXs,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Align(
                   alignment: Alignment.centerRight,
-                  child: TextButton(
+                  child: PixelButton(
                     onPressed: _isFinishing ? null : _finish,
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.white70,
-                      backgroundColor: const Color(0x33000000),
-                    ),
-                    child: const Text('跳过'),
+                    label: '跳过',
+                    compact: true,
                   ),
                 ),
                 const Spacer(),
                 AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 240),
+                  duration: contentDuration,
                   child: Column(
                     key: ValueKey(_currentPage),
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         _slides[_currentPage].title,
-                        style: Theme.of(context).textTheme.headlineMedium
-                            ?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                              height: 1.18,
-                            ),
+                        style: tokens.heading(fontSize: 30),
                       ),
-                      const SizedBox(height: 10),
+                      SizedBox(height: tokens.spacingSm),
                       Text(
                         _slides[_currentPage].description,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.white70,
-                          height: 1.55,
-                        ),
+                        style: tokens.body(color: tokens.textSecondary),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 22),
+                SizedBox(height: tokens.spacingLg),
                 Row(
                   children: [
-                    for (var index = 0; index < _slides.length; index++)
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 240),
-                        width: index == _currentPage ? 24 : 7,
-                        height: 7,
-                        margin: const EdgeInsets.only(right: 7),
-                        decoration: BoxDecoration(
-                          color: index == _currentPage
-                              ? const Color(0xFFE8B66B)
-                              : Colors.white30,
-                          borderRadius: BorderRadius.circular(99),
-                        ),
-                      ),
+                    PixelPageIndicator(
+                      pageCount: _slides.length,
+                      currentPage: _currentPage,
+                    ),
                     const Spacer(),
-                    FilledButton(
+                    PixelButton(
                       onPressed: _isFinishing ? null : _next,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFFE8B66B),
-                        foregroundColor: Colors.black,
-                        minimumSize: const Size(132, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: Text(_isLastPage ? '开始使用' : '下一步'),
+                      label: _isLastPage ? '开始使用' : '下一步',
+                      tone: PixelButtonTone.primary,
                     ),
                   ],
                 ),

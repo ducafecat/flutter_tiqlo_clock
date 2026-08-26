@@ -347,4 +347,16 @@ void main() {
     await tester.pump();
     expect(firstFocus.hasFocus, isTrue);
   });
+  testWidgets('PixelPageIndicator announces its current page', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(body: PixelPageIndicator(pageCount: 3, currentPage: 1)),
+      ),
+    );
+
+    expect(
+      tester.getSemantics(find.byType(PixelPageIndicator)),
+      matchesSemantics(label: '第 2 页，共 3 页'),
+    );
+  });
 }
