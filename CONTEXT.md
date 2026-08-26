@@ -41,8 +41,12 @@ _Avoid_: Done（Done 只是 Complete 画面上的按钮）
 _Avoid_: 滚动 24 小时, UTC 日
 
 **ClockTheme**:
-Clock 的视觉面孔（Minimal、Flip、OLED、Retro）。与 Night Mode 独立。目录内置，只记住当前 id。
+Clock 的时间呈现样式，种类只有 Flip 和 Digital；两者分别保留自己的配色选择。与 Pixel UI 和 Night Mode 独立，目录内置，只记住当前样式 id。
 _Avoid_: Theme, Material Theme, App Theme, AdaptiveTheme, 主题（无限定）
+
+**Pixel UI**:
+覆盖全部运行时界面的统一视觉语言，使用固定深色 chrome、像素字体、阶梯几何和硬边交互状态。它不改变 ClockTheme、Clock 配色或产品行为。
+_Avoid_: Pixel Theme, 像素主题, ClockTheme
 
 **Night Mode**:
 显示策略：字改暗、隐藏日期和秒、暂时降低系统亮度。可叠在任意 ClockTheme 上。V1 只有手动开关；退出后恢复亮度。
