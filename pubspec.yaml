@@ -80,6 +80,20 @@ flutter:
   assets:
     - assets/images/
   fonts:
+    - family: Silkscreen
+      fonts:
+        - asset: fonts/Silkscreen-Bold.ttf
+          weight: 700
+    - family: PixelifySans
+      fonts:
+        - asset: fonts/PixelifySans-Regular.ttf
+          weight: 400
+        - asset: fonts/PixelifySans-SemiBold.ttf
+          weight: 600
+    - family: Tiny5
+      fonts:
+        - asset: fonts/Tiny5-Regular.ttf
+          weight: 400
     - family: FlipClock
       fonts:
         - asset: fonts/RobotoCondensed-Bold.ttf

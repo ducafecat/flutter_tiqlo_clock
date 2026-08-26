@@ -7,5 +7,6 @@ export 'app_colors.dart';
 export 'app_radius.dart';
 export 'app_text_styles.dart';
 export 'app_theme.dart';
+export 'pixel/pixel_ui.dart';
 export 'safe_area_ext.dart';
 export 'screen_adapt.dart';

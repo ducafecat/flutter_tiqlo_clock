@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../clock/clock_engine.dart';
 import '../../../clock/flip_palette.dart';
 
-const _flipFont = 'FlipClock';
+const _flipFont = 'Silkscreen';
 const _flipDuration = Duration(milliseconds: 1000);
 
 class FlipClockFace extends StatelessWidget {
@@ -231,9 +231,9 @@ class _FlipCardState extends State<_FlipCard>
                                 key: const ValueKey('flip-period'),
                                 style: TextStyle(
                                   color: widget.palette.digit,
-                                  fontFamily: _flipFont,
-                                  fontSize: widget.height * 0.12,
-                                  fontWeight: FontWeight.w900,
+                                  fontFamily: 'Tiny5',
+                                  fontSize: math.max(14, widget.height * 0.12),
+                                  fontWeight: FontWeight.w400,
                                   height: 1,
                                   letterSpacing: 0.5,
                                 ),

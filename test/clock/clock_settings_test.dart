@@ -6,9 +6,9 @@ import 'package:flutter_tiqlo_clock/clock/digital_theme.dart';
 import 'package:flutter_tiqlo_clock/clock/flip_palette.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_providers.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
+import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_ui.dart';
 import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
 import 'package:flutter_tiqlo_clock/main.dart';
-import 'package:flutter_tiqlo_clock/shared/widgets/settings_tile.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'fake_clock.dart';
@@ -32,7 +32,7 @@ void main() {
 
     await tester.tap(find.text('24 Hour'));
     await tester.pump();
-    await tester.pageBack();
+    await tester.tap(find.bySemanticsLabel('Back'));
     await tester.pumpAndSettle();
 
     expect(container.read(clockEngineProvider).snapshot.timeLabel, '09:38 PM');
@@ -53,7 +53,7 @@ void main() {
 
     await tester.tap(find.text('Show Seconds'));
     await tester.pump();
-    await tester.pageBack();
+    await tester.tap(find.bySemanticsLabel('Back'));
     await tester.pumpAndSettle();
 
     expect(container.read(clockEngineProvider).snapshot.timeLabel, '21:38:00');
@@ -91,7 +91,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Show Leading Zero'));
     await tester.pump();
-    await tester.pageBack();
+    await tester.tap(find.bySemanticsLabel('Back'));
     await tester.pumpAndSettle();
 
     expect(engine.showLeadingZero, isTrue);
@@ -115,7 +115,7 @@ void main() {
 
     await tester.tap(find.text('Date & Weekday'));
     await tester.pump();
-    await tester.pageBack();
+    await tester.tap(find.bySemanticsLabel('Back'));
     await tester.pumpAndSettle();
 
     expect(find.text('THU · AUG 20'), findsOneWidget);
@@ -135,6 +135,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Version 1.0.0'), findsOneWidget);
+    expect(find.byType(PixelPanel), findsWidgets);
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
@@ -205,10 +206,22 @@ void main() {
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
 
-    final tile = tester.widget<SwitchListTile>(
-      find.widgetWithText(SwitchListTile, 'Keep Screen Awake'),
+    final switchFinder = find.ancestor(
+      of: find.text('Keep Screen Awake'),
+      matching: find.byType(PixelSwitch),
     );
-    expect(tile.value, isTrue);
+    expect(switchFinder, findsOneWidget);
+    expect(
+      tester.getSemantics(switchFinder),
+      matchesSemantics(
+        label: 'Keep Screen Awake',
+        hasEnabledState: true,
+        isEnabled: true,
+        hasCheckedState: true,
+        isChecked: true,
+        hasTapAction: true,
+      ),
+    );
 
     await tester.tap(find.text('Keep Screen Awake'));
     await tester.pump();
@@ -233,7 +246,7 @@ void main() {
     expect(find.text('TIME & DATE'), findsOneWidget);
     expect(find.text('DISPLAY'), findsOneWidget);
     expect(find.text('ALERTS'), findsOneWidget);
-    expect(find.byType(SettingsGroup), findsNWidgets(3));
+    expect(find.byType(PixelSection), findsNWidgets(3));
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();

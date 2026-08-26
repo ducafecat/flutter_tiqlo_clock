@@ -24,9 +24,12 @@ void main() {
 
   setUpAll(() async {
     await initializeDateFormatting('en');
-    final flipFont = FontLoader('FlipClock')
-      ..addFont(rootBundle.load('fonts/RobotoCondensed-Bold.ttf'));
+    final flipFont = FontLoader('Silkscreen')
+      ..addFont(rootBundle.load('fonts/Silkscreen-Bold.ttf'));
     await flipFont.load();
+    final hudFont = FontLoader('Tiny5')
+      ..addFont(rootBundle.load('fonts/Tiny5-Regular.ttf'));
+    await hudFont.load();
   });
 
   test(
@@ -470,7 +473,8 @@ void main() {
     final period = tester.widget<Text>(find.text('AM'));
     expect(period.key, const ValueKey('flip-period'));
     expect(period.style!.fontSize, 260 * 0.12);
-    expect(period.style!.fontWeight, FontWeight.w900);
+    expect(period.style!.fontFamily, 'Tiny5');
+    expect(period.style!.fontWeight, FontWeight.w400);
     final periodRect = tester.getRect(find.text('AM'));
     final hourCardRect = tester.getRect(
       find.byKey(const ValueKey('flip-card-stack')).first,

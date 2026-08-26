@@ -9,9 +9,9 @@ import 'clock/clock_providers.dart';
 import 'clock/system_clock.dart';
 import 'core/config/app_config.dart';
 import 'core/router/app_router.dart';
-import 'core/ui/app_theme.dart';
 import 'core/ui/clock_full_screen.dart';
 import 'core/ui/clock_system_ui.dart';
+import 'core/ui/pixel/pixel_ui.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,7 +65,7 @@ class MyApp extends ConsumerWidget {
     return MaterialApp.router(
       title: AppConfig.appName,
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
+      theme: PixelTheme.darkTheme,
       routerConfig: router,
     );
   }
