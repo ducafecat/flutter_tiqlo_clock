@@ -104,9 +104,11 @@ class _SessionFace extends StatelessWidget {
                       color: digitColor,
                       fontFamily: themeId == ClockThemeId.digital
                           ? 'DSEG7Classic'
-                          : 'Silkscreen',
+                          : 'Jersey25',
                       fontSize: timeSize,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: themeId == ClockThemeId.digital
+                          ? FontWeight.w700
+                          : FontWeight.w400,
                       letterSpacing: 2,
                     ),
                   ),

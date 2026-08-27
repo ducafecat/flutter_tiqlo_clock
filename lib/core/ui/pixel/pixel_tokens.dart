@@ -146,10 +146,10 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
   );
 
   TextStyle flipDisplay({double fontSize = 64, Color? color}) => TextStyle(
-    fontFamily: 'Silkscreen',
+    fontFamily: 'Jersey25',
     fontFamilyFallback: _systemFallback,
     fontSize: fontSize,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w400,
     color: color ?? textPrimary,
   );
 

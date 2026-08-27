@@ -94,6 +94,10 @@ flutter:
       fonts:
         - asset: fonts/Tiny5-Regular.ttf
           weight: 400
+    - family: Jersey25
+      fonts:
+        - asset: fonts/Jersey25-Regular.ttf
+          weight: 400
     - family: FlipClock
       fonts:
         - asset: fonts/RobotoCondensed-Bold.ttf

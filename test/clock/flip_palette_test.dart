@@ -10,8 +10,8 @@ void main() {
     const expected = {
       FlipPaletteId.pureDark: [
         0xFF000000,
-        0xFF101010,
-        0xFF0B0B0B,
+        0xFF181818,
+        0xFF151515,
         0xFFF5F5F5,
         0xFF000000,
       ],
