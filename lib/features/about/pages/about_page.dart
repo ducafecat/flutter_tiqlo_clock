@@ -31,36 +31,54 @@ class _AboutPageState extends State<AboutPage> {
     return Scaffold(
       backgroundColor: tokens.chrome,
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
-            child: Column(
-              children: [
-                PixelPageHeader(
-                  title: 'About',
-                  onBack: () => AppRoutes.backToClock(context),
+        child: LayoutBuilder(
+          builder: (context, viewport) {
+            final landscape = viewport.maxWidth > viewport.maxHeight;
+            return Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: landscape ? viewport.maxWidth : 720,
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                    child: Column(
-                      children: [
-                        const Spacer(),
-                        PixelPanel(
-                          child: Text(
-                            'Version ${AppConfig.version}',
-                            style: tokens.body(fontSize: 18),
-                            textAlign: TextAlign.center,
+                child: SizedBox(
+                  width: landscape ? double.infinity : null,
+                  child: Column(
+                    children: [
+                      PixelPageHeader(
+                        title: 'About',
+                        onBack: () => AppRoutes.backToClock(context),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            landscape ? 24 : 16,
+                            0,
+                            landscape ? 24 : 16,
+                            24,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: landscape
+                                ? CrossAxisAlignment.stretch
+                                : CrossAxisAlignment.center,
+                            children: [
+                              const Spacer(),
+                              PixelPanel(
+                                child: Text(
+                                  'Version ${AppConfig.version}',
+                                  style: tokens.body(fontSize: 18),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              const Spacer(flex: 2),
+                            ],
                           ),
                         ),
-                        const Spacer(flex: 2),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
       ),
     );

@@ -145,6 +145,28 @@ void main() {
     container.dispose();
   });
 
+  testWidgets('About uses the full landscape content width', (tester) async {
+    tester.view.physicalSize = const Size(2000, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final container = await _pumpClock(tester);
+
+    await tester.tap(find.byType(ClockPage));
+    await tester.pump();
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('About'));
+    await tester.pumpAndSettle();
+
+    final panel = tester.getRect(find.byType(PixelPanel));
+    expect(panel.left, lessThan(30));
+    expect(panel.right, greaterThan(1970));
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
+
   testWidgets('Night Mode from More hides date and keeps ClockTheme', (
     tester,
   ) async {
@@ -256,6 +278,35 @@ void main() {
     );
     expect(find.text('ALERTS'), findsOneWidget);
     expect(find.byType(PixelSection), findsNWidgets(3));
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
+
+  testWidgets('Settings tiles sections across the available landscape width', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(2000, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final container = await _pumpClock(tester);
+
+    await tester.tap(find.byType(ClockPage));
+    await tester.pump();
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+
+    final sections = find.byType(PixelSection);
+    expect(sections, findsNWidgets(3));
+    final time = tester.getTopLeft(sections.at(0));
+    final display = tester.getTopLeft(sections.at(1));
+    final alerts = tester.getTopLeft(sections.at(2));
+    expect(time.dx, lessThan(30));
+    expect(display.dx, greaterThan(time.dx));
+    expect(alerts.dx, greaterThan(display.dx));
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
