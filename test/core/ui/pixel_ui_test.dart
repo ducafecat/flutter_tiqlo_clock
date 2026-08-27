@@ -326,6 +326,34 @@ void main() {
     },
   );
 
+  testWidgets('PixelToolbar has no enclosing frame in landscape', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(852, 393);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetPhysicalSize);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: PixelTheme.darkTheme,
+        home: Scaffold(
+          body: Align(
+            alignment: Alignment.bottomCenter,
+            child: PixelToolbar(
+              actions: [
+                PixelToolbarAction(label: 'Theme', onPressed: () {}),
+                PixelToolbarAction(label: 'More', onPressed: () {}),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(PixelPanel), findsNWidgets(2));
+  });
+
   testWidgets('PixelSheet closes with Escape and restores trigger focus', (
     tester,
   ) async {

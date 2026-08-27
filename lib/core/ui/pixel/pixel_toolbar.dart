@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'pixel_button.dart';
-import 'pixel_panel.dart';
 import 'pixel_tokens.dart';
 
 class PixelToolbarAction {
@@ -51,18 +50,11 @@ class PixelToolbar extends StatelessWidget {
       );
     }
 
-    return PixelPanel(
-      color: tokens.chrome,
-      cutSize: 12,
-      padding: EdgeInsets.all(tokens.spacingXs),
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: tokens.spacingXs,
-        runSpacing: tokens.spacingXs,
-        children: [
-          for (final action in actions) _ToolbarButton(action: action),
-        ],
-      ),
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: tokens.spacingXs,
+      runSpacing: tokens.spacingXs,
+      children: [for (final action in actions) _ToolbarButton(action: action)],
     );
   }
 }
