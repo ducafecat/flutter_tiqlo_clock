@@ -18,6 +18,7 @@
 ---
 
 Tiqlo offers Digital and Flip faces, plus built-in Focus and Timer countdowns.
+Its Minimal Pixel UI combines crisp pixel typography, stepped geometry, hard-edged outlines, and a restrained dark palette—giving the app a distinctive retro character without compromising the clock's clarity at a distance.
 
 <p align="center">
   <img src="assets/images/3.0x/welcome-1.png" alt="Tiqlo Flip Clock on phone" width="30%" />
@@ -30,6 +31,7 @@ Tiqlo offers Digital and Flip faces, plus built-in Focus and Timer countdowns.
 ## Features
 
 - Digital and Flip clock faces, each with its own colour palettes.
+- Minimal Pixel UI with pixel typography, grid-aligned details, and crisp hard-edged controls.
 - Responsive portrait and landscape layouts; full-screen support on Web and desktop.
 - 12/24-hour time, leading zero, seconds, date, and weekday options.
 - Night Mode dims the display and temporarily hides the date and seconds.
