@@ -67,7 +67,7 @@ void main() {
     container.dispose();
   });
 
-  testWidgets('portrait seconds stay inside safe area and above chrome', (
+  testWidgets('portrait chrome floats without resizing the clock face', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(390, 844);
@@ -96,15 +96,13 @@ void main() {
     final cards = find.byKey(const ValueKey('flip-card-stack'));
     expect(cards, findsNWidgets(3));
     expect(tester.getRect(cards.first).top, greaterThanOrEqualTo(59));
+    final thirdCardRect = tester.getRect(cards.at(2));
 
     await tester.tap(find.byType(ClockPage));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 180));
 
-    final toolbarTop = tester
-        .getRect(find.byKey(const ValueKey('clock-chrome')))
-        .top;
-    expect(tester.getRect(cards.at(2)).bottom, lessThanOrEqualTo(toolbarTop));
+    expect(find.byKey(const ValueKey('clock-chrome')), findsOneWidget);
+    expect(tester.getRect(cards.at(2)), thirdCardRect);
     expect(tester.takeException(), isNull);
 
     await tester.pumpWidget(const SizedBox.shrink());
@@ -169,6 +167,44 @@ void main() {
         .style!
         .fontSize!;
     expect(landscapeSize, greaterThan(portraitSize));
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
+
+  testWidgets('landscape clock expands beyond the horizontal safe insets', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(844, 390);
+    tester.view.devicePixelRatio = 1;
+    tester.view.padding = const FakeViewPadding(left: 59, right: 59);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetPadding);
+
+    final engine = ClockEngine(
+      clock: FakeClock(wall: DateTime(2026, 8, 20, 3, 55, 10)),
+      locale: const Locale('en'),
+      showSeconds: true,
+      clockThemeId: ClockThemeId.flip,
+    );
+    final container = ProviderContainer(
+      overrides: [clockEngineProvider.overrideWithValue(engine)],
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MyApp(showOnboarding: false),
+      ),
+    );
+
+    final cards = find.byKey(const ValueKey('flip-card-stack'));
+    expect(cards, findsNWidgets(3));
+    expect(tester.getRect(cards.first).left, lessThan(59));
+    expect(tester.getRect(cards.at(2)).right, greaterThan(844 - 59));
+    final firstSize = tester.getSize(cards.first);
+    expect(firstSize.width, closeTo(firstSize.height, 0.01));
+    expect(tester.takeException(), isNull);
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();

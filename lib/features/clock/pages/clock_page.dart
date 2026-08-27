@@ -184,63 +184,45 @@ class _ClockPageState extends ConsumerState<ClockPage> {
         ? flipPalette.background
         : digitalTheme.background;
     final chromeActions = _chromeActions(snapshot);
-    final tokens = PixelTokens.of(context);
-    final chromeInset = _chromeVisible
-        ? _chromeReservedHeight(context, chromeActions.length, landscape)
-        : 0.0;
 
     return Scaffold(
       key: const ValueKey('clock-scaffold'),
       backgroundColor: backgroundColor,
       body: SafeArea(
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: _toggleChrome,
-          child: Stack(
-            children: [
-              AnimatedPadding(
-                key: const ValueKey('clock-face-inset'),
-                duration: tokens.motionDuration(
-                  context,
-                  const Duration(milliseconds: 180),
-                ),
-                curve: Curves.easeOutCubic,
-                padding: EdgeInsets.only(bottom: chromeInset),
-                child: ClockFace(
+        left: !landscape,
+        right: !landscape,
+        child: Padding(
+          key: const ValueKey('clock-safe-content'),
+          padding: EdgeInsets.symmetric(horizontal: landscape ? 12 : 0),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _toggleChrome,
+            child: Stack(
+              children: [
+                ClockFace(
                   themeId: themeId,
                   digitalTheme: digitalTheme,
                   flipPalette: flipPalette,
                   snapshot: snapshot,
                   landscape: landscape,
                 ),
-              ),
-              if (_chromeVisible)
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: PixelToolbar(
-                      key: const ValueKey('clock-chrome'),
-                      actions: chromeActions,
+                if (_chromeVisible)
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: PixelToolbar(
+                        key: const ValueKey('clock-chrome'),
+                        actions: chromeActions,
+                      ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
-  }
-
-  double _chromeReservedHeight(
-    BuildContext context,
-    int actionCount,
-    bool landscape,
-  ) {
-    final tokens = PixelTokens.of(context);
-    final portraitMenu = !landscape && MediaQuery.sizeOf(context).width < 600;
-    if (!portraitMenu) return 12 + 48;
-    return 12 + actionCount * 56 + (actionCount - 1) * tokens.spacingSm;
   }
 
   List<PixelToolbarAction> _chromeActions(ClockSnapshot snapshot) {

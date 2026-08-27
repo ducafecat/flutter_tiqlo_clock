@@ -740,6 +740,86 @@ void main() {
     expect(tester.renderObject(bottomCache), same(bottomRenderObject));
   });
 
+  testWidgets('Flip rotates and shades the complete card surface', (
+    tester,
+  ) async {
+    ClockSnapshot snap(int minute) =>
+        ClockSnapshot(hour: 21, minute: minute, dateLabel: 'THU · AUG 20');
+
+    Widget face(int minute) => MaterialApp(
+      home: Scaffold(
+        body: FlipClockFace(
+          snapshot: snap(minute),
+          landscape: true,
+          palette: FlipPaletteId.pureDark.palette,
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(face(38));
+    await tester.pumpWidget(face(39));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 175));
+
+    final topTransform = find.byKey(const ValueKey('flip-top-transform'));
+    expect(
+      find.descendant(
+        of: topTransform,
+        matching: find.byKey(const ValueKey('flip-card-top')),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: topTransform,
+        matching: find.byKey(const ValueKey('flip-top-edge')),
+      ),
+      findsOneWidget,
+    );
+    final shade = tester.widget<ColoredBox>(
+      find.descendant(
+        of: topTransform,
+        matching: find.byKey(const ValueKey('flip-top-shade')),
+      ),
+    );
+    expect(shade.color.a, greaterThan(0));
+  });
+
+  testWidgets('Flip card corners stay capped on a large viewport', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1600, 700);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const snapshot = ClockSnapshot(
+      hour: 3,
+      minute: 39,
+      second: 18,
+      dateLabel: 'THU · AUG 20',
+      showSeconds: true,
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: FlipClockFace(
+            snapshot: snapshot,
+            landscape: true,
+            palette: FlipPaletteId.pureDark.palette,
+          ),
+        ),
+      ),
+    );
+
+    final frame = tester.widget<CustomPaint>(
+      find.byKey(const ValueKey('flip-frame')).first,
+    );
+    final painter = frame.painter as dynamic;
+    expect(painter.cut * painter.renderScale, lessThanOrEqualTo(32.0));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('Flip face groups hour and minute into two cards', (
     tester,
   ) async {
@@ -768,7 +848,7 @@ void main() {
     expect(find.text('AM'), findsOneWidget);
     final period = tester.widget<Text>(find.text('AM'));
     expect(period.key, const ValueKey('flip-period'));
-    expect(period.style!.fontSize, 260 * 0.083);
+    expect(period.style!.fontSize, 281 * 0.083);
     expect(period.style!.fontFamily, 'Tiny5');
     expect(period.style!.fontWeight, FontWeight.w400);
     expect(period.style!.shadows, hasLength(4));
@@ -817,6 +897,7 @@ void main() {
     final cards = find.byKey(const ValueKey('flip-card-stack'));
     expect(cards, findsNWidgets(3));
     final firstSize = tester.getSize(cards.first);
+    expect(firstSize.width, closeTo(firstSize.height, 0.01));
     expect(tester.getSize(cards.at(1)), firstSize);
     expect(tester.getSize(cards.at(2)), firstSize);
     expect(tester.takeException(), isNull);
@@ -962,6 +1043,7 @@ void main() {
     expect(find.text('THU · AUG 20'), findsOneWidget);
     final cards = find.byKey(const ValueKey('flip-card-stack'));
     final firstSize = tester.getSize(cards.first);
+    expect(firstSize.width, closeTo(firstSize.height, 0.01));
     expect(tester.getSize(cards.at(1)), firstSize);
     expect(tester.getSize(cards.at(2)), firstSize);
     final centers = [

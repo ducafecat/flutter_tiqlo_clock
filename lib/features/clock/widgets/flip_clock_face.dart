@@ -14,17 +14,14 @@ const _flipFont = 'Jersey25';
 /// Keeping this coordinate space makes the reference viewport a 1:1 render.
 class _FlipReference {
   static const canvas = Size(768, 1522);
-  static const horizontalInset = 20.0;
   static const cardWidth = 704.0;
-  static const hourTop = 15.0;
-  // Two equal cards plus the 32 px gutter and 15 px outer margins fill the
-  // 1522 px reference canvas without fractional pixels.
-  static const hourHeight = 730.0;
+  static const horizontalInset = 32.0;
+  static const hourHeight = cardWidth;
+  static const multiCardHeight = cardWidth;
   static const cardGap = 32.0;
+  static const hourTop = 41.0;
   static const compactHeight = hourHeight;
   static const minuteTop = hourTop + hourHeight + cardGap;
-  static const cardCut = 40.0;
-  static const frameInset = 10.0;
   static const axleWidth = 40.0;
   static const axleHeight = 96.0;
   static const dividerHeight = 10.0;
@@ -49,43 +46,69 @@ class FlipClockFace extends StatelessWidget {
       _FlipCardData(snapshot.displayMinute),
       if (snapshot.showSeconds) _FlipCardData(snapshot.displaySecond),
     ];
-    final clock = landscape ? _landscapeClock(cards) : _portraitClock(cards);
-    final child = snapshot.showDate
-        ? Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              clock,
-              const SizedBox(height: 20),
-              Text(
-                snapshot.dateLabel,
-                style: TextStyle(
-                  color: palette.digit.withValues(alpha: 0.55),
-                  fontFamily: 'PixelifySans',
-                  fontSize: landscape ? 22 : 16,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 1.5,
-                ),
-              ),
-            ],
-          )
-        : clock;
 
     return Semantics(
       container: true,
       label: snapshot.timeLabel,
       child: ExcludeSemantics(
-        child: SizedBox.expand(
-          child: Center(
-            child: FittedBox(fit: BoxFit.contain, child: child),
-          ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final renderScale = _layoutScale(constraints, cards.length);
+            final clock = landscape
+                ? _landscapeClock(cards, renderScale)
+                : _portraitClock(cards, renderScale);
+            final child = snapshot.showDate
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      clock,
+                      const SizedBox(height: 20),
+                      Text(
+                        snapshot.dateLabel,
+                        style: TextStyle(
+                          color: palette.digit.withValues(alpha: 0.55),
+                          fontFamily: 'PixelifySans',
+                          fontSize: landscape ? 22 : 16,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                    ],
+                  )
+                : clock;
+            return SizedBox.expand(
+              child: Center(
+                child: FittedBox(fit: BoxFit.contain, child: child),
+              ),
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _portraitClock(List<_FlipCardData> cards) {
-    // The default two-card state fills the reference canvas exactly. Extra
-    // cards retain the minute card's compact geometry and scale as one unit.
+  double _layoutScale(BoxConstraints constraints, int cardCount) {
+    final designSize = landscape
+        ? Size(cardCount * 281 + (cardCount - 1) * 24, 281)
+        : cardCount == 2
+        ? _FlipReference.canvas
+        : Size(
+            _FlipReference.canvas.width,
+            cardCount * _FlipReference.multiCardHeight +
+                (cardCount - 1) * _FlipReference.cardGap,
+          );
+    final datedHeight =
+        designSize.height +
+        (snapshot.showDate ? 20 + (landscape ? 28 : 20) : 0);
+    final widthScale = constraints.maxWidth / designSize.width;
+    final heightScale = constraints.maxHeight / datedHeight;
+    final scale = math.min(widthScale, heightScale);
+    return scale.isFinite && scale > 0 ? scale : 1;
+  }
+
+  Widget _portraitClock(List<_FlipCardData> cards, double renderScale) {
+    // The default two-card state centers two square cards in the reference
+    // canvas. Every optional card keeps the same square geometry.
     if (cards.length == 2) {
       return SizedBox(
         width: _FlipReference.canvas.width,
@@ -101,6 +124,7 @@ class FlipClockFace extends StatelessWidget {
                 height: _FlipReference.hourHeight,
                 palette: palette,
                 badge: cards[0].badge,
+                renderScale: renderScale,
               ),
             ),
             Positioned(
@@ -111,6 +135,7 @@ class FlipClockFace extends StatelessWidget {
                 width: _FlipReference.cardWidth,
                 height: _FlipReference.compactHeight,
                 palette: palette,
+                renderScale: renderScale,
               ),
             ),
           ],
@@ -118,32 +143,40 @@ class FlipClockFace extends StatelessWidget {
       );
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _FlipCard(
-          value: cards.first.value,
-          width: _FlipReference.cardWidth,
-          height: _FlipReference.hourHeight,
-          palette: palette,
-          badge: cards.first.badge,
-        ),
-        for (final card in cards.skip(1)) ...[
-          const SizedBox(height: _FlipReference.cardGap),
+    // Three square cards are height-constrained on portrait phones. The whole
+    // group scales uniformly, preserving 1:1 cards instead of stretching them
+    // horizontally to consume otherwise unused width.
+    return SizedBox(
+      width: _FlipReference.canvas.width,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
           _FlipCard(
-            value: card.value,
+            value: cards.first.value,
             width: _FlipReference.cardWidth,
-            height: _FlipReference.compactHeight,
+            height: _FlipReference.multiCardHeight,
             palette: palette,
+            badge: cards.first.badge,
+            renderScale: renderScale,
           ),
+          for (final card in cards.skip(1)) ...[
+            const SizedBox(height: _FlipReference.cardGap),
+            _FlipCard(
+              value: card.value,
+              width: _FlipReference.cardWidth,
+              height: _FlipReference.multiCardHeight,
+              palette: palette,
+              renderScale: renderScale,
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 
-  Widget _landscapeClock(List<_FlipCardData> cards) {
-    const cardHeight = 260.0;
+  Widget _landscapeClock(List<_FlipCardData> cards, double renderScale) {
     const cardWidth = 281.0;
+    const cardHeight = cardWidth;
     const gap = 24.0;
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -155,6 +188,7 @@ class FlipClockFace extends StatelessWidget {
           height: cardHeight,
           palette: palette,
           badge: cards.first.badge,
+          renderScale: renderScale,
         ),
         for (final card in cards.skip(1)) ...[
           const SizedBox(width: gap),
@@ -163,6 +197,7 @@ class FlipClockFace extends StatelessWidget {
             width: cardWidth,
             height: cardHeight,
             palette: palette,
+            renderScale: renderScale,
           ),
         ],
       ],
@@ -183,6 +218,7 @@ class _FlipCard extends StatefulWidget {
     required this.width,
     required this.height,
     required this.palette,
+    required this.renderScale,
     this.badge,
   });
 
@@ -190,6 +226,7 @@ class _FlipCard extends StatefulWidget {
   final double width;
   final double height;
   final FlipPalette palette;
+  final double renderScale;
   final String? badge;
 
   @override
@@ -243,10 +280,14 @@ class _FlipCardState extends State<_FlipCard>
   @override
   Widget build(BuildContext context) {
     final flipping = _controller.isAnimating;
-    final inset = math.min(_FlipReference.frameInset, widget.width / 12);
+    final renderScale = math.max(.001, widget.renderScale);
+    final visualCardMin = math.min(widget.width, widget.height) * renderScale;
+    final visualCut = (visualCardMin * .055).clamp(12.0, 32.0);
+    final cut = math.min(visualCut / renderScale, widget.width / 5);
+    final visualInset = (visualCardMin * .014).clamp(4.0, 10.0);
+    final inset = math.min(visualInset / renderScale, widget.width / 12);
     final innerWidth = widget.width - inset * 2;
     final innerHeight = widget.height - inset * 2;
-    final cut = math.min(_FlipReference.cardCut, widget.width / 5);
 
     return RepaintBoundary(
       child: SizedBox(
@@ -257,9 +298,11 @@ class _FlipCardState extends State<_FlipCard>
           children: [
             Positioned.fill(
               child: CustomPaint(
+                key: const ValueKey('flip-frame'),
                 painter: _FlipFramePainter(
                   palette: widget.palette,
                   cut: cut,
+                  renderScale: renderScale,
                   devicePixelRatio: MediaQuery.devicePixelRatioOf(context),
                 ),
               ),
@@ -417,6 +460,36 @@ class _FlipCardState extends State<_FlipCard>
       final angle = top
           ? math.min(eased * math.pi, math.pi / 2)
           : math.max(eased * math.pi - math.pi, -math.pi / 2);
+      final shadeOpacity = top ? eased * .46 : (1 - eased) * .46;
+      final edgeOpacity = math.sin(math.pi * progress) * .72;
+      final edgeHeight = 3 / math.max(.001, widget.renderScale);
+      final flapSurface = Stack(
+        fit: StackFit.passthrough,
+        children: [
+          child!,
+          Positioned.fill(
+            child: IgnorePointer(
+              child: ColoredBox(
+                key: ValueKey(top ? 'flip-top-shade' : 'flip-bottom-shade'),
+                color: Colors.black.withValues(alpha: shadeOpacity),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            top: top ? null : 0,
+            bottom: top ? 0 : null,
+            height: edgeHeight,
+            child: IgnorePointer(
+              child: ColoredBox(
+                key: ValueKey(top ? 'flip-top-edge' : 'flip-bottom-edge'),
+                color: const Color(0xFF555555).withValues(alpha: edgeOpacity),
+              ),
+            ),
+          ),
+        ],
+      );
       return Transform(
         key: ValueKey(top ? 'flip-top-transform' : 'flip-bottom-transform'),
         alignment: top ? Alignment.bottomCenter : Alignment.topCenter,
@@ -424,7 +497,7 @@ class _FlipCardState extends State<_FlipCard>
         transform: Matrix4.identity()
           ..setEntry(3, 2, .0007)
           ..rotateX(angle),
-        child: child,
+        child: flapSurface,
       );
     },
   );
@@ -522,22 +595,31 @@ class _FlipFramePainter extends CustomPainter {
   const _FlipFramePainter({
     required this.palette,
     required this.cut,
+    required this.renderScale,
     required this.devicePixelRatio,
   });
 
   final FlipPalette palette;
   final double cut;
+  final double renderScale;
   final double devicePixelRatio;
 
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
+    final unit = 1 / renderScale;
     final outer = _stepPath(rect, cut);
-    final middle = _stepPath(_inset(rect, 2), math.max(4, cut - 2));
-    final inner = _stepPath(_inset(rect, 4), math.max(4, cut - 4));
+    final middle = _stepPath(
+      _inset(rect, 2 * unit),
+      math.max(4 * unit, cut - 2 * unit),
+    );
+    final inner = _stepPath(
+      _inset(rect, 4 * unit),
+      math.max(4 * unit, cut - 4 * unit),
+    );
     final paint = Paint()..isAntiAlias = false;
     canvas.drawPath(
-      outer.shift(const Offset(0, 5)),
+      outer.shift(Offset(0, 5 * unit)),
       paint..color = const Color(0xFF000000),
     );
     canvas.drawPath(outer, paint..color = const Color(0xFF3A3A3A));
@@ -552,8 +634,11 @@ class _FlipFramePainter extends CustomPainter {
   }
 
   Rect _inset(Rect rect, double value) {
-    double aligned(double input) =>
-        (input * devicePixelRatio).roundToDouble() / devicePixelRatio;
+    double aligned(double input) {
+      final physicalScale = devicePixelRatio * renderScale;
+      return (input * physicalScale).roundToDouble() / physicalScale;
+    }
+
     return Rect.fromLTRB(
       aligned(rect.left + value),
       aligned(rect.top + value),
@@ -566,6 +651,7 @@ class _FlipFramePainter extends CustomPainter {
   bool shouldRepaint(covariant _FlipFramePainter oldDelegate) =>
       palette != oldDelegate.palette ||
       cut != oldDelegate.cut ||
+      renderScale != oldDelegate.renderScale ||
       devicePixelRatio != oldDelegate.devicePixelRatio;
 }
 
