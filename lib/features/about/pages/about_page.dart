@@ -149,7 +149,7 @@ class _AboutPageState extends State<AboutPage> {
                     children: [
                       _TextList(
                         values: [
-                          'Handjet — Digital clock',
+                          'Doto — Digital clock',
                           'Jersey 25 — Flip clock',
                           'Pixelify Sans — Interface',
                           'Tiny5 — Clock HUD',

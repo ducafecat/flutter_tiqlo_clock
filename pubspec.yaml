@@ -103,6 +103,12 @@ flutter:
           weight: 400
         - asset: fonts/Handjet.ttf
           weight: 700
+    - family: Doto
+      fonts:
+        - asset: fonts/Doto.ttf
+          weight: 400
+        - asset: fonts/Doto.ttf
+          weight: 700
 
 icons_launcher:
   image_path: "assets/icons/ic_logo.png"

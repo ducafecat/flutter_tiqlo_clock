@@ -78,7 +78,7 @@ void main() {
     await tester.pump();
 
     expect(find.text('Resume'), findsOneWidget);
-    expect(find.text('25:00'), findsOneWidget);
+    expect(find.byKey(const ValueKey('session-primary-label')), findsOneWidget);
     expect(find.text('FOCUS'), findsOneWidget);
     expect(find.text('PAUSED'), findsOneWidget);
     expect(engine.snapshot.session!.status, SessionStatus.paused);

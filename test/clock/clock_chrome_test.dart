@@ -153,7 +153,7 @@ void main() {
 
     final container = await _pumpClock(tester);
     final portraitSize = tester
-        .widget<Text>(find.text('21:38'))
+        .widget<Text>(find.byKey(const ValueKey('digital-time')))
         .style!
         .fontSize!;
 
@@ -161,9 +161,9 @@ void main() {
     await tester.pump();
 
     expect(find.byType(ClockPage), findsOneWidget);
-    expect(find.text('21:38'), findsOneWidget);
+    expect(find.byKey(const ValueKey('digital-time')), findsOneWidget);
     final landscapeSize = tester
-        .widget<Text>(find.text('21:38'))
+        .widget<Text>(find.byKey(const ValueKey('digital-time')))
         .style!
         .fontSize!;
     expect(landscapeSize, greaterThan(portraitSize));

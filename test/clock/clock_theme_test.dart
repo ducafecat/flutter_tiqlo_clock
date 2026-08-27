@@ -36,6 +36,9 @@ void main() {
     final bodyFont = FontLoader('PixelifySans')
       ..addFont(rootBundle.load('fonts/PixelifySans-Regular.ttf'));
     await bodyFont.load();
+    final digitalFont = FontLoader('Doto')
+      ..addFont(rootBundle.load('fonts/Doto.ttf'));
+    await digitalFont.load();
   });
 
   test(
@@ -188,8 +191,11 @@ void main() {
     expect(find.byType(ClockPage), findsOneWidget);
     expect(find.byType(DigitalClockFace), findsOneWidget);
     expect(
-      tester.widget<Text>(find.text('21:38')).style!.fontFamily,
-      'Handjet',
+      tester
+          .widget<Text>(find.byKey(const ValueKey('digital-time')))
+          .style!
+          .fontFamily,
+      'Doto',
     );
     expect(
       tester
@@ -209,7 +215,7 @@ void main() {
     container.dispose();
   });
 
-  testWidgets('Digital clock optically centers a leading one', (tester) async {
+  testWidgets('Digital clock keeps monospaced digits centered', (tester) async {
     const snapshot = ClockSnapshot(
       hour: 10,
       minute: 50,
@@ -233,7 +239,7 @@ void main() {
     final transform = tester.widget<Transform>(
       find.byKey(const ValueKey('digital-time-optical-offset')),
     );
-    expect(transform.transform.getTranslation().x, closeTo(-50.4, 0.001));
+    expect(transform.transform.getTranslation().x, 0);
     expect(transform.transform.getTranslation().y, 0);
   });
 
@@ -303,7 +309,16 @@ void main() {
     final time = tester.widget<Text>(
       find.byKey(const ValueKey('digital-time')),
     );
+    final timeSpans = (time.textSpan! as TextSpan).children!;
+    final colon = timeSpans[1] as WidgetSpan;
+    final colonText = colon.child as Text;
     expect(time.style!.color, theme.digit);
+    expect(time.style!.fontFamily, 'Doto');
+    expect(colon.alignment, PlaceholderAlignment.middle);
+    expect(colonText.data, ':');
+    expect(colonText.style!.fontFamily, 'Tiny5');
+    expect(colonText.style!.fontSize, closeTo(111.6, 0.001));
+    expect(colonText.style!.color, theme.digit);
     expect(time.style!.shadows, isNull);
     expect(tester.widget<Text>(find.text('AM')).style!.color, theme.secondary);
     expect(tester.widget<Text>(find.text('AM')).style!.fontSize, 24);
@@ -1227,7 +1242,9 @@ void main() {
         ),
       ),
     );
-    final digitalSession = tester.widget<Text>(find.text('05:00'));
+    final digitalSession = tester.widget<Text>(
+      find.byKey(const ValueKey('session-primary-label')),
+    );
     expect(
       digitalSession.style!.color,
       DigitalThemeId.digitalAmber.theme.digit,

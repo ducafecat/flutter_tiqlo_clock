@@ -28,6 +28,9 @@ void main() {
     final bodyFont = FontLoader('PixelifySans')
       ..addFont(rootBundle.load('fonts/PixelifySans-Regular.ttf'));
     await bodyFont.load();
+    final digitalFont = FontLoader('Doto')
+      ..addFont(rootBundle.load('fonts/Doto.ttf'));
+    await digitalFont.load();
   });
 
   testWidgets('Digital matches the Android visual baseline', (tester) async {
