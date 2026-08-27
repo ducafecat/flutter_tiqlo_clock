@@ -427,7 +427,9 @@ class _FlipCardState extends State<_FlipCard>
   );
 
   List<Shadow> _badgeStroke(double height) {
-    final stroke = math.max(1, height * .0026).toDouble();
+    // Tiny5 only ships at its regular weight. Keep a subtle outline for
+    // legibility on the flip card, but make the AM/PM badge read lighter.
+    final stroke = math.max(.6, height * .0016).toDouble();
     return [
       Shadow(color: widget.palette.digit, offset: Offset(stroke, 0)),
       Shadow(color: widget.palette.digit, offset: Offset(-stroke, 0)),
