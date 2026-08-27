@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_ui.dart';
 import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_theme_sheet_style.dart';
+import 'package:flutter_tiqlo_clock/core/ui/ui.dart';
 
 void main() {
   testWidgets('PixelSwitch exposes one toggleable semantic node', (
@@ -110,7 +110,10 @@ void main() {
 
     expect(tokens.background, const Color(0xFF000000));
     expect(tokens.chrome, const Color(0xFF171612));
+    expect(tokens.chromeHighlight, const Color(0xFF1A1916));
     expect(tokens.accent, const Color(0xFFED780C));
+    expect(PixelTheme.darkTheme.colorScheme.primary, tokens.accent);
+    expect(PixelTheme.darkTheme.colorScheme.surface, tokens.surface);
   });
 
   testWidgets('PixelButton exposes its label and invokes its callback', (
@@ -172,6 +175,69 @@ void main() {
 
     await tester.tap(tile);
     expect(presses, 1);
+  });
+
+  testWidgets('PixelPageScaffold supplies the shared page shell', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(393, 852);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetPhysicalSize);
+    var backed = false;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: PixelTheme.darkTheme,
+        home: PixelPageScaffold(
+          title: 'Details',
+          portraitMaxWidth: 426,
+          onBack: () => backed = true,
+          builder: (context, layout) =>
+              Text(layout.isLandscape ? 'Landscape body' : 'Portrait body'),
+        ),
+      ),
+    );
+
+    expect(find.text('Details'), findsOneWidget);
+    expect(find.text('Portrait body'), findsOneWidget);
+    expect(find.byType(AdaptivePageFrame), findsOneWidget);
+
+    await tester.tap(find.bySemanticsLabel('Back'));
+    expect(backed, isTrue);
+  });
+
+  testWidgets('Pixel content rows share semantics and interaction styling', (
+    tester,
+  ) async {
+    var opened = false;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: PixelTheme.darkTheme,
+        home: Scaffold(
+          body: PixelSection(
+            title: 'Project',
+            showDividers: false,
+            children: [
+              const PixelInfoRow(label: 'Version', value: '1.0.0'),
+              PixelLinkTile(
+                label: 'Website',
+                value: 'https://example.com',
+                onPressed: () => opened = true,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('PROJECT'), findsOneWidget);
+    expect(find.text('1.0.0'), findsOneWidget);
+    final link = find.bySemanticsLabel('Website: https://example.com');
+    expect(link, findsOneWidget);
+    await tester.tap(link);
+    expect(opened, isTrue);
   });
 
   testWidgets('PixelSelectionTile exposes selected state without color alone', (

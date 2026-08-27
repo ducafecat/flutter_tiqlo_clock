@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../clock/clock_theme.dart';
 import '../../../clock/digital_theme.dart';
 import '../../../clock/flip_palette.dart';
-import '../../../core/ui/pixel/pixel_ui.dart';
+import '../../../core/ui/ui.dart';
 import '../../../core/ui/pixel/pixel_theme_sheet_style.dart';
 
 class ClockThemeSheet extends StatelessWidget {
@@ -32,7 +32,7 @@ class ClockThemeSheet extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         _SheetTitle(label: 'Clock Style', tokens: tokens),
-        const SizedBox(height: 12),
+        SizedBox(height: tokens.spacingSm + tokens.spacingXs),
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -53,9 +53,9 @@ class ClockThemeSheet extends StatelessWidget {
             ],
           ],
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: tokens.spacingLg),
         _SheetTitle(label: 'Color Theme', tokens: tokens),
-        const SizedBox(height: 12),
+        SizedBox(height: tokens.spacingSm + tokens.spacingXs),
         Builder(
           builder: (context) {
             final options = clockThemeId == ClockThemeId.flip

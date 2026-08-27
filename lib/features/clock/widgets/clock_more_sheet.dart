@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/ui/pixel/pixel_ui.dart';
+import '../../../core/ui/ui.dart';
 import '../../../core/ui/pixel/pixel_theme_sheet_style.dart';
 
 class ClockMoreSheet extends StatelessWidget {
@@ -31,7 +31,7 @@ class ClockMoreSheet extends StatelessWidget {
           enabled: true,
           focusColor: tokens.focus,
           child: Padding(
-            padding: const EdgeInsets.all(4),
+            padding: const EdgeInsets.all(PixelThemeSheetStyle.optionGap),
             child: PixelSwitch(
               label: 'Night Mode',
               value: nightMode,

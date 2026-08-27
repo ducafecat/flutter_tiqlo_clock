@@ -11,7 +11,7 @@ import '../../../clock/clock_providers.dart';
 import '../../../clock/clock_theme.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/ui/clock_full_screen.dart';
-import '../../../core/ui/pixel/pixel_ui.dart';
+import '../../../core/ui/ui.dart';
 import '../services/clock_platform_coordinator.dart';
 import '../widgets/clock_face.dart';
 import '../widgets/clock_more_sheet.dart';
@@ -170,6 +170,7 @@ class _ClockPageState extends ConsumerState<ClockPage> {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = PixelTokens.of(context);
     final snapshot = ref.watch(clockSnapshotProvider);
     ref.listen(clockSnapshotProvider, (previous, next) {
       _platformCoordinator.handleSnapshotChange(previous, next);
@@ -193,7 +194,9 @@ class _ClockPageState extends ConsumerState<ClockPage> {
         right: !landscape,
         child: Padding(
           key: const ValueKey('clock-safe-content'),
-          padding: EdgeInsets.symmetric(horizontal: landscape ? 12 : 0),
+          padding: EdgeInsets.symmetric(
+            horizontal: landscape ? tokens.spacingSm + tokens.spacingXs : 0,
+          ),
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: _toggleChrome,
@@ -210,7 +213,9 @@ class _ClockPageState extends ConsumerState<ClockPage> {
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
+                      padding: EdgeInsets.only(
+                        bottom: tokens.spacingSm + tokens.spacingXs,
+                      ),
                       child: PixelToolbar(
                         key: const ValueKey('clock-chrome'),
                         actions: chromeActions,

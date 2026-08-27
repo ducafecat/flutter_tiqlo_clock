@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../clock/clock_engine.dart';
 import '../../../clock/flip_palette.dart';
-import '../../../core/ui/pixel/pixel_tokens.dart';
+import '../../../core/ui/ui.dart';
 
 // Jersey 25 provides the tall, fine-stepped pixel glyphs used by the flip
 // reference; Tiny5 remains reserved for the compact AM/PM HUD.

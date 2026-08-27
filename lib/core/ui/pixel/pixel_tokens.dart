@@ -7,6 +7,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
   const PixelTokens({
     required this.background,
     required this.chrome,
+    required this.chromeHighlight,
     required this.surface,
     required this.surfaceHigh,
     required this.textPrimary,
@@ -40,6 +41,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
   const PixelTokens.dark()
     : background = const Color(0xFF000000),
       chrome = const Color(0xFF171612),
+      chromeHighlight = const Color(0xFF1A1916),
       surface = const Color(0xFF25221E),
       surfaceHigh = const Color(0xFF302C27),
       textPrimary = const Color(0xFFF4F0E6),
@@ -71,6 +73,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
 
   final Color background;
   final Color chrome;
+  final Color chromeHighlight;
   final Color surface;
   final Color surfaceHigh;
   final Color textPrimary;
@@ -165,6 +168,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
   PixelTokens copyWith({
     Color? background,
     Color? chrome,
+    Color? chromeHighlight,
     Color? surface,
     Color? surfaceHigh,
     Color? textPrimary,
@@ -197,6 +201,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
     return PixelTokens(
       background: background ?? this.background,
       chrome: chrome ?? this.chrome,
+      chromeHighlight: chromeHighlight ?? this.chromeHighlight,
       surface: surface ?? this.surface,
       surfaceHigh: surfaceHigh ?? this.surfaceHigh,
       textPrimary: textPrimary ?? this.textPrimary,
@@ -235,6 +240,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
     return PixelTokens(
       background: Color.lerp(background, other.background, t)!,
       chrome: Color.lerp(chrome, other.chrome, t)!,
+      chromeHighlight: Color.lerp(chromeHighlight, other.chromeHighlight, t)!,
       surface: Color.lerp(surface, other.surface, t)!,
       surfaceHigh: Color.lerp(surfaceHigh, other.surfaceHigh, t)!,
       textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,

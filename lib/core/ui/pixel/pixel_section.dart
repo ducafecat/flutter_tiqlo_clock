@@ -4,10 +4,18 @@ import 'pixel_shape.dart';
 import 'pixel_tokens.dart';
 
 class PixelSection extends StatelessWidget {
-  const PixelSection({super.key, required this.title, required this.children});
+  const PixelSection({
+    super.key,
+    required this.title,
+    required this.children,
+    this.showDividers = true,
+  });
 
   final String title;
   final List<Widget> children;
+
+  /// 同类设置项默认显示分隔线；信息型内容可关闭，由内容自身组织排版。
+  final bool showDividers;
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +23,7 @@ class PixelSection extends StatelessWidget {
     final items = <Widget>[];
     for (var index = 0; index < children.length; index++) {
       items.add(children[index]);
-      if (index != children.length - 1) {
+      if (showDividers && index != children.length - 1) {
         items.add(const _SettingsDivider());
       }
     }

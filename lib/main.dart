@@ -11,7 +11,7 @@ import 'core/config/app_config.dart';
 import 'core/router/app_router.dart';
 import 'core/ui/clock_full_screen.dart';
 import 'core/ui/clock_system_ui.dart';
-import 'core/ui/pixel/pixel_ui.dart';
+import 'core/ui/ui.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

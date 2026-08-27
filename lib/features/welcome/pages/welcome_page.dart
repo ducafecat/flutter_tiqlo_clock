@@ -6,7 +6,7 @@ import '../../../core/assets/app_images.dart';
 import '../../../core/providers/app_launch_provider.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/ui/clock_system_ui.dart';
-import '../../../core/ui/pixel/pixel_ui.dart';
+import '../../../core/ui/ui.dart';
 
 class WelcomePage extends ConsumerStatefulWidget {
   const WelcomePage({super.key});
@@ -101,8 +101,8 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.transparent,
-                    Colors.transparent,
+                    tokens.background.withValues(alpha: 0),
+                    tokens.background.withValues(alpha: 0),
                     tokens.background.withValues(alpha: 0.9),
                     tokens.background,
                   ],

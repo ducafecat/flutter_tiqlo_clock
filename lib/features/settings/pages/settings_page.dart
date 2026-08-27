@@ -5,10 +5,9 @@ import '../../../clock/clock_engine.dart';
 import '../../../clock/clock_providers.dart';
 import '../../../clock/clock_settings_store.dart';
 import '../../../core/router/app_router.dart';
-import '../../../core/ui/adaptive_page_frame.dart';
 import '../../../core/ui/clock_system_ui.dart';
 import '../../../core/ui/clock_wake.dart';
-import '../../../core/ui/pixel/pixel_ui.dart';
+import '../../../core/ui/ui.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -38,34 +37,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Widget build(BuildContext context) {
     final engine = ref.watch(clockEngineProvider);
     _keepAwake = engine.keepAwake;
-    return Scaffold(
-      backgroundColor: const Color(0xFF11100E),
-      body: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment(0.5, -0.8),
-            radius: 1.2,
-            colors: [Color(0xFF1A1916), Color(0xFF171612)],
-          ),
-        ),
-        child: AdaptivePageFrame(
-          portraitMaxWidth: 426,
-          builder: (context, layout) => Column(
-            children: [
-              PixelPageHeader(
-                title: 'Settings',
-                onBack: () => AppRoutes.backToClock(context),
-              ),
-              Expanded(
-                child: _SettingsSections(
-                  landscape: layout.isLandscape,
-                  maxWidth: layout.contentWidth,
-                  sections: _buildSections(engine),
-                ),
-              ),
-            ],
-          ),
-        ),
+    return PixelPageScaffold(
+      title: 'Settings',
+      onBack: () => AppRoutes.backToClock(context),
+      portraitMaxWidth: 426,
+      builder: (context, layout) => _SettingsSections(
+        landscape: layout.isLandscape,
+        maxWidth: layout.contentWidth,
+        sections: _buildSections(engine),
       ),
     );
   }

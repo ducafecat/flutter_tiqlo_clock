@@ -6,7 +6,7 @@ import '../../../core/assets/app_images.dart';
 import '../../../core/providers/app_launch_provider.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/ui/clock_system_ui.dart';
-import '../../../core/ui/pixel/pixel_tokens.dart';
+import '../../../core/ui/ui.dart';
 
 /// 启动视觉与首次启动分流。
 class SplashPage extends ConsumerStatefulWidget {
@@ -54,7 +54,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       child: Image.asset(AppImages.splashPng, fit: BoxFit.cover),
     );
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: tokens.background,
       body: duration == Duration.zero
           ? splash
           : TweenAnimationBuilder<double>(
