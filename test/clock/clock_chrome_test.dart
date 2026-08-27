@@ -67,6 +67,50 @@ void main() {
     container.dispose();
   });
 
+  testWidgets('portrait seconds stay inside safe area and above chrome', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    tester.view.padding = const FakeViewPadding(top: 59, bottom: 34);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetPadding);
+
+    final engine = ClockEngine(
+      clock: FakeClock(wall: DateTime(2026, 8, 20, 21, 38, 46)),
+      locale: const Locale('en'),
+      showSeconds: true,
+      clockThemeId: ClockThemeId.flip,
+    );
+    final container = ProviderContainer(
+      overrides: [clockEngineProvider.overrideWithValue(engine)],
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MyApp(showOnboarding: false),
+      ),
+    );
+
+    final cards = find.byKey(const ValueKey('flip-card-stack'));
+    expect(cards, findsNWidgets(3));
+    expect(tester.getRect(cards.first).top, greaterThanOrEqualTo(59));
+
+    await tester.tap(find.byType(ClockPage));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 180));
+
+    final toolbarTop = tester
+        .getRect(find.byKey(const ValueKey('clock-chrome')))
+        .top;
+    expect(tester.getRect(cards.at(2)).bottom, lessThanOrEqualTo(toolbarTop));
+    expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
+
   testWidgets('More opens Settings and About', (tester) async {
     final container = await _pumpClock(tester);
 

@@ -64,7 +64,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
       pressedOffset = 2,
       pressDuration = const Duration(milliseconds: 100),
       switchDuration = const Duration(milliseconds: 150),
-      flipDuration = const Duration(milliseconds: 600),
+      flipDuration = const Duration(milliseconds: 700),
       splashDuration = const Duration(milliseconds: 300),
       welcomePageDuration = const Duration(milliseconds: 300),
       welcomeContentDuration = const Duration(milliseconds: 150);

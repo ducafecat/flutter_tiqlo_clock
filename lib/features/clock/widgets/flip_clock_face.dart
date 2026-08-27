@@ -17,11 +17,11 @@ class _FlipReference {
   static const horizontalInset = 20.0;
   static const cardWidth = 704.0;
   static const hourTop = 15.0;
-  static const hourHeight = 774.0;
+  // Two equal cards plus the 32 px gutter and 15 px outer margins fill the
+  // 1522 px reference canvas without fractional pixels.
+  static const hourHeight = 730.0;
   static const cardGap = 32.0;
-  // Keep the inner height even so the hinge and rotateX origin land on whole
-  // physical pixels at the reference DPR.
-  static const compactHeight = 664.0;
+  static const compactHeight = hourHeight;
   static const minuteTop = hourTop + hourHeight + cardGap;
   static const cardCut = 40.0;
   static const frameInset = 10.0;
@@ -142,10 +142,8 @@ class FlipClockFace extends StatelessWidget {
   }
 
   Widget _landscapeClock(List<_FlipCardData> cards) {
-    const hourHeight = 260.0;
-    const compactHeight = 222.0;
-    const hourWidth = 281.0;
-    const compactWidth = 240.0;
+    const cardHeight = 260.0;
+    const cardWidth = 281.0;
     const gap = 24.0;
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -153,8 +151,8 @@ class FlipClockFace extends StatelessWidget {
       children: [
         _FlipCard(
           value: cards.first.value,
-          width: hourWidth,
-          height: hourHeight,
+          width: cardWidth,
+          height: cardHeight,
           palette: palette,
           badge: cards.first.badge,
         ),
@@ -162,8 +160,8 @@ class FlipClockFace extends StatelessWidget {
           const SizedBox(width: gap),
           _FlipCard(
             value: card.value,
-            width: compactWidth,
-            height: compactHeight,
+            width: cardWidth,
+            height: cardHeight,
             palette: palette,
           ),
         ],
@@ -333,6 +331,7 @@ class _FlipCardState extends State<_FlipCard>
                             fontWeight: FontWeight.w400,
                             height: 1,
                             letterSpacing: .5,
+                            shadows: _badgeStroke(widget.height),
                           ),
                         ),
                       ),
@@ -377,6 +376,16 @@ class _FlipCardState extends State<_FlipCard>
     color: widget.palette.divider,
   );
 
+  List<Shadow> _badgeStroke(double height) {
+    final stroke = math.max(1, height * .0026).toDouble();
+    return [
+      Shadow(color: widget.palette.digit, offset: Offset(stroke, 0)),
+      Shadow(color: widget.palette.digit, offset: Offset(-stroke, 0)),
+      Shadow(color: widget.palette.digit, offset: Offset(0, stroke)),
+      Shadow(color: widget.palette.digit, offset: Offset(0, -stroke)),
+    ];
+  }
+
   Widget _cachedHalf(
     String value, {
     required bool top,
@@ -411,9 +420,9 @@ class _FlipCardState extends State<_FlipCard>
       return Transform(
         key: ValueKey(top ? 'flip-top-transform' : 'flip-bottom-transform'),
         alignment: top ? Alignment.bottomCenter : Alignment.topCenter,
-        filterQuality: FilterQuality.none,
+        filterQuality: FilterQuality.low,
         transform: Matrix4.identity()
-          ..setEntry(3, 2, .001)
+          ..setEntry(3, 2, .0007)
           ..rotateX(angle),
         child: child,
       );
@@ -447,6 +456,10 @@ class _FlipCardState extends State<_FlipCard>
                   scaleX: .76,
                   child: Text(
                     value,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.visible,
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       color: widget.palette.digit,
                       fontFamily: _flipFont,

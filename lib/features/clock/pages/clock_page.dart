@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -184,40 +183,64 @@ class _ClockPageState extends ConsumerState<ClockPage> {
     final backgroundColor = themeId == ClockThemeId.flip
         ? flipPalette.background
         : digitalTheme.background;
-    final notch = defaultTargetPlatform == TargetPlatform.iOS
-        ? MediaQuery.viewPaddingOf(context)
-        : EdgeInsets.zero;
+    final chromeActions = _chromeActions(snapshot);
+    final tokens = PixelTokens.of(context);
+    final chromeInset = _chromeVisible
+        ? _chromeReservedHeight(context, chromeActions.length, landscape)
+        : 0.0;
 
     return Scaffold(
       key: const ValueKey('clock-scaffold'),
       backgroundColor: backgroundColor,
-      body: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: _toggleChrome,
-        child: Stack(
-          children: [
-            ClockFace(
-              themeId: themeId,
-              digitalTheme: digitalTheme,
-              flipPalette: flipPalette,
-              snapshot: snapshot,
-              landscape: landscape,
-            ),
-            if (_chromeVisible)
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: 12 + notch.bottom),
-                  child: PixelToolbar(
-                    key: const ValueKey('clock-chrome'),
-                    actions: _chromeActions(snapshot),
-                  ),
+      body: SafeArea(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _toggleChrome,
+          child: Stack(
+            children: [
+              AnimatedPadding(
+                key: const ValueKey('clock-face-inset'),
+                duration: tokens.motionDuration(
+                  context,
+                  const Duration(milliseconds: 180),
+                ),
+                curve: Curves.easeOutCubic,
+                padding: EdgeInsets.only(bottom: chromeInset),
+                child: ClockFace(
+                  themeId: themeId,
+                  digitalTheme: digitalTheme,
+                  flipPalette: flipPalette,
+                  snapshot: snapshot,
+                  landscape: landscape,
                 ),
               ),
-          ],
+              if (_chromeVisible)
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: PixelToolbar(
+                      key: const ValueKey('clock-chrome'),
+                      actions: chromeActions,
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  double _chromeReservedHeight(
+    BuildContext context,
+    int actionCount,
+    bool landscape,
+  ) {
+    final tokens = PixelTokens.of(context);
+    final portraitMenu = !landscape && MediaQuery.sizeOf(context).width < 600;
+    if (!portraitMenu) return 12 + 48;
+    return 12 + actionCount * 56 + (actionCount - 1) * tokens.spacingSm;
   }
 
   List<PixelToolbarAction> _chromeActions(ClockSnapshot snapshot) {

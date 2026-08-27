@@ -500,7 +500,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Flip face completes its animation in 600ms', (tester) async {
+  testWidgets('Flip face completes its animation in 700ms', (tester) async {
     ClockSnapshot snap(int minute) =>
         ClockSnapshot(hour: 21, minute: minute, dateLabel: 'THU · AUG 20');
 
@@ -532,7 +532,7 @@ void main() {
     expect(tester.hasRunningAnimations, isTrue);
 
     final duration = const PixelTokens.dark().flipDuration;
-    expect(duration, const Duration(milliseconds: 600));
+    expect(duration, const Duration(milliseconds: 700));
     await tester.pump(duration - const Duration(milliseconds: 1));
     expect(tester.hasRunningAnimations, isTrue);
 
@@ -683,6 +683,13 @@ void main() {
     await tester.pumpWidget(face(38));
     await tester.pumpWidget(face(39));
     await tester.pump();
+    final topTransform = tester.widget<Transform>(
+      find.descendant(
+        of: find.byKey(const ValueKey('flip-flap')),
+        matching: find.byKey(const ValueKey('flip-top-transform')),
+      ),
+    );
+    expect(topTransform.filterQuality, FilterQuality.low);
     final duration = const PixelTokens.dark().flipDuration;
     final midpoint = Duration(microseconds: duration.inMicroseconds ~/ 2);
     await tester.pump(midpoint - const Duration(milliseconds: 10));
@@ -722,7 +729,9 @@ void main() {
     final topRenderObject = tester.renderObject(topCache);
     final bottomRenderObject = tester.renderObject(bottomCache);
 
-    await tester.pump(const Duration(milliseconds: 299));
+    final duration = const PixelTokens.dark().flipDuration;
+    final midpoint = Duration(microseconds: duration.inMicroseconds ~/ 2);
+    await tester.pump(midpoint - const Duration(milliseconds: 1));
     expect(tester.renderObject(topCache), same(topRenderObject));
     expect(tester.renderObject(bottomCache), same(bottomRenderObject));
 
@@ -762,6 +771,7 @@ void main() {
     expect(period.style!.fontSize, 260 * 0.083);
     expect(period.style!.fontFamily, 'Tiny5');
     expect(period.style!.fontWeight, FontWeight.w400);
+    expect(period.style!.shadows, hasLength(4));
     final periodRect = tester.getRect(find.text('AM'));
     final hourCardRect = tester.getRect(
       find.byKey(const ValueKey('flip-card-stack')).first,
@@ -778,6 +788,37 @@ void main() {
       findsOneWidget,
     );
     expect(find.text(':'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Flip landscape cards keep identical dimensions', (tester) async {
+    const snapshot = ClockSnapshot(
+      hour: 9,
+      minute: 19,
+      second: 46,
+      dateLabel: 'THU · AUG 20',
+      period: 'PM',
+      is24Hour: false,
+      showSeconds: true,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: FlipClockFace(
+            snapshot: snapshot,
+            landscape: true,
+            palette: FlipPaletteId.pureDark.palette,
+          ),
+        ),
+      ),
+    );
+
+    final cards = find.byKey(const ValueKey('flip-card-stack'));
+    expect(cards, findsNWidgets(3));
+    final firstSize = tester.getSize(cards.first);
+    expect(tester.getSize(cards.at(1)), firstSize);
+    expect(tester.getSize(cards.at(2)), firstSize);
     expect(tester.takeException(), isNull);
   });
 
@@ -920,6 +961,9 @@ void main() {
     expect(find.byKey(const ValueKey('flip-card-stack')), findsNWidgets(3));
     expect(find.text('THU · AUG 20'), findsOneWidget);
     final cards = find.byKey(const ValueKey('flip-card-stack'));
+    final firstSize = tester.getSize(cards.first);
+    expect(tester.getSize(cards.at(1)), firstSize);
+    expect(tester.getSize(cards.at(2)), firstSize);
     final centers = [
       tester.getCenter(cards.at(0)),
       tester.getCenter(cards.at(1)),
@@ -938,7 +982,7 @@ void main() {
 
     const snapshot = ClockSnapshot(
       hour: 9,
-      minute: 25,
+      minute: 33,
       dateLabel: 'THU · AUG 20',
       period: 'AM',
       is24Hour: false,
@@ -960,6 +1004,14 @@ void main() {
         ),
       ),
     );
+
+    final doubleThree = tester.widgetList<Text>(find.text('33'));
+    expect(doubleThree, hasLength(2));
+    for (final digit in doubleThree) {
+      expect(digit.maxLines, 1);
+      expect(digit.softWrap, isFalse);
+      expect(digit.overflow, TextOverflow.visible);
+    }
 
     await expectLater(
       find.byKey(const ValueKey('flip-golden-surface')),
