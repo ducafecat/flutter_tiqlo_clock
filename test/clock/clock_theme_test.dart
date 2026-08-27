@@ -283,6 +283,44 @@ void main() {
     expect(transform.transform.getTranslation().x, 0);
   });
 
+  testWidgets('Flip clock expands to the available screen width', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1600, 1280);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const snapshot = ClockSnapshot(
+      hour: 22,
+      minute: 48,
+      dateLabel: 'MON · AUG 24',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: FlipClockFace(
+            snapshot: snapshot,
+            landscape: true,
+            palette: FlipPaletteId.pureDark.palette,
+          ),
+        ),
+      ),
+    );
+
+    final cards = find.byKey(const ValueKey('flip-card-stack'));
+    final firstCard = tester.getRect(cards.first);
+    final secondCard = tester.getRect(cards.at(1));
+
+    // The card surfaces preserve the horizontal breathing room around the
+    // flip frame while using the remaining large-screen width.
+    expect(secondCard.right - firstCard.left, greaterThan(1490));
+    expect(firstCard.left, greaterThan(24));
+    expect(secondCard.right, lessThan(1600 - 24));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('Digital theme colors time, period, and date independently', (
     tester,
   ) async {

@@ -111,7 +111,8 @@ String _constantName(String imagePath, Set<String> usedNames) {
   final baseName = name;
   var suffix = 2;
   while (!usedNames.add(name)) {
-    name = '$baseName$suffix++';
+    name = '$baseName$suffix';
+    suffix++;
   }
   return name;
 }
