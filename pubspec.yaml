@@ -97,12 +97,6 @@ flutter:
       fonts:
         - asset: fonts/Jersey25-Regular.ttf
           weight: 400
-    - family: Handjet
-      fonts:
-        - asset: fonts/Handjet.ttf
-          weight: 400
-        - asset: fonts/Handjet.ttf
-          weight: 700
     - family: Doto
       fonts:
         - asset: fonts/Doto.ttf
