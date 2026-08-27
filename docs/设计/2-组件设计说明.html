@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>Tiqlo 像素组件设计说明</title>
+    <style>
+      :root {
+        --background: #000000;
+        --chrome: #171612;
+        --chrome-high: #1a1916;
+        --surface: #25221e;
+        --surface-high: #302c27;
+        --text: #f4f0e6;
+        --text-secondary: #aaa59b;
+        --outline: #756b5a;
+        --outline-low: #41423e;
+        --accent: #ed780c;
+        --section: #b8a77c;
+        --focus: #72b7ff;
+        --danger: #d75a5a;
+        --disabled: #777168;
+        --shadow: #050504;
+        --pixel: 4px;
+        --page-width: 1180px;
+        font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+        color: var(--text);
+        background: var(--background);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        min-width: 320px;
+        background:
+          linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+          radial-gradient(circle at 72% 8%, #2a251d 0, var(--chrome) 30%, #090908 76%);
+        background-size: 16px 16px, 16px 16px, auto;
+        color: var(--text);
+        line-height: 1.72;
+      }
+
+      a {
+        color: var(--section);
+        text-decoration-thickness: 1px;
+        text-underline-offset: 4px;
+      }
+
+      a:hover {
+        color: var(--text);
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 4px;
+      }
+
+      code {
+        padding: 0.12em 0.35em;
+        color: #f8c38f;
+        background: #0f0f0d;
+        border: 1px solid #37342e;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.9em;
+      }
+
+      pre {
+        margin: 16px 0 0;
+        padding: 18px 20px;
+        overflow: auto;
+        color: #e7e1d5;
+        background: #0a0a09;
+        border: 1px solid var(--outline-low);
+        box-shadow: 4px 4px 0 var(--shadow);
+        clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+      }
+
+      pre code {
+        padding: 0;
+        color: inherit;
+        background: none;
+        border: 0;
+        font-size: 13px;
+        line-height: 1.65;
+      }
+
+      .skip-link {
+        position: fixed;
+        z-index: 20;
+        top: 8px;
+        left: 8px;
+        padding: 8px 12px;
+        color: var(--background);
+        background: var(--focus);
+        transform: translateY(-160%);
+      }
+
+      .skip-link:focus {
+        transform: translateY(0);
+      }
+
+      .page {
+        display: grid;
+        grid-template-columns: 246px minmax(0, 1fr);
+        gap: 34px;
+        width: min(var(--page-width), calc(100% - 40px));
+        margin: 0 auto;
+        padding: 28px 0 72px;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 24px;
+        align-self: start;
+        max-height: calc(100vh - 48px);
+        padding: 20px 18px;
+        overflow: auto;
+        background: #11110f;
+        border: 2px solid var(--outline-low);
+        box-shadow: 5px 5px 0 var(--shadow);
+        clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #35322c;
+      }
+
+      .brand-mark {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        color: #100c08;
+        background: var(--accent);
+        box-shadow: 3px 3px 0 #702f05;
+        clip-path: polygon(6px 0, calc(100% - 6px) 0, calc(100% - 6px) 3px, 100% 3px, 100% calc(100% - 6px), calc(100% - 3px) calc(100% - 6px), calc(100% - 3px) 100%, 6px 100%, 6px calc(100% - 3px), 0 calc(100% - 3px), 0 6px, 3px 6px, 3px 3px, 6px 3px);
+        font-family: ui-monospace, monospace;
+        font-weight: 900;
+      }
+
+      .brand strong {
+        display: block;
+        letter-spacing: 0.06em;
+      }
+
+      .brand small {
+        display: block;
+        color: var(--text-secondary);
+        font-size: 11px;
+      }
+
+      .nav-label {
+        margin: 0 0 8px;
+        color: var(--section);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+      }
+
+      nav ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      nav a {
+        display: block;
+        margin: 2px 0;
+        padding: 6px 8px;
+        color: var(--text-secondary);
+        border-left: 3px solid transparent;
+        text-decoration: none;
+        font-size: 13px;
+      }
+
+      nav a:hover,
+      nav a[aria-current="true"] {
+        color: var(--text);
+        background: var(--surface);
+        border-left-color: var(--accent);
+      }
+
+      main {
+        min-width: 0;
+      }
+
+      .hero {
+        position: relative;
+        min-height: 300px;
+        padding: 42px 40px;
+        overflow: hidden;
+        background: linear-gradient(155deg, #2a2721, #151512 66%);
+        border: 2px solid var(--outline);
+        box-shadow: 7px 7px 0 var(--shadow);
+        clip-path: polygon(20px 0, calc(100% - 20px) 0, calc(100% - 20px) 4px, calc(100% - 8px) 4px, calc(100% - 8px) 8px, 100% 8px, 100% calc(100% - 20px), calc(100% - 4px) calc(100% - 20px), calc(100% - 4px) calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) calc(100% - 4px), calc(100% - 20px) calc(100% - 4px), calc(100% - 20px) 100%, 20px 100%, 20px calc(100% - 4px), 8px calc(100% - 4px), 8px calc(100% - 8px), 4px calc(100% - 8px), 4px calc(100% - 20px), 0 calc(100% - 20px), 0 20px, 4px 20px, 4px 8px, 8px 8px, 8px 4px, 20px 4px);
+      }
+
+      .hero::after {
+        content: "12:48";
+        position: absolute;
+        right: 28px;
+        bottom: -26px;
+        color: rgba(237, 120, 12, 0.07);
+        font-family: ui-monospace, monospace;
+        font-size: clamp(80px, 14vw, 160px);
+        font-weight: 900;
+        letter-spacing: -0.12em;
+        pointer-events: none;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--accent);
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+      }
+
+      h1 {
+        position: relative;
+        z-index: 1;
+        max-width: 650px;
+        margin: 0;
+        font-size: clamp(36px, 7vw, 72px);
+        letter-spacing: -0.055em;
+      }
+
+      .hero p {
+        position: relative;
+        z-index: 1;
+        max-width: 650px;
+        margin: 20px 0 0;
+        color: var(--text-secondary);
+        font-size: 16px;
+      }
+
+      .meta {
+        display: flex;
+        position: relative;
+        z-index: 1;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 26px;
+      }
+
+      .tag {
+        padding: 5px 9px;
+        color: var(--section);
+        background: #12110f;
+        border: 1px solid var(--outline-low);
+        font-family: ui-monospace, monospace;
+        font-size: 11px;
+        letter-spacing: 0.05em;
+      }
+
+      section {
+        scroll-margin-top: 24px;
+        margin-top: 52px;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .section-no {
+        flex: 0 0 auto;
+        padding: 4px 7px;
+        color: #160d05;
+        background: var(--accent);
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        font-weight: 900;
+        box-shadow: 2px 2px 0 #6f3308;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 28px;
+        letter-spacing: -0.03em;
+      }
+
+      h3 {
+        margin: 26px 0 12px;
+        color: var(--section);
+        font-size: 18px;
+      }
+
+      p {
+        margin: 10px 0;
+        color: #d1ccc2;
+      }
+
+      ul,
+      ol {
+        padding-left: 22px;
+      }
+
+      li {
+        margin: 6px 0;
+        color: #d1ccc2;
+      }
+
+      li::marker {
+        color: var(--accent);
+      }
+
+      .panel {
+        padding: 24px;
+        background: rgba(24, 23, 20, 0.88);
+        border: 2px solid var(--outline-low);
+        box-shadow: 5px 5px 0 var(--shadow);
+        clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+      }
+
+      .principles,
+      .component-grid,
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .principle,
+      .component-card {
+        padding: 18px;
+        background: var(--surface);
+        border: 1px solid var(--outline-low);
+        box-shadow: 3px 3px 0 var(--shadow);
+        clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+      }
+
+      .principle strong,
+      .component-card strong {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--text);
+      }
+
+      .principle p,
+      .component-card p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 13px;
+      }
+
+      .swatches {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .swatch {
+        min-height: 104px;
+        padding: 14px;
+        border: 1px solid var(--outline-low);
+        box-shadow: 3px 3px 0 var(--shadow);
+      }
+
+      .swatch strong,
+      .swatch code {
+        display: block;
+        width: max-content;
+        max-width: 100%;
+      }
+
+      .swatch code {
+        margin-top: 8px;
+      }
+
+      .swatch--background { background: var(--background); }
+      .swatch--chrome { background: var(--chrome); }
+      .swatch--surface { background: var(--surface); }
+      .swatch--accent { color: #160d05; background: var(--accent); }
+      .swatch--section { color: #171612; background: var(--section); }
+      .swatch--danger { color: #180909; background: var(--danger); }
+
+      .table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--outline-low);
+        box-shadow: 4px 4px 0 var(--shadow);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #151512;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 12px 14px;
+        border-right: 1px solid #34312c;
+        border-bottom: 1px solid #34312c;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th:last-child,
+      td:last-child {
+        border-right: 0;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      th {
+        color: var(--section);
+        background: #201e1a;
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        white-space: nowrap;
+      }
+
+      td {
+        color: #d4cfc5;
+      }
+
+      .architecture {
+        display: grid;
+        gap: 8px;
+      }
+
+      .layer {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 18px;
+        align-items: center;
+        padding: 14px 16px;
+        background: var(--surface);
+        border-left: 5px solid var(--outline);
+      }
+
+      .layer:nth-child(1) { border-color: var(--accent); }
+      .layer:nth-child(2) { border-color: var(--section); }
+      .layer:nth-child(3) { border-color: var(--focus); }
+      .layer:nth-child(4) { border-color: var(--outline); }
+
+      .layer b {
+        font-size: 13px;
+      }
+
+      .layer span {
+        color: var(--text-secondary);
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+      }
+
+      .state-demo {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .pixel-button {
+        min-width: 112px;
+        min-height: 48px;
+        padding: 10px 16px;
+        color: var(--text);
+        background: #1d1e1d;
+        border: 2px solid var(--outline-low);
+        box-shadow: 4px 4px 0 var(--shadow);
+        clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+        font: 700 13px/1 ui-monospace, monospace;
+        letter-spacing: 0.06em;
+      }
+
+      .pixel-button:hover {
+        background: var(--surface-high);
+        border-color: var(--section);
+      }
+
+      .pixel-button:active {
+        transform: translateY(2px);
+        box-shadow: 2px 2px 0 var(--shadow);
+      }
+
+      .pixel-button--primary {
+        color: #160d05;
+        background: var(--accent);
+        border-color: #ffad60;
+      }
+
+      .pixel-button--selected {
+        border-color: #b8b9b5;
+      }
+
+      .pixel-button--disabled {
+        color: var(--disabled);
+        background: #1e1c19;
+        border-color: #34312c;
+        box-shadow: 3px 3px 0 var(--shadow);
+        cursor: not-allowed;
+      }
+
+      .state-flow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: 20px;
+        overflow-x: auto;
+      }
+
+      .state-node {
+        flex: 1 0 100px;
+        padding: 10px;
+        color: var(--text-secondary);
+        background: #11110f;
+        border: 1px solid var(--outline-low);
+        text-align: center;
+        font: 12px ui-monospace, monospace;
+      }
+
+      .state-arrow {
+        color: var(--accent);
+        font: 900 18px ui-monospace, monospace;
+      }
+
+      .checklist {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .checklist li {
+        position: relative;
+        margin: 0;
+        padding: 10px 12px 10px 42px;
+        background: #181714;
+        border-left: 3px solid var(--outline-low);
+      }
+
+      .checklist li::before {
+        content: "□";
+        position: absolute;
+        left: 14px;
+        top: 8px;
+        color: var(--accent);
+        font-family: ui-monospace, monospace;
+        font-size: 18px;
+      }
+
+      .note {
+        margin-top: 18px;
+        padding: 14px 16px;
+        color: #d5cdbc;
+        background: #252019;
+        border-left: 4px solid var(--accent);
+      }
+
+      footer {
+        margin-top: 52px;
+        padding-top: 20px;
+        color: var(--text-secondary);
+        border-top: 1px solid var(--outline-low);
+        font-size: 12px;
+      }
+
+      @media (max-width: 900px) {
+        .page {
+          display: block;
+          width: min(100% - 28px, 760px);
+          padding-top: 14px;
+        }
+
+        .sidebar {
+          position: static;
+          max-height: none;
+          margin-bottom: 20px;
+        }
+
+        nav ul {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+        }
+
+        nav a {
+          border-left: 0;
+          border-bottom: 2px solid transparent;
+        }
+
+        nav a:hover,
+        nav a[aria-current="true"] {
+          border-left-color: transparent;
+          border-bottom-color: var(--accent);
+        }
+      }
+
+      @media (max-width: 620px) {
+        .hero {
+          min-height: 0;
+          padding: 30px 24px 38px;
+        }
+
+        .principles,
+        .component-grid,
+        .swatches {
+          grid-template-columns: 1fr;
+        }
+
+        .panel {
+          padding: 18px;
+        }
+
+        .layer {
+          grid-template-columns: 1fr;
+          gap: 4px;
+        }
+
+        .state-demo {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .pixel-button {
+          width: 100%;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      @media print {
+        :root {
+          color-scheme: light;
+        }
+
+        body {
+          color: #191713;
+          background: #ffffff;
+        }
+
+        .page {
+          display: block;
+          width: 100%;
+          padding: 0;
+        }
+
+        .sidebar {
+          display: none;
+        }
+
+        .hero,
+        .panel,
+        .principle,
+        .component-card,
+        .layer,
+        .checklist li,
+        table,
+        pre {
+          color: #191713;
+          background: #ffffff;
+          box-shadow: none;
+          break-inside: avoid;
+        }
+
+        p,
+        li,
+        td,
+        .principle p,
+        .component-card p,
+        .layer span {
+          color: #39352f;
+        }
+
+        section {
+          margin-top: 32px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">跳到正文</a>
+
+    <div class="page">
+      <aside class="sidebar" aria-label="文档导航">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">T</span>
+          <span><strong>TIQLO UI</strong><small>PIXEL COMPONENTS</small></span>
+        </div>
+        <p class="nav-label">目录 / CONTENTS</p>
+        <nav>
+          <ul>
+            <li><a href="#goals">01 设计目标</a></li>
+            <li><a href="#language">02 设计语言</a></li>
+            <li><a href="#architecture">03 组件架构</a></li>
+            <li><a href="#catalog">04 组件职责</a></li>
+            <li><a href="#states">05 交互状态</a></li>
+            <li><a href="#motion">06 动效设计</a></li>
+            <li><a href="#responsive">07 响应式</a></li>
+            <li><a href="#accessibility">08 无障碍</a></li>
+            <li><a href="#composition">09 典型组合</a></li>
+            <li><a href="#extension">10 扩展流程</a></li>
+            <li><a href="#acceptance">11 测试验收</a></li>
+            <li><a href="#source">12 源码索引</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main id="content">
+        <header class="hero">
+          <p class="eyebrow">DESIGN SYSTEM / 组件设计与实现说明</p>
+          <h1>Tiqlo 像素组件设计说明</h1>
+          <p>
+            统一 Tiqlo Clock 的视觉、交互、响应式布局与无障碍行为，为页面提供稳定、可复用、与业务解耦的 Pixel UI 契约。
+          </p>
+          <div class="meta" aria-label="文档元数据">
+            <span class="tag">Flutter</span>
+            <span class="tag">Minimal Pixel UI</span>
+            <span class="tag">lib/core/ui/pixel</span>
+            <span class="tag">Dark Theme</span>
+          </div>
+        </header>
+
+        <section id="goals">
+          <div class="section-head"><span class="section-no">01</span><h2>设计目标</h2></div>
+          <div class="principles">
+            <article class="principle"><strong>时间内容优先</strong><p>像素装饰不能削弱时钟和关键操作的远距离可读性。</p></article>
+            <article class="principle"><strong>语义先于色值</strong><p>通过 Token 表达背景、表面、强调、危险与禁用，不依赖散落色值。</p></article>
+            <article class="principle"><strong>硬边像素几何</strong><p>轮廓由水平线、垂直线和整数阶梯组成，不使用连续圆角。</p></article>
+            <article class="principle"><strong>状态完整</strong><p>默认、悬停、焦点、按压、选中和禁用状态均可识别。</p></article>
+            <article class="principle"><strong>输入方式无关</strong><p>触摸、鼠标、键盘和辅助技术拥有等价的操作能力。</p></article>
+            <article class="principle"><strong>业务解耦</strong><p>公共组件不读取 Provider、路由或业务模型，只接收数据与回调。</p></article>
+          </div>
+        </section>
+
+        <section id="language">
+          <div class="section-head"><span class="section-no">02</span><h2>设计语言</h2></div>
+
+          <h3>2.1 语义颜色</h3>
+          <p>颜色通过 <code>PixelTokens</code> 提供，并由 <code>PixelTheme.darkTheme</code> 注入 Theme。若产生新的全局语义，应先扩展 Token，再由组件消费。</p>
+          <div class="swatches" aria-label="核心颜色 Token">
+            <div class="swatch swatch--background"><strong>Background</strong><code>#000000</code></div>
+            <div class="swatch swatch--chrome"><strong>Chrome</strong><code>#171612</code></div>
+            <div class="swatch swatch--surface"><strong>Surface</strong><code>#25221E</code></div>
+            <div class="swatch swatch--accent"><strong>Accent</strong><code>#ED780C</code></div>
+            <div class="swatch swatch--section"><strong>Section</strong><code>#B8A77C</code></div>
+            <div class="swatch swatch--danger"><strong>Danger</strong><code>#D75A5A</code></div>
+          </div>
+
+          <h3>2.2 字体角色</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>角色</th><th>Token API</th><th>字体</th><th>场景</th></tr></thead>
+              <tbody>
+                <tr><td>标题</td><td><code>heading()</code></td><td>Pixelify Sans 600</td><td>页面标题、分组标题</td></tr>
+                <tr><td>正文/标签</td><td><code>body()</code></td><td>Pixelify Sans 400</td><td>按钮、设置项、说明</td></tr>
+                <tr><td>HUD</td><td><code>hud()</code></td><td>Tiny5</td><td>AM/PM、短状态</td></tr>
+                <tr><td>翻页数字</td><td><code>flipDisplay()</code></td><td>Jersey 25</td><td>Flip Clock</td></tr>
+                <tr><td>数码数字</td><td><code>digitalDisplay()</code></td><td>DotGothic16</td><td>Digital Clock</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="note">Token 已配置中文系统字体回退。页面通过 Token API 生成文字样式，避免丢失回退字体、统一字重和行高。</p>
+
+          <h3>2.3 间距、尺寸与几何</h3>
+          <ul>
+            <li>基础间距：<code>4 / 8 / 16 / 24dp</code>。</li>
+            <li>交互区域：至少 <code>48 × 48dp</code>。</li>
+            <li>标准 Switch 图形：<code>64 × 40dp</code>。</li>
+            <li>色彩 Board：默认最小宽度 <code>144dp</code>。</li>
+            <li>二级页面页头：固定高度 <code>71dp</code>。</li>
+            <li>所有像素轮廓关闭抗锯齿，并尽量对齐物理像素。</li>
+          </ul>
+          <pre aria-label="像素切角示意"><code>普通圆角：  ╭────────╮   × 不使用
+
+像素切角：      ┌────────
+              ┌─┘
+            ┌─┘
+          ──┘              ✓ 水平 / 垂直阶梯</code></pre>
+        </section>
+
+        <section id="architecture">
+          <div class="section-head"><span class="section-no">03</span><h2>组件架构</h2></div>
+          <p>依赖只允许自下而上：设计原语不依赖具体组件，公共组件不依赖 feature，页面组合层不读取业务状态。</p>
+          <div class="architecture panel">
+            <div class="layer"><b>页面组合层</b><span>PageScaffold · PageList · Header · Section · Toolbar · Sheet</span></div>
+            <div class="layer"><b>业务可用组件层</b><span>Button · TextButton · ActionTile · SelectionTile · ColorOption · Switch</span></div>
+            <div class="layer"><b>交互与外观基础层</b><span>PixelPressable · PixelPanel · ThemeOptionFrame · ThemeSheetFrame</span></div>
+            <div class="layer"><b>设计原语层</b><span>PixelTheme · PixelTokens · pixel_shape.dart · CustomPainter</span></div>
+          </div>
+          <pre><code>import 'package:flutter_tiqlo_clock/core/ui/ui.dart';</code></pre>
+          <p><code>PixelPressable</code>、Frame、Shape 和 Painter 属于内部基础能力，只有开发新的公共 Pixel 组件时才直接导入对应文件。</p>
+        </section>
+
+        <section id="catalog">
+          <div class="section-head"><span class="section-no">04</span><h2>组件职责</h2></div>
+          <div class="component-grid">
+            <article class="component-card"><strong>PixelPageScaffold</strong><p>统一二级页面背景、Safe Area、阅读宽度、页头和正文约束。</p></article>
+            <article class="component-card"><strong>PixelPanel</strong><p>统一切角、轮廓、填充、硬阴影、裁切和 DPR 对齐。</p></article>
+            <article class="component-card"><strong>PixelSection</strong><p>生成设置分组标题、阶梯外框和可选分隔线。</p></article>
+            <article class="component-card"><strong>PixelSheet</strong><p>统一遮罩、滚动、焦点闭环、Esc 关闭、拖拽和焦点恢复。</p></article>
+            <article class="component-card"><strong>PixelButton</strong><p>主要、次要和危险操作；使用 Tone 表达操作层级。</p></article>
+            <article class="component-card"><strong>PixelTextButton</strong><p>用于 Welcome 导航等低视觉权重的文字操作。</p></article>
+            <article class="component-card"><strong>PixelActionTile</strong><p>整行跳转或菜单入口，支持 leading 与 trailing。</p></article>
+            <article class="component-card"><strong>PixelToolbar</strong><p>一组同级操作，按可用宽度自动纵向排列或换行。</p></article>
+            <article class="component-card"><strong>PixelSelectionTile</strong><p>单选项目，通过描边和像素勾选冗余表达选中态。</p></article>
+            <article class="component-card"><strong>PixelColorOption</strong><p>色彩选项，通过色环、勾选和 Board 描边表达状态。</p></article>
+            <article class="component-card"><strong>PixelSwitch</strong><p>布尔设置，通过轨道、滑块位置和 checked 语义表达值。</p></article>
+            <article class="component-card"><strong>PixelInfoRow / LinkTile</strong><p>只读元数据与带说明的整行链接。</p></article>
+          </div>
+          <p class="note">选中、开关和危险状态不能只依赖颜色，必须同时提供形状、位置、图标或语义提示。</p>
+        </section>
+
+        <section id="states">
+          <div class="section-head"><span class="section-no">05</span><h2>交互状态模型</h2></div>
+          <p><code>PixelPressable</code> 维护 enabled、hovered、focused 和 pressed。选择值由业务层受控传入，组件只通过回调请求变更。</p>
+          <div class="state-demo" aria-label="按钮状态示例">
+            <button class="pixel-button" type="button">DEFAULT</button>
+            <button class="pixel-button pixel-button--primary" type="button">PRIMARY</button>
+            <button class="pixel-button pixel-button--selected" type="button">✓ SELECTED</button>
+            <button class="pixel-button pixel-button--disabled" type="button" disabled="disabled">DISABLED</button>
+          </div>
+          <div class="state-flow" aria-label="状态优先级">
+            <span class="state-node">DISABLED</span><span class="state-arrow">&gt;</span>
+            <span class="state-node">PRESSED</span><span class="state-arrow">&gt;</span>
+            <span class="state-node">HOVERED</span><span class="state-arrow">&gt;</span>
+            <span class="state-node">DEFAULT</span>
+          </div>
+          <ul>
+            <li>回调为 <code>null</code> 时不可触发，并暴露禁用语义。</li>
+            <li>Enter、Space 与 Pointer 点击触发同一个回调。</li>
+            <li>焦点态可与选中、悬停、按压态共存，不能被覆盖。</li>
+            <li>语义树只暴露一个操作节点，内部装饰使用 <code>ExcludeSemantics</code>。</li>
+            <li>按下时内容向下偏移并缩短硬阴影，不使用缩放或弹跳。</li>
+          </ul>
+        </section>
+
+        <section id="motion">
+          <div class="section-head"><span class="section-no">06</span><h2>动效设计</h2></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>动效</th><th>Token / 时长</th><th>约束</th></tr></thead>
+              <tbody>
+                <tr><td>按压与焦点反馈</td><td><code>100ms</code></td><td>硬边位移和透明叠层</td></tr>
+                <tr><td>Switch 切换</td><td><code>150ms</code></td><td>使用阶梯曲线</td></tr>
+                <tr><td>Flip 翻页</td><td><code>700ms</code></td><td>上下半卡 3D 翻转</td></tr>
+                <tr><td>Splash 淡入</td><td><code>300ms</code></td><td>不额外缩放</td></tr>
+                <tr><td>Welcome 翻页</td><td><code>300ms</code></td><td>内容状态同步更新</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>组件通过 <code>tokens.motionDuration(context, duration)</code> 响应 <code>MediaQuery.disableAnimations</code>。减少动态效果开启时，动画归零但状态立即更新。</p>
+        </section>
+
+        <section id="responsive">
+          <div class="section-head"><span class="section-no">07</span><h2>响应式设计</h2></div>
+          <ul>
+            <li>竖屏页面宽度为 <code>min(可用宽度, portraitMaxWidth)</code> 并居中。</li>
+            <li>横屏使用完整 Safe Area 宽度，通过 <code>AdaptivePageLayout</code> 决定分栏。</li>
+            <li><code>PixelToolbar</code> 在小于 600dp 的竖屏中使用全宽纵向按钮。</li>
+            <li><code>PixelSheet</code> 在紧凑屏使用可用宽度，宽屏限制为 720dp。</li>
+            <li>Theme Sheet 紧凑竖屏最大高度 78%，一般场景 80%，横屏 90%。</li>
+            <li>文本行允许高度增长，页面保持可滚动，避免文字放大后内容不可达。</li>
+          </ul>
+          <p class="note">响应式判断应基于当前约束或 <code>AdaptivePageLayout</code>，不得根据设备型号维护两套页面。</p>
+        </section>
+
+        <section id="accessibility">
+          <div class="section-head"><span class="section-no">08</span><h2>无障碍设计</h2></div>
+          <div class="panel">
+            <ul>
+              <li>按钮使用 button 语义，选择项使用 selected，开关使用 checked。</li>
+              <li>图标操作提供可朗读的 <code>semanticLabel</code>。</li>
+              <li>分页器朗读“第 N 页，共 M 页”，分组标题标记为 header。</li>
+              <li>Sheet 打开后焦点限制在面板内，关闭后恢复至触发控件。</li>
+              <li>所有操作区域至少为 48 × 48dp，并支持 Enter 与 Space。</li>
+              <li>主文字和背景达到 WCAG AA；焦点色与选中描边明显不同。</li>
+              <li>在 2x 文字缩放下验证内容完整、可滚动且操作仍可触达。</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="composition">
+          <div class="section-head"><span class="section-no">09</span><h2>典型组合</h2></div>
+          <h3>二级设置页</h3>
+          <pre><code>PixelPageScaffold(
+  title: 'Settings',
+  onBack: () =&gt; Navigator.of(context).maybePop(),
+  portraitMaxWidth: 426,
+  builder: (context, layout) =&gt; PixelPageList(
+    layout: layout,
+    children: [
+      PixelSection(
+        title: 'Display',
+        children: [
+          PixelSwitch(
+            label: 'Keep Screen Awake',
+            value: keepAwake,
+            onChanged: onKeepAwakeChanged,
+          ),
+          PixelSwitch(
+            label: 'Night Mode',
+            value: nightMode,
+            onChanged: onNightModeChanged,
+          ),
+        ],
+      ),
+    ],
+  ),
+)</code></pre>
+          <h3>模态面板</h3>
+          <pre><code>PixelSheet.show&lt;void&gt;(
+  context: context,
+  restoreFocus: triggerFocusNode,
+  builder: (sheetContext) =&gt; PixelActionTile(
+    label: 'Settings',
+    onPressed: () =&gt; openSettings(sheetContext),
+  ),
+)</code></pre>
+          <p>业务代码只负责读取状态、组织内容和传递回调，不重复创建页面外壳、Sheet 边框、交互状态机或像素 Path。</p>
+        </section>
+
+        <section id="extension">
+          <div class="section-head"><span class="section-no">10</span><h2>扩展组件流程</h2></div>
+          <ol>
+            <li>明确跨页面语义，确认现有组件不能通过组合满足。</li>
+            <li>定义受控 API，将展示数据、当前状态和回调分离。</li>
+            <li>颜色、字号、间距和动效复用 <code>PixelTokens</code>，轮廓复用既有 Shape。</li>
+            <li>补齐默认、悬停、焦点、按压、选中/checked 和禁用状态。</li>
+            <li>确保触摸、鼠标、Enter、Space 和辅助技术行为一致。</li>
+            <li>验证窄屏、横屏、Safe Area、长文本和 2x 文字缩放。</li>
+            <li>公共组件放入 <code>lib/core/ui/pixel/</code>，业务组合留在对应 feature。</li>
+            <li>稳定的页面级 API 从 <code>pixel_ui.dart</code> 导出，底层 Painter 不公开。</li>
+            <li>补充渲染、回调、语义、键盘和关键尺寸测试。</li>
+            <li>新增全局语义或组件类别时同步更新设计文档。</li>
+          </ol>
+        </section>
+
+        <section id="acceptance">
+          <div class="section-head"><span class="section-no">11</span><h2>测试与验收</h2></div>
+          <ul class="checklist">
+            <li>没有 Material 默认圆角卡片、按钮、Switch 或 Bottom Sheet 外观。</li>
+            <li>切角均为水平/垂直像素阶梯，无斜线和抗锯齿灰边。</li>
+            <li>描边结构清晰，没有重复边框或两套平行轮廓。</li>
+            <li>按压、悬停、焦点、选中和禁用状态可区分。</li>
+            <li>交互区域至少 48 × 48dp，键盘焦点顺序合理。</li>
+            <li>选中、开关和危险状态不只依赖颜色。</li>
+            <li>横竖屏、小窗口和 2x 文字缩放下无溢出或不可达内容。</li>
+            <li>减少动态效果开启后状态立即更新且无非必要动画。</li>
+            <li>页面没有复制 Token、Path、Painter 或交互状态机。</li>
+            <li>组件测试与 Golden 回归已通过并人工检查差异。</li>
+          </ul>
+        </section>
+
+        <section id="source">
+          <div class="section-head"><span class="section-no">12</span><h2>源码索引</h2></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>模块</th><th>路径</th></tr></thead>
+              <tbody>
+                <tr><td>统一 UI 导出</td><td><code>lib/core/ui/ui.dart</code></td></tr>
+                <tr><td>Pixel 组件导出</td><td><code>lib/core/ui/pixel/pixel_ui.dart</code></td></tr>
+                <tr><td>主题与 Token</td><td><code>pixel_theme.dart</code>、<code>pixel_tokens.dart</code></td></tr>
+                <tr><td>像素形状</td><td><code>pixel_shape.dart</code></td></tr>
+                <tr><td>交互状态基础</td><td><code>pixel_pressable.dart</code></td></tr>
+                <tr><td>页面与面板</td><td><code>pixel_page_scaffold.dart</code>、<code>pixel_panel.dart</code>、<code>pixel_sheet.dart</code></td></tr>
+                <tr><td>操作组件</td><td><code>pixel_button.dart</code>、<code>pixel_text_button.dart</code>、<code>pixel_action_tile.dart</code></td></tr>
+                <tr><td>选择组件</td><td><code>pixel_selection_tile.dart</code>、<code>pixel_color_option.dart</code>、<code>pixel_switch.dart</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <footer>
+          <p>相关文档：<a href="./1-组件规范.md">像素风组件规范</a> · <a href="../功能/2-组件像素风.md">Tiqlo 像素风实施方案</a></p>
+          <p>本文件为离线可用的独立 HTML，不依赖外部字体、脚本或网络资源。</p>
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      (() => {
+        const links = [...document.querySelectorAll('nav a')];
+        const sections = links
+          .map((link) => document.querySelector(link.getAttribute('href')))
+          .filter(Boolean);
+
+        if (!('IntersectionObserver' in window)) return;
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            const visible = entries
+              .filter((entry) => entry.isIntersecting)
+              .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+            if (!visible) return;
+            links.forEach((link) => {
+              const active = link.getAttribute('href') === `#${visible.target.id}`;
+              if (active) link.setAttribute('aria-current', 'true');
+              else link.removeAttribute('aria-current');
+            });
+          },
+          { rootMargin: '-15% 0px -70% 0px', threshold: [0, 0.25, 0.5] },
+        );
+
+        sections.forEach((section) => observer.observe(section));
+      })();
+    </script>
+  </body>
+</html>
