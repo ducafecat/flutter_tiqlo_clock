@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 Path _polygonPath(Rect rect, List<Offset> points) {
@@ -280,11 +282,12 @@ Path pixelSwitchKnobPath(Rect rect) {
   ]);
 }
 
-Path pixelCutPath(Rect rect, double cutSize) {
+Path pixelCutPath(Rect rect, double cutSize, {double stepSize = 2}) {
   final maximumCut = rect.shortestSide / 3;
   final requestedCut = cutSize < 2 ? 2.0 : cutSize;
   final cut = requestedCut > maximumCut ? maximumCut : requestedCut;
-  final roundedStepCount = (cut / 2).round();
+  final requestedStep = stepSize < 2 ? 2.0 : stepSize;
+  final roundedStepCount = (cut / requestedStep).round();
   final stepCount = roundedStepCount < 1 ? 1 : roundedStepCount;
   final step = cut / stepCount;
   final left = rect.left;
@@ -324,15 +327,99 @@ Path pixelCutPath(Rect rect, double cutSize) {
 }
 
 class PixelCutClipper extends CustomClipper<Path> {
-  const PixelCutClipper(this.cutSize);
+  const PixelCutClipper(this.cutSize, {this.stepSize = 2});
 
   final double cutSize;
+  final double stepSize;
 
   @override
-  Path getClip(Size size) => pixelCutPath(Offset.zero & size, cutSize);
+  Path getClip(Size size) =>
+      pixelCutPath(Offset.zero & size, cutSize, stepSize: stepSize);
 
   @override
   bool shouldReclip(covariant PixelCutClipper oldClipper) {
-    return oldClipper.cutSize != cutSize;
+    return oldClipper.cutSize != cutSize || oldClipper.stepSize != stepSize;
+  }
+}
+
+/// 设计稿中的大型 Pixel Sheet 圆弧。
+///
+/// 每个角使用 `7 × 6` 个像素格：横向步长为 `3-1-1-1-1`，
+/// 纵向步长为 `1-1-1-1-2`。路径只包含水平线和垂直线。
+Path pixelArcCutPath(Rect rect, double radius, {double pixelSize = 4}) {
+  final requestedPixel = pixelSize < 2 ? 2.0 : pixelSize;
+  final requestedRadius = radius < requestedPixel * 7
+      ? requestedPixel * 7
+      : radius;
+  final grid = math.min(
+    requestedPixel,
+    math.min(requestedRadius / 7, math.min(rect.width / 14, rect.height / 12)),
+  );
+  final cutX = grid * 7;
+  final cutY = grid * 6;
+  final width = rect.width;
+  final height = rect.height;
+
+  return _polygonPath(rect, [
+    Offset(cutX, 0),
+    Offset(width - cutX, 0),
+    Offset(width - cutX, grid),
+    Offset(width - grid * 4, grid),
+    Offset(width - grid * 4, grid * 2),
+    Offset(width - grid * 3, grid * 2),
+    Offset(width - grid * 3, grid * 3),
+    Offset(width - grid * 2, grid * 3),
+    Offset(width - grid * 2, grid * 4),
+    Offset(width - grid, grid * 4),
+    Offset(width - grid, cutY),
+    Offset(width, cutY),
+    Offset(width, height - cutY),
+    Offset(width - grid, height - cutY),
+    Offset(width - grid, height - grid * 4),
+    Offset(width - grid * 2, height - grid * 4),
+    Offset(width - grid * 2, height - grid * 3),
+    Offset(width - grid * 3, height - grid * 3),
+    Offset(width - grid * 3, height - grid * 2),
+    Offset(width - grid * 4, height - grid * 2),
+    Offset(width - grid * 4, height - grid),
+    Offset(width - cutX, height - grid),
+    Offset(width - cutX, height),
+    Offset(cutX, height),
+    Offset(cutX, height - grid),
+    Offset(grid * 4, height - grid),
+    Offset(grid * 4, height - grid * 2),
+    Offset(grid * 3, height - grid * 2),
+    Offset(grid * 3, height - grid * 3),
+    Offset(grid * 2, height - grid * 3),
+    Offset(grid * 2, height - grid * 4),
+    Offset(grid, height - grid * 4),
+    Offset(grid, height - cutY),
+    Offset(0, height - cutY),
+    Offset(0, cutY),
+    Offset(grid, cutY),
+    Offset(grid, grid * 4),
+    Offset(grid * 2, grid * 4),
+    Offset(grid * 2, grid * 3),
+    Offset(grid * 3, grid * 3),
+    Offset(grid * 3, grid * 2),
+    Offset(grid * 4, grid * 2),
+    Offset(grid * 4, grid),
+    Offset(cutX, grid),
+  ]);
+}
+
+class PixelArcCutClipper extends CustomClipper<Path> {
+  const PixelArcCutClipper(this.radius, {this.pixelSize = 4});
+
+  final double radius;
+  final double pixelSize;
+
+  @override
+  Path getClip(Size size) =>
+      pixelArcCutPath(Offset.zero & size, radius, pixelSize: pixelSize);
+
+  @override
+  bool shouldReclip(covariant PixelArcCutClipper oldClipper) {
+    return oldClipper.radius != radius || oldClipper.pixelSize != pixelSize;
   }
 }
