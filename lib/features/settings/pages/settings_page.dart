@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../clock/clock_providers.dart';
 import '../../../clock/clock_settings_store.dart';
+import '../../../core/router/app_router.dart';
 import '../../../core/ui/clock_system_ui.dart';
 import '../../../core/ui/clock_wake.dart';
 import '../../../core/ui/pixel/pixel_ui.dart';
@@ -51,8 +52,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               constraints: const BoxConstraints(maxWidth: 426),
               child: Column(
                 children: [
-                  _SettingsHeader(
-                    onBack: () => Navigator.of(context).maybePop(),
+                  PixelPageHeader(
+                    title: 'Settings',
+                    onBack: () => AppRoutes.backToClock(context),
                   ),
                   Expanded(
                     child: ListView(
@@ -162,71 +164,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _SettingsHeader extends StatelessWidget {
-  const _SettingsHeader({required this.onBack});
-
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = PixelTokens.of(context);
-    return Container(
-      width: double.infinity,
-      height: 71,
-      padding: const EdgeInsets.symmetric(horizontal: 22),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0x59000000), width: 2)),
-      ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Positioned(
-            left: -10,
-            top: 11.5,
-            child: SizedBox(
-              key: const ValueKey('settings-back-button'),
-              width: 48,
-              height: 48,
-              child: Semantics(
-                container: true,
-                button: true,
-                label: 'Back',
-                onTap: onBack,
-                child: ExcludeSemantics(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: onBack,
-                    child: const Center(
-                      child: PixelIcon(
-                        kind: PixelIconKind.settingsBack,
-                        color: Color(0xFFFFFDF7),
-                        size: 30,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Text(
-              'Settings',
-              style: tokens
-                  .heading(fontSize: 31)
-                  .copyWith(
-                    color: const Color(0xFFFFFDF7),
-                    height: 1,
-                    letterSpacing: -0.62,
-                  ),
-            ),
-          ),
-        ],
       ),
     );
   }

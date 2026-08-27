@@ -13,14 +13,19 @@ class PixelPageHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = PixelTokens.of(context);
-    return SizedBox(
-      height: 56,
+    return Container(
+      width: double.infinity,
+      height: 71,
+      padding: const EdgeInsets.symmetric(horizontal: 22),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0x59000000), width: 2)),
+      ),
       child: Stack(
         alignment: Alignment.center,
         children: [
           Positioned(
-            left: 0,
-            top: 4,
+            left: -10,
+            top: 11.5,
             width: 48,
             height: 48,
             child: Semantics(
@@ -43,14 +48,32 @@ class PixelPageHeader extends StatelessWidget {
                     behavior: HitTestBehavior.opaque,
                     onTap: onBack,
                     child: const Center(
-                      child: PixelIcon(kind: PixelIconKind.back, size: 30),
+                      child: PixelIcon(
+                        kind: PixelIconKind.settingsBack,
+                        color: Color(0xFFFFFDF7),
+                        size: 30,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-          Text(title, style: tokens.heading(fontSize: 26)),
+          IgnorePointer(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                title,
+                style: tokens
+                    .heading(fontSize: 31)
+                    .copyWith(
+                      color: const Color(0xFFFFFDF7),
+                      height: 1,
+                      letterSpacing: -0.62,
+                    ),
+              ),
+            ),
+          ),
         ],
       ),
     );

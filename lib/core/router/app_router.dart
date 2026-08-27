@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -16,6 +17,16 @@ abstract final class AppRoutes {
   static const welcome = '/welcome';
   static const settings = '/settings';
   static const about = '/about';
+
+  /// 返回上一个页面；若当前页面由深链直接打开，则回到时钟主页。
+  static void backToClock(BuildContext context) {
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) {
+      navigator.pop();
+      return;
+    }
+    context.go(clock);
+  }
 }
 
 @Riverpod(keepAlive: true)

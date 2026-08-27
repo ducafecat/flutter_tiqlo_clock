@@ -137,6 +137,10 @@ void main() {
     expect(find.text('Version 1.0.0'), findsOneWidget);
     expect(find.byType(PixelPanel), findsWidgets);
 
+    await tester.tap(find.bySemanticsLabel('Back'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ClockPage), findsOneWidget);
+
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
   });
