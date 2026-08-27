@@ -71,7 +71,7 @@ Clock
 | 时钟样式 | 已提供能力 |
 | --- | --- |
 | Flip | 翻页卡片式时钟，分钟变化时播放翻页动画；支持 10 组配色：Pure Dark、Dark、Light、Green、Blue、Red、Orange、Yellow、Purple、Pink。 |
-| Digital | 七段数码管时钟；支持 9 组配色：Digital、Digital-Blue、Digital-Red、Digital-Amber、Digital-Orange、Pure Dark、Dark、Light、Classic。 |
+| Digital | 七段数码管时钟；支持 9 组配色，按 Flip 的颜色顺序排列：Pure Dark、Dark、Light、Digital（Green）、Digital-Blue、Digital-Red、Digital-Orange、Digital-Amber（Yellow）、Classic。 |
 
 默认样式为 Flip，默认配色为 Pure Dark。主题选择器先选择样式，再呈现该样式的配色选项。
 

@@ -11,6 +11,7 @@ import 'package:flutter_tiqlo_clock/clock/clock_providers.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
 import 'package:flutter_tiqlo_clock/clock/prefs_clock_settings_store.dart';
 import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_ui.dart';
+import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_theme_sheet_style.dart';
 import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_face.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_theme_sheet.dart';
@@ -363,6 +364,66 @@ void main() {
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
+  });
+
+  testWidgets('Digital theme scroll viewport fits wide landscape', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1311, 603);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: PixelTheme.darkTheme,
+        home: const Scaffold(
+          body: Align(
+            alignment: Alignment.bottomCenter,
+            child: PixelSheet(
+              layout: PixelSheetLayout.theme,
+              child: ClockThemeSheet(
+                clockThemeId: ClockThemeId.digital,
+                flipPaletteId: FlipPaletteId.pureDark,
+                digitalThemeId: DigitalThemeId.digital,
+                onClockThemeSelected: _ignoreClockTheme,
+                onFlipPaletteSelected: _ignoreFlipPalette,
+                onDigitalThemeSelected: _ignoreDigitalTheme,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final frameRect = tester.getRect(find.byType(PixelThemeSheetFrame));
+    expect(frameRect.height, lessThanOrEqualTo(603 * 0.68));
+
+    final scrollable = find.descendant(
+      of: find.byKey(const ValueKey('pixel-sheet-scroll')),
+      matching: find.byType(Scrollable),
+    );
+    final scrollState = tester.state<ScrollableState>(scrollable);
+    expect(scrollState.position.maxScrollExtent, greaterThan(0));
+    scrollState.position.jumpTo(scrollState.position.maxScrollExtent);
+    await tester.pump();
+
+    final classicRect = tester.getRect(
+      find.byKey(const ValueKey('digital-theme-classic')),
+    );
+    final scrollRect = tester.getRect(scrollable);
+    expect(
+      frameRect.bottom - scrollRect.bottom,
+      greaterThanOrEqualTo(PixelThemeSheetStyle.themeScrollViewportBottomInset),
+    );
+    expect(
+      scrollRect.bottom - classicRect.bottom,
+      greaterThanOrEqualTo(PixelThemeSheetStyle.themeBottomInset),
+    );
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('Theme sheet matches the reference geometry at 470dp', (

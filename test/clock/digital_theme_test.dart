@@ -8,14 +8,14 @@ void main() {
 
   test('all nine Digital themes match the product tokens', () {
     const expectedLabels = [
-      'Digital',
-      'Digital-Blue',
-      'Digital-Red',
-      'Digital-Amber',
-      'Digital-Orange',
       'Pure Dark',
       'Dark',
       'Light',
+      'Digital',
+      'Digital-Blue',
+      'Digital-Red',
+      'Digital-Orange',
+      'Digital-Amber',
       'Classic',
     ];
     const expectedColors = {

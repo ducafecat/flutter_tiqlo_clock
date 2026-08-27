@@ -1,14 +1,14 @@
 import 'dart:ui';
 
 enum DigitalThemeId {
-  digital,
-  digitalBlue,
-  digitalRed,
-  digitalAmber,
-  digitalOrange,
   pureDark,
   dark,
   light,
+  digital,
+  digitalBlue,
+  digitalRed,
+  digitalOrange,
+  digitalAmber,
   classic,
 }
 

@@ -77,12 +77,15 @@ class _PixelSheetState extends State<PixelSheet> {
     final compact = media.size.width < 600;
     final landscape = media.orientation == Orientation.landscape;
     final maxHeightFactor = widget.layout == PixelSheetLayout.theme
-        ? compact
-              ? landscape
-                    ? 0.92
-                    : 0.78
+        ? landscape
+              ? 0.68
+              : compact
+              ? 0.78
               : 0.8
         : 1.0;
+    final bottomInset = widget.layout == PixelSheetLayout.theme
+        ? PixelThemeSheetStyle.themeBottomInset
+        : PixelThemeSheetStyle.bottomInset;
     final width = compact ? media.size.width : 720.0;
 
     final sheetContent = Column(
@@ -95,15 +98,22 @@ class _PixelSheetState extends State<PixelSheet> {
           ),
         ),
         Flexible(
-          child: SingleChildScrollView(
-            key: const ValueKey('pixel-sheet-scroll'),
-            padding: const EdgeInsets.fromLTRB(
-              PixelThemeSheetStyle.contentInset,
-              0,
-              PixelThemeSheetStyle.contentInset,
-              PixelThemeSheetStyle.bottomInset,
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: widget.layout == PixelSheetLayout.theme
+                  ? PixelThemeSheetStyle.themeScrollViewportBottomInset
+                  : 0,
             ),
-            child: widget.child,
+            child: SingleChildScrollView(
+              key: const ValueKey('pixel-sheet-scroll'),
+              padding: EdgeInsets.fromLTRB(
+                PixelThemeSheetStyle.contentInset,
+                0,
+                PixelThemeSheetStyle.contentInset,
+                bottomInset,
+              ),
+              child: widget.child,
+            ),
           ),
         ),
       ],
