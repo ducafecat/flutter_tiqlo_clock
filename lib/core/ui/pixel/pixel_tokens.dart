@@ -157,10 +157,10 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
   );
 
   TextStyle digitalDisplay({double fontSize = 64, Color? color}) => TextStyle(
-    fontFamily: 'Doto',
+    fontFamily: 'DotGothic16',
     fontFamilyFallback: _systemFallback,
     fontSize: fontSize,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w400,
     color: color ?? textPrimary,
   );
 

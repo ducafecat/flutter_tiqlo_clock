@@ -28,8 +28,8 @@ void main() {
     final bodyFont = FontLoader('PixelifySans')
       ..addFont(rootBundle.load('fonts/PixelifySans-Regular.ttf'));
     await bodyFont.load();
-    final digitalFont = FontLoader('Doto')
-      ..addFont(rootBundle.load('fonts/Doto.ttf'));
+    final digitalFont = FontLoader('DotGothic16')
+      ..addFont(rootBundle.load('fonts/DotGothic16-Regular.ttf'));
     await digitalFont.load();
   });
 

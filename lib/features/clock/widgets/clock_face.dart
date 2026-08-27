@@ -98,25 +98,17 @@ class _SessionFace extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text.rich(
-                    TextSpan(
-                      children: themeId == ClockThemeId.digital
-                          ? _digitalTimeSpans(
-                              primaryLabel,
-                              color: digitColor,
-                              symbolFontSize: timeSize * _timeSymbolScale,
-                            )
-                          : [TextSpan(text: primaryLabel)],
-                    ),
+                  Text(
+                    primaryLabel,
                     key: const ValueKey('session-primary-label'),
                     style: TextStyle(
                       color: digitColor,
                       fontFamily: themeId == ClockThemeId.digital
-                          ? 'Doto'
+                          ? 'DotGothic16'
                           : 'Jersey25',
                       fontSize: timeSize,
                       fontWeight: themeId == ClockThemeId.digital
-                          ? FontWeight.w700
+                          ? FontWeight.w400
                           : FontWeight.w400,
                       letterSpacing: 2,
                     ),
@@ -204,22 +196,16 @@ class DigitalClockFace extends StatelessWidget {
                 children: [
                   Transform.translate(
                     key: const ValueKey('digital-time-optical-offset'),
-                    // Doto's tabular digits remain centered without an offset.
+                    // DotGothic16 remains centered without an optical offset.
                     offset: Offset.zero,
-                    child: Text.rich(
-                      TextSpan(
-                        children: _digitalTimeSpans(
-                          time,
-                          color: theme.digit,
-                          symbolFontSize: fontSize * _timeSymbolScale,
-                        ),
-                      ),
+                    child: Text(
+                      time,
                       key: const ValueKey('digital-time'),
                       style: TextStyle(
                         color: theme.digit,
-                        fontFamily: 'Doto',
+                        fontFamily: 'DotGothic16',
                         fontSize: fontSize,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w400,
                         height: 1,
                       ),
                     ),
@@ -257,33 +243,4 @@ class DigitalClockFace extends StatelessWidget {
       ),
     );
   }
-}
-
-const _timeSymbolScale = 0.62;
-
-List<InlineSpan> _digitalTimeSpans(
-  String time, {
-  required Color color,
-  required double symbolFontSize,
-}) {
-  final parts = time.split(':');
-  return [
-    for (var index = 0; index < parts.length; index++) ...[
-      TextSpan(text: parts[index]),
-      if (index < parts.length - 1)
-        WidgetSpan(
-          alignment: PlaceholderAlignment.middle,
-          child: Text(
-            ':',
-            style: TextStyle(
-              fontFamily: 'Tiny5',
-              fontSize: symbolFontSize,
-              fontWeight: FontWeight.w400,
-              height: 1,
-              color: color,
-            ),
-          ),
-        ),
-    ],
-  ];
 }

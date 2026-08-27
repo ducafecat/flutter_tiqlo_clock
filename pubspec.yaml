@@ -97,12 +97,10 @@ flutter:
       fonts:
         - asset: fonts/Jersey25-Regular.ttf
           weight: 400
-    - family: Doto
+    - family: DotGothic16
       fonts:
-        - asset: fonts/Doto.ttf
+        - asset: fonts/DotGothic16-Regular.ttf
           weight: 400
-        - asset: fonts/Doto.ttf
-          weight: 700
 
 icons_launcher:
   image_path: "assets/icons/ic_logo.png"

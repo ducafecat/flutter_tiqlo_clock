@@ -135,7 +135,7 @@ class _AboutPageState extends State<AboutPage> {
             children: [
               PixelTextList(
                 values: [
-                  'Doto — Digital clock',
+                  'DotGothic16 — Digital clock',
                   'Jersey 25 — Flip clock',
                   'Pixelify Sans — Interface',
                   'Tiny5 — Clock HUD',
