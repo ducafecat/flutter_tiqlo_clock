@@ -535,6 +535,19 @@ void main() {
     expect(duration, const Duration(milliseconds: 700));
     await tester.pump(duration - const Duration(milliseconds: 1));
     expect(tester.hasRunningAnimations, isTrue);
+    final settledBottom = tester.widget<Transform>(
+      find.byKey(const ValueKey('flip-bottom-transform')),
+    );
+    expect(settledBottom.filterQuality, FilterQuality.none);
+    expect(settledBottom.transform.entry(1, 1), closeTo(1, 0.0001));
+    final settledShade = tester.widget<ColoredBox>(
+      find.byKey(const ValueKey('flip-bottom-shade')),
+    );
+    final settledEdge = tester.widget<ColoredBox>(
+      find.byKey(const ValueKey('flip-bottom-edge')),
+    );
+    expect(settledShade.color.a, 0);
+    expect(settledEdge.color.a, 0);
 
     await tester.pump(const Duration(milliseconds: 2));
     expect(find.byKey(const ValueKey('flip-flap')), findsNothing);
@@ -689,10 +702,18 @@ void main() {
         matching: find.byKey(const ValueKey('flip-top-transform')),
       ),
     );
-    expect(topTransform.filterQuality, FilterQuality.low);
+    expect(topTransform.filterQuality, FilterQuality.none);
+    await tester.pump(const Duration(milliseconds: 10));
+    final movingTopTransform = tester.widget<Transform>(
+      find.descendant(
+        of: find.byKey(const ValueKey('flip-flap')),
+        matching: find.byKey(const ValueKey('flip-top-transform')),
+      ),
+    );
+    expect(movingTopTransform.filterQuality, FilterQuality.low);
     final duration = const PixelTokens.dark().flipDuration;
     final midpoint = Duration(microseconds: duration.inMicroseconds ~/ 2);
-    await tester.pump(midpoint - const Duration(milliseconds: 10));
+    await tester.pump(midpoint - const Duration(milliseconds: 20));
     final distanceBeforeMidpoint = math.pi / 2 - flapAngle();
 
     await tester.pump(const Duration(milliseconds: 20));

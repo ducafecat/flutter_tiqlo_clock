@@ -457,11 +457,12 @@ class _FlipCardState extends State<_FlipCard>
     builder: (context, child) {
       final progress = _controller.value;
       final eased = (1 - math.cos(math.pi * progress)) / 2;
-      final angle = top
-          ? math.min(eased * math.pi, math.pi / 2)
-          : math.max(eased * math.pi - math.pi, -math.pi / 2);
-      final shadeOpacity = top ? eased * .46 : (1 - eased) * .46;
-      final edgeOpacity = math.sin(math.pi * progress) * .72;
+      final topTurn = (eased * 2).clamp(0.0, 1.0);
+      final bottomTurn = _bottomReveal(progress);
+      final turn = top ? topTurn : bottomTurn;
+      final angle = top ? turn * math.pi / 2 : -(1 - turn) * math.pi / 2;
+      final shadeOpacity = (top ? turn : 1 - turn) * .46;
+      final edgeOpacity = math.sin(angle.abs()) * .72;
       final edgeHeight = 3 / math.max(.001, widget.renderScale);
       final flapSurface = Stack(
         fit: StackFit.passthrough,
@@ -493,7 +494,9 @@ class _FlipCardState extends State<_FlipCard>
       return Transform(
         key: ValueKey(top ? 'flip-top-transform' : 'flip-bottom-transform'),
         alignment: top ? Alignment.bottomCenter : Alignment.topCenter,
-        filterQuality: FilterQuality.low,
+        filterQuality: angle.abs() < .0001
+            ? FilterQuality.none
+            : FilterQuality.low,
         transform: Matrix4.identity()
           ..setEntry(3, 2, .0007)
           ..rotateX(angle),
@@ -501,6 +504,20 @@ class _FlipCardState extends State<_FlipCard>
       );
     },
   );
+
+  double _bottomReveal(double progress) {
+    const start = .5;
+    const settle = .95;
+    if (progress <= start) return 0;
+    if (progress >= settle) return 1;
+    final t = (progress - start) / (settle - start);
+    final t2 = t * t;
+    final t3 = t2 * t;
+    final smoothStep = -2 * t3 + 3 * t2;
+    final initialSlope = math.pi * (settle - start);
+    final startTangent = t3 - 2 * t2 + t;
+    return (smoothStep + initialSlope * startTangent).clamp(0.0, 1.0);
+  }
 
   Widget _half(
     String value, {
