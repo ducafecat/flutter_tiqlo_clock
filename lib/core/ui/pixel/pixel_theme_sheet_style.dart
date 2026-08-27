@@ -29,7 +29,10 @@ abstract final class PixelThemeSheetStyle {
   static const handleHighlight = Color(0xFFD0CAB7);
   static const handleShade = Color(0xFF777264);
 
-  static const sheetCut = 16.0;
+  /// Sheet 使用连续圆角，避免像素切角在大尺寸屏幕上形成明显缺口。
+  static const sheetRadius = 22.0;
+  static const sheetOutlineRadius = 20.0;
+  static const sheetInnerRadius = 18.0;
   static const optionCut = 8.0;
   static const sheetInset = 4.0;
   static const contentInset = 24.0;
@@ -48,8 +51,8 @@ class PixelThemeSheetFrame extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomPaint(
       painter: const _ThemeSheetPainter(),
-      child: ClipPath(
-        clipper: const PixelCutClipper(PixelThemeSheetStyle.sheetCut),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(PixelThemeSheetStyle.sheetRadius),
         child: child,
       ),
     );
@@ -134,25 +137,37 @@ class _ThemeSheetPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..isAntiAlias = false;
+    final paint = Paint()..isAntiAlias = true;
     final rect = Offset.zero & size;
-    final outerPath = pixelCutPath(rect, PixelThemeSheetStyle.sheetCut);
+    final outerRRect = RRect.fromRectAndRadius(
+      rect,
+      const Radius.circular(PixelThemeSheetStyle.sheetRadius),
+    );
 
-    canvas.drawPath(
-      outerPath.shift(const Offset(2, 2)),
+    canvas.drawRRect(
+      outerRRect.shift(const Offset(2, 2)),
       paint..color = PixelThemeSheetStyle.panelShadow,
     );
-    canvas.drawPath(outerPath, paint..color = PixelThemeSheetStyle.panelFrame);
+    canvas.drawRRect(
+      outerRRect,
+      paint..color = PixelThemeSheetStyle.panelFrame,
+    );
 
     final outlineRect = Rect.fromLTRB(2, 2, size.width - 2, size.height - 2);
-    final outlinePath = pixelCutPath(outlineRect, 14);
-    canvas.drawPath(
-      outlinePath,
+    final outlineRRect = RRect.fromRectAndRadius(
+      outlineRect,
+      const Radius.circular(PixelThemeSheetStyle.sheetOutlineRadius),
+    );
+    canvas.drawRRect(
+      outlineRRect,
       paint..color = PixelThemeSheetStyle.panelOutline,
     );
 
     final innerRect = Rect.fromLTRB(4, 4, size.width - 4, size.height - 4);
-    final innerPath = pixelCutPath(innerRect, 12);
+    final innerRRect = RRect.fromRectAndRadius(
+      innerRect,
+      const Radius.circular(PixelThemeSheetStyle.sheetInnerRadius),
+    );
     paint.shader = const LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
@@ -163,7 +178,7 @@ class _ThemeSheetPainter extends CustomPainter {
       ],
       stops: [0, 0.42, 1],
     ).createShader(innerRect);
-    canvas.drawPath(innerPath, paint);
+    canvas.drawRRect(innerRRect, paint);
     paint.shader = null;
 
     paint.shader = const RadialGradient(
@@ -172,7 +187,7 @@ class _ThemeSheetPainter extends CustomPainter {
       colors: [Color(0x382F302D), Color(0x00171817)],
       stops: [0, 1],
     ).createShader(innerRect);
-    canvas.drawPath(innerPath, paint);
+    canvas.drawRRect(innerRRect, paint);
     paint.shader = null;
 
     final highlight = Path()
