@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/config/app_config.dart';
@@ -35,14 +36,25 @@ class _AboutPageState extends State<AboutPage> {
   }
 
   Future<void> _openLink(Uri link) async {
-    final launched = await launchUrl(
-      link,
-      mode: LaunchMode.externalApplication,
-    );
-    if (!mounted || launched) return;
+    try {
+      final launched = await launchUrl(
+        link,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!mounted || launched) return;
+    } on PlatformException {
+      if (!mounted) return;
+      _showLinkError('链接服务尚未加载，请完全重启应用后重试。');
+      return;
+    }
+    _showLinkError('无法打开 ${link.host}');
+  }
+
+  void _showLinkError(String message) {
+    if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text('无法打开 ${link.host}')));
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
