@@ -5,7 +5,7 @@ import '../../../clock/clock_engine.dart';
 import '../../../clock/clock_providers.dart';
 import '../../../clock/clock_settings_store.dart';
 import '../../../core/router/app_router.dart';
-import '../../../core/ui/adaptive_breakpoints.dart';
+import '../../../core/ui/adaptive_page_frame.dart';
 import '../../../core/ui/clock_system_ui.dart';
 import '../../../core/ui/clock_wake.dart';
 import '../../../core/ui/pixel/pixel_ui.dart';
@@ -48,40 +48,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             colors: [Color(0xFF1A1916), Color(0xFF171612)],
           ),
         ),
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, viewport) {
-              final landscape = viewport.maxWidth > viewport.maxHeight;
-              return Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: landscape
-                        ? viewport.maxWidth
-                        : AdaptiveBreakpoints.largePhone - 4,
-                  ),
-                  child: SizedBox(
-                    width: landscape ? double.infinity : null,
-                    child: Column(
-                      children: [
-                        PixelPageHeader(
-                          title: 'Settings',
-                          onBack: () => AppRoutes.backToClock(context),
-                        ),
-                        Expanded(
-                          child: LayoutBuilder(
-                            builder: (context, content) => _SettingsSections(
-                              landscape: landscape,
-                              maxWidth: content.maxWidth,
-                              sections: _buildSections(engine),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+        child: AdaptivePageFrame(
+          portraitMaxWidth: 426,
+          builder: (context, layout) => Column(
+            children: [
+              PixelPageHeader(
+                title: 'Settings',
+                onBack: () => AppRoutes.backToClock(context),
+              ),
+              Expanded(
+                child: _SettingsSections(
+                  landscape: layout.isLandscape,
+                  maxWidth: layout.contentWidth,
+                  sections: _buildSections(engine),
                 ),
-              );
-            },
+              ),
+            ],
           ),
         ),
       ),
