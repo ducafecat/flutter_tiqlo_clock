@@ -78,7 +78,7 @@ class _PixelSheetState extends State<PixelSheet> {
     final landscape = media.orientation == Orientation.landscape;
     final maxHeightFactor = widget.layout == PixelSheetLayout.theme
         ? landscape
-              ? 0.68
+              ? PixelThemeSheetStyle.themeLandscapeMaxHeightFactor
               : compact
               ? 0.78
               : 0.8

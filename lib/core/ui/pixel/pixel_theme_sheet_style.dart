@@ -40,6 +40,7 @@ abstract final class PixelThemeSheetStyle {
   static const bottomInset = 40.0;
   static const themeBottomInset = 88.0;
   static const themeScrollViewportBottomInset = 24.0;
+  static const themeLandscapeMaxHeightFactor = 0.9;
 }
 
 class PixelThemeSheetFrame extends StatelessWidget {

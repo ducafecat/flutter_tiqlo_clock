@@ -415,7 +415,12 @@ void main() {
     await tester.pumpAndSettle();
 
     final frameRect = tester.getRect(find.byType(PixelThemeSheetFrame));
-    expect(frameRect.height, lessThanOrEqualTo(603 * 0.68));
+    expect(
+      frameRect.height,
+      lessThanOrEqualTo(
+        603 * PixelThemeSheetStyle.themeLandscapeMaxHeightFactor,
+      ),
+    );
 
     final scrollable = find.descendant(
       of: find.byKey(const ValueKey('pixel-sheet-scroll')),
