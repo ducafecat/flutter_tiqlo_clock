@@ -86,6 +86,9 @@ class _PixelSheetState extends State<PixelSheet> {
     final bottomInset = widget.layout == PixelSheetLayout.theme
         ? PixelThemeSheetStyle.themeBottomInset
         : PixelThemeSheetStyle.bottomInset;
+    final horizontalContentInset = widget.layout == PixelSheetLayout.theme
+        ? PixelThemeSheetStyle.themeContentInset
+        : PixelThemeSheetStyle.contentInset;
     final width = compact ? media.size.width : 720.0;
 
     final sheetContent = Column(
@@ -107,9 +110,9 @@ class _PixelSheetState extends State<PixelSheet> {
             child: SingleChildScrollView(
               key: const ValueKey('pixel-sheet-scroll'),
               padding: EdgeInsets.fromLTRB(
-                PixelThemeSheetStyle.contentInset,
+                horizontalContentInset,
                 0,
-                PixelThemeSheetStyle.contentInset,
+                horizontalContentInset,
                 bottomInset,
               ),
               child: widget.child,

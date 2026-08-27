@@ -281,31 +281,46 @@ Path pixelSwitchKnobPath(Rect rect) {
 }
 
 Path pixelCutPath(Rect rect, double cutSize) {
-  final cut = cutSize.clamp(4.0, rect.shortestSide / 3);
-  final step = cut / 2;
+  final maximumCut = rect.shortestSide / 3;
+  final requestedCut = cutSize < 2 ? 2.0 : cutSize;
+  final cut = requestedCut > maximumCut ? maximumCut : requestedCut;
+  final roundedStepCount = (cut / 2).round();
+  final stepCount = roundedStepCount < 1 ? 1 : roundedStepCount;
+  final step = cut / stepCount;
   final left = rect.left;
   final right = rect.right;
   final top = rect.top;
   final bottom = rect.bottom;
 
-  return Path()
+  final path = Path()
     ..moveTo(left + cut, top)
-    ..lineTo(right - cut, top)
-    ..lineTo(right - step, top + step)
-    ..lineTo(right - step, top + cut)
-    ..lineTo(right, top + cut)
-    ..lineTo(right, bottom - cut)
-    ..lineTo(right - step, bottom - cut)
-    ..lineTo(right - step, bottom - step)
-    ..lineTo(right - cut, bottom)
-    ..lineTo(left + cut, bottom)
-    ..lineTo(left + step, bottom - step)
-    ..lineTo(left + step, bottom - cut)
-    ..lineTo(left, bottom - cut)
-    ..lineTo(left, top + cut)
-    ..lineTo(left + step, top + cut)
-    ..lineTo(left + step, top + step)
-    ..close();
+    ..lineTo(right - cut, top);
+
+  // 每一级都只使用水平线和垂直线，形成设计稿中的小方块锯齿角。
+  for (var index = 0; index < stepCount; index++) {
+    path
+      ..lineTo(right - cut + index * step, top + (index + 1) * step)
+      ..lineTo(right - cut + (index + 1) * step, top + (index + 1) * step);
+  }
+  path.lineTo(right, bottom - cut);
+  for (var index = 0; index < stepCount; index++) {
+    path
+      ..lineTo(right - (index + 1) * step, bottom - cut + index * step)
+      ..lineTo(right - (index + 1) * step, bottom - cut + (index + 1) * step);
+  }
+  path.lineTo(left + cut, bottom);
+  for (var index = 0; index < stepCount; index++) {
+    path
+      ..lineTo(left + cut - index * step, bottom - (index + 1) * step)
+      ..lineTo(left + cut - (index + 1) * step, bottom - (index + 1) * step);
+  }
+  path.lineTo(left, top + cut);
+  for (var index = 0; index < stepCount; index++) {
+    path
+      ..lineTo(left + (index + 1) * step, top + cut - index * step)
+      ..lineTo(left + (index + 1) * step, top + cut - (index + 1) * step);
+  }
+  return path..close();
 }
 
 class PixelCutClipper extends CustomClipper<Path> {

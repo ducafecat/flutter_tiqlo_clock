@@ -14,17 +14,18 @@ abstract final class PixelThemeSheetStyle {
   static const panelCenter = Color(0xFF20211F);
   static const panelBottom = Color(0xFF171817);
 
-  static const optionShadow = Color(0xFF080908);
+  static const optionDepthShade = Color(0xFF151614);
   static const optionFrame = Color(0xFF111210);
-  static const optionOutline = Color(0xFF464743);
-  static const optionOutlineSelected = Color(0xFFA9AAA6);
+  static const optionOutline = Color(0xFF41423E);
+  static const optionOutlineSelected = Color(0xFFB8B9B5);
   static const optionSurface = Color(0xFF1D1E1D);
-  static const optionSurfaceSelected = Color(0xFF292A29);
+  static const optionSurfaceSelected = Color(0xFF242624);
   static const optionSurfaceHover = Color(0xFF252624);
   static const optionSurfacePressed = Color(0xFF171817);
 
   static const text = Color(0xFFB8B9B6);
   static const textSelected = Color(0xFFC8C9C6);
+  static const check = Color(0xFFD7D8D4);
   static const handle = Color(0xFFB5AF9C);
   static const handleHighlight = Color(0xFFD0CAB7);
   static const handleShade = Color(0xFF777264);
@@ -33,9 +34,12 @@ abstract final class PixelThemeSheetStyle {
   static const sheetRadius = 22.0;
   static const sheetOutlineRadius = 20.0;
   static const sheetInnerRadius = 18.0;
-  static const optionCut = 8.0;
+  static const optionCut = 6.0;
+  static const optionDepth = 1.0;
+  static const optionGap = 4.0;
   static const sheetInset = 4.0;
   static const contentInset = 24.0;
+  static const themeContentInset = 12.0;
   static const headerHeight = 50.0;
   static const bottomInset = 40.0;
   static const themeBottomInset = 88.0;
@@ -107,9 +111,15 @@ class PixelThemeOptionFrame extends StatelessWidget {
           enabled: enabled,
           focusColor: focusColor,
         ),
-        child: ClipPath(
-          clipper: const PixelCutClipper(PixelThemeSheetStyle.optionCut),
-          child: child,
+        child: Padding(
+          padding: const EdgeInsets.only(
+            right: PixelThemeSheetStyle.optionDepth,
+            bottom: PixelThemeSheetStyle.optionDepth,
+          ),
+          child: ClipPath(
+            clipper: const PixelCutClipper(PixelThemeSheetStyle.optionCut),
+            child: child,
+          ),
         ),
       ),
     );
@@ -256,17 +266,28 @@ class _ThemeOptionPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..isAntiAlias = false;
-    final rect = Offset.zero & size;
-    final outer = pixelCutPath(rect, PixelThemeSheetStyle.optionCut);
-    canvas.drawPath(
-      outer.shift(const Offset(2, 2)),
-      paint..color = PixelThemeSheetStyle.optionShadow,
+    const depth = PixelThemeSheetStyle.optionDepth;
+    final faceRect = Rect.fromLTWH(
+      0,
+      0,
+      size.width - depth,
+      size.height - depth,
     );
+    final outer = pixelCutPath(faceRect, PixelThemeSheetStyle.optionCut);
+    final depthOffset = const Offset(depth, depth);
+    final body = Path.combine(
+      PathOperation.union,
+      outer,
+      outer.shift(depthOffset),
+    );
+
+    // 正面和右下厚度先合成一个连续实体，避免平移完整轮廓造成双边框。
+    canvas.drawPath(body, paint..color = PixelThemeSheetStyle.optionDepthShade);
     canvas.drawPath(outer, paint..color = PixelThemeSheetStyle.optionFrame);
 
-    final outlineRect = Rect.fromLTRB(2, 2, size.width - 2, size.height - 2);
+    final outlineRect = faceRect.deflate(2);
     canvas.drawPath(
-      pixelCutPath(outlineRect, 6),
+      pixelCutPath(outlineRect, 4),
       paint
         ..color = focused
             ? focusColor
@@ -275,7 +296,7 @@ class _ThemeOptionPainter extends CustomPainter {
             : PixelThemeSheetStyle.optionOutline,
     );
 
-    final fillRect = Rect.fromLTRB(4, 4, size.width - 4, size.height - 4);
+    final fillRect = faceRect.deflate(4);
     final fill = !enabled
         ? PixelThemeSheetStyle.optionSurface.withValues(alpha: 0.55)
         : pressed
@@ -285,13 +306,7 @@ class _ThemeOptionPainter extends CustomPainter {
         : selected
         ? PixelThemeSheetStyle.optionSurfaceSelected
         : PixelThemeSheetStyle.optionSurface;
-    canvas.drawPath(pixelCutPath(fillRect, 4), paint..color = fill);
-
-    canvas.drawRect(
-      Rect.fromLTWH(8, 4, size.width - 16, 1),
-      paint
-        ..color = selected ? const Color(0xFF555653) : const Color(0xFF30312E),
-    );
+    canvas.drawPath(pixelCutPath(fillRect, 2), paint..color = fill);
   }
 
   @override

@@ -41,7 +41,8 @@ class ClockThemeSheet extends StatelessWidget {
               index < ClockThemeId.values.length;
               index++
             ) ...[
-              if (index > 0) SizedBox(height: tokens.spacingSm),
+              if (index > 0)
+                const SizedBox(height: PixelThemeSheetStyle.optionGap),
               PixelSelectionTile(
                 key: ValueKey('clock-style-${ClockThemeId.values[index].name}'),
                 label: ClockThemeId.values[index].label,
@@ -79,8 +80,8 @@ class ClockThemeSheet extends StatelessWidget {
                       ),
                   ];
             return Wrap(
-              spacing: tokens.spacingSm,
-              runSpacing: tokens.spacingSm,
+              spacing: PixelThemeSheetStyle.optionGap,
+              runSpacing: PixelThemeSheetStyle.optionGap,
               children: [
                 for (final option in options)
                   PixelColorOption(

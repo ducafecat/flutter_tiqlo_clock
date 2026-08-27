@@ -488,11 +488,11 @@ void main() {
     final digitalRect = tester.getRect(
       find.byKey(const ValueKey('clock-style-digital')),
     );
-    expect(flipRect.left, 28);
-    expect(flipRect.right, 442.5);
-    expect(flipRect.height, 48);
-    expect(digitalRect.height, 48);
-    expect(digitalRect.top - flipRect.bottom, 8);
+    expect(flipRect.left, 16);
+    expect(flipRect.right, 454.5);
+    expect(flipRect.height, 49);
+    expect(digitalRect.height, 49);
+    expect(digitalRect.top - flipRect.bottom, 4);
 
     final pureDark = tester.getRect(
       find.byKey(const ValueKey('palette-pureDark')),

@@ -40,9 +40,9 @@ class ClockMoreSheet extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(height: tokens.spacingSm),
+        const SizedBox(height: PixelThemeSheetStyle.optionGap),
         PixelActionTile(label: 'Settings', onPressed: onSettings),
-        SizedBox(height: tokens.spacingSm),
+        const SizedBox(height: PixelThemeSheetStyle.optionGap),
         PixelActionTile(label: 'About', onPressed: onAbout),
       ],
     );

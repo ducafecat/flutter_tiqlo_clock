@@ -61,9 +61,7 @@ class PixelSelectionTile extends StatelessWidget {
                     ),
                     if (selected) ...[
                       const SizedBox(width: 16),
-                      const PixelThemeCheck(
-                        color: PixelThemeSheetStyle.textSelected,
-                      ),
+                      const PixelThemeCheck(color: PixelThemeSheetStyle.check),
                     ],
                   ],
                 ),
