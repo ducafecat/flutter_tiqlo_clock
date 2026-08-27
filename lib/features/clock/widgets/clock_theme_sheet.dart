@@ -4,6 +4,7 @@ import '../../../clock/clock_theme.dart';
 import '../../../clock/digital_theme.dart';
 import '../../../clock/flip_palette.dart';
 import '../../../core/ui/pixel/pixel_ui.dart';
+import '../../../core/ui/pixel/pixel_theme_sheet_style.dart';
 
 class ClockThemeSheet extends StatelessWidget {
   const ClockThemeSheet({
@@ -31,7 +32,7 @@ class ClockThemeSheet extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         _SheetTitle(label: 'Clock Style', tokens: tokens),
-        SizedBox(height: tokens.spacingSm),
+        const SizedBox(height: 12),
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -51,9 +52,9 @@ class ClockThemeSheet extends StatelessWidget {
             ],
           ],
         ),
-        SizedBox(height: tokens.spacingLg),
+        const SizedBox(height: 24),
         _SheetTitle(label: 'Color Theme', tokens: tokens),
-        SizedBox(height: tokens.spacingSm),
+        const SizedBox(height: 12),
         Builder(
           builder: (context) {
             final options = clockThemeId == ClockThemeId.flip
@@ -112,7 +113,9 @@ class _SheetTitle extends StatelessWidget {
       header: true,
       child: Text(
         label,
-        style: tokens.heading(fontSize: 18).copyWith(color: tokens.section),
+        style: tokens
+            .heading(fontSize: 18)
+            .copyWith(color: PixelThemeSheetStyle.text),
       ),
     );
   }

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'pixel_action_tile.dart';
-import 'pixel_icon.dart';
-import 'pixel_panel.dart';
+import 'pixel_pressable.dart';
+import 'pixel_theme_sheet_style.dart';
 import 'pixel_tokens.dart';
 
 class PixelColorOption extends StatelessWidget {
@@ -34,18 +33,44 @@ class PixelColorOption extends StatelessWidget {
       child: ExcludeSemantics(
         child: ConstrainedBox(
           constraints: BoxConstraints(minWidth: minWidth),
-          child: PixelPanel(
-            padding: EdgeInsets.zero,
-            borderColor: selected ? tokens.textPrimary : null,
-            child: PixelActionTile(
-              label: label,
-              onPressed: onSelected,
-              minHeight: 44,
-              expand: false,
-              leading: _ColorRing(
-                color: _swatchColor,
-                selected: selected,
-                selectedColor: tokens.textPrimary,
+          child: PixelPressable(
+            semanticLabel: label,
+            onPressed: onSelected,
+            builder: (context, state) => PixelThemeOptionFrame(
+              selected: selected,
+              focused: state.focused,
+              hovered: state.hovered,
+              pressed: state.pressed,
+              enabled: state.enabled,
+              focusColor: tokens.focus,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 44),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _ColorRing(
+                        color: _swatchColor,
+                        selected: selected,
+                        selectedColor: PixelThemeSheetStyle.textSelected,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        label,
+                        style: tokens.body(
+                          fontSize: 18,
+                          color: state.enabled
+                              ? PixelThemeSheetStyle.text
+                              : tokens.disabledText,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -83,13 +108,7 @@ class _ColorRing extends StatelessWidget {
         children: [
           CustomPaint(painter: _ColorRingPainter(color)),
           if (selected)
-            Center(
-              child: PixelIcon(
-                kind: PixelIconKind.check,
-                color: selectedColor,
-                size: 18,
-              ),
-            ),
+            Center(child: PixelThemeCheck(color: selectedColor, size: 16)),
         ],
       ),
     );
@@ -103,8 +122,14 @@ class _ColorRingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = color;
-    final unit = size.width / 7;
+    final paint = Paint()
+      ..color = color
+      ..isAntiAlias = false;
+    const unit = 3.0;
+    final origin = Offset(
+      (size.width - unit * 7) / 2,
+      (size.height - unit * 7) / 2,
+    );
     // 方形阶梯组成的空心色环，避免抗锯齿以保留像素感。
     final blocks = <(int, int)>[
       (2, 0),
@@ -126,7 +151,12 @@ class _ColorRingPainter extends CustomPainter {
     ];
     for (final block in blocks) {
       canvas.drawRect(
-        Rect.fromLTWH(block.$1 * unit, block.$2 * unit, unit, unit),
+        Rect.fromLTWH(
+          origin.dx + block.$1 * unit,
+          origin.dy + block.$2 * unit,
+          unit,
+          unit,
+        ),
         paint,
       );
     }

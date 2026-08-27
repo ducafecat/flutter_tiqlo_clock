@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'pixel_action_tile.dart';
-import 'pixel_icon.dart';
-import 'pixel_panel.dart';
+import 'pixel_pressable.dart';
+import 'pixel_theme_sheet_style.dart';
 import 'pixel_tokens.dart';
 
 class PixelSelectionTile extends StatelessWidget {
@@ -28,19 +27,48 @@ class PixelSelectionTile extends StatelessWidget {
       label: label,
       onTap: onSelected,
       child: ExcludeSemantics(
-        child: PixelPanel(
-          padding: EdgeInsets.zero,
-          borderColor: selected ? tokens.textPrimary : null,
-          child: PixelActionTile(
-            label: label,
-            onPressed: onSelected,
-            minHeight: 56,
-            trailing: selected
-                ? PixelIcon(
-                    kind: PixelIconKind.check,
-                    color: tokens.textPrimary,
-                  )
-                : null,
+        child: PixelPressable(
+          semanticLabel: label,
+          onPressed: onSelected,
+          builder: (context, state) => PixelThemeOptionFrame(
+            selected: selected,
+            focused: state.focused,
+            hovered: state.hovered,
+            pressed: state.pressed,
+            enabled: state.enabled,
+            focusColor: tokens.focus,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 8,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: tokens.body(
+                          fontSize: 20,
+                          color: state.enabled
+                              ? selected
+                                    ? PixelThemeSheetStyle.textSelected
+                                    : PixelThemeSheetStyle.text
+                              : tokens.disabledText,
+                        ),
+                      ),
+                    ),
+                    if (selected) ...[
+                      const SizedBox(width: 16),
+                      const PixelThemeCheck(
+                        color: PixelThemeSheetStyle.textSelected,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

@@ -13,7 +13,6 @@ import 'package:flutter_tiqlo_clock/features/about/pages/about_page.dart';
 import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_face.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_more_sheet.dart';
-import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_theme_sheet.dart';
 import 'package:flutter_tiqlo_clock/features/settings/pages/settings_page.dart';
 import 'package:flutter_tiqlo_clock/features/welcome/pages/welcome_page.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -94,35 +93,6 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
     debugDefaultTargetPlatformOverride = null;
-  });
-
-  testWidgets('Theme matches the Android visual baseline', (tester) async {
-    _configureView(tester, const Size(360, 640), 1);
-    await tester.pumpWidget(
-      _goldenApp(
-        key: const ValueKey('theme-golden'),
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: PixelSheet(
-            layout: PixelSheetLayout.theme,
-            child: ClockThemeSheet(
-              clockThemeId: ClockThemeId.flip,
-              flipPaletteId: FlipPaletteId.pureDark,
-              digitalThemeId: DigitalThemeId.digital,
-              onClockThemeSelected: (_) {},
-              onFlipPaletteSelected: (_) {},
-              onDigitalThemeSelected: (_) {},
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.pumpAndSettle();
-    await expectLater(
-      find.byKey(const ValueKey('theme-golden')),
-      matchesGoldenFile('goldens/theme_android_360x640.png'),
-    );
   });
 
   testWidgets('More matches the Android visual baseline', (tester) async {

@@ -13,6 +13,7 @@ import 'package:flutter_tiqlo_clock/clock/prefs_clock_settings_store.dart';
 import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_ui.dart';
 import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_face.dart';
+import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_theme_sheet.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/flip_clock_face.dart';
 import 'package:flutter_tiqlo_clock/main.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -31,6 +32,9 @@ void main() {
     final hudFont = FontLoader('Tiny5')
       ..addFont(rootBundle.load('fonts/Tiny5-Regular.ttf'));
     await hudFont.load();
+    final bodyFont = FontLoader('PixelifySans')
+      ..addFont(rootBundle.load('fonts/PixelifySans-Regular.ttf'));
+    await bodyFont.load();
   });
 
   test(
@@ -359,6 +363,80 @@ void main() {
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
+  });
+
+  testWidgets('Theme sheet matches the reference geometry at 470dp', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(941, 1672);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: PixelTheme.darkTheme,
+        home: const Scaffold(
+          body: Align(
+            alignment: Alignment.bottomCenter,
+            child: PixelSheet(
+              layout: PixelSheetLayout.theme,
+              child: ClockThemeSheet(
+                clockThemeId: ClockThemeId.flip,
+                flipPaletteId: FlipPaletteId.pureDark,
+                digitalThemeId: DigitalThemeId.digital,
+                onClockThemeSelected: _ignoreClockTheme,
+                onFlipPaletteSelected: _ignoreFlipPalette,
+                onDigitalThemeSelected: _ignoreDigitalTheme,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getSize(find.byKey(const ValueKey('pixel-theme-drag-handle'))),
+      const Size(44, 8),
+    );
+
+    final flipRect = tester.getRect(
+      find.byKey(const ValueKey('clock-style-flip')),
+    );
+    final digitalRect = tester.getRect(
+      find.byKey(const ValueKey('clock-style-digital')),
+    );
+    expect(flipRect.left, 28);
+    expect(flipRect.right, 442.5);
+    expect(flipRect.height, 48);
+    expect(digitalRect.height, 48);
+    expect(digitalRect.top - flipRect.bottom, 8);
+
+    final pureDark = tester.getRect(
+      find.byKey(const ValueKey('palette-pureDark')),
+    );
+    final dark = tester.getRect(find.byKey(const ValueKey('palette-dark')));
+    final light = tester.getRect(find.byKey(const ValueKey('palette-light')));
+    final green = tester.getRect(find.byKey(const ValueKey('palette-green')));
+    final blue = tester.getRect(find.byKey(const ValueKey('palette-blue')));
+    final red = tester.getRect(find.byKey(const ValueKey('palette-red')));
+    final orange = tester.getRect(find.byKey(const ValueKey('palette-orange')));
+    final yellow = tester.getRect(find.byKey(const ValueKey('palette-yellow')));
+    final purple = tester.getRect(find.byKey(const ValueKey('palette-purple')));
+    final pink = tester.getRect(find.byKey(const ValueKey('palette-pink')));
+
+    expect(pureDark.top, dark.top);
+    expect(dark.top, light.top);
+    expect(green.top, blue.top);
+    expect(blue.top, red.top);
+    expect(orange.top, yellow.top);
+    expect(yellow.top, purple.top);
+    expect(green.top, greaterThan(pureDark.bottom));
+    expect(orange.top, greaterThan(green.bottom));
+    expect(pink.top, greaterThan(orange.bottom));
+    expect(pink.left, pureDark.left);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('Flip face completes its animation in 600ms', (tester) async {
@@ -869,3 +947,9 @@ void main() {
     );
   });
 }
+
+void _ignoreClockTheme(ClockThemeId _) {}
+
+void _ignoreFlipPalette(FlipPaletteId _) {}
+
+void _ignoreDigitalTheme(DigitalThemeId _) {}

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'pixel_icon.dart';
 import 'pixel_panel.dart';
+import 'pixel_theme_sheet_style.dart';
 import 'pixel_tokens.dart';
 
 enum PixelSheetLayout { theme, content }
@@ -87,6 +88,67 @@ class _PixelSheetState extends State<PixelSheet> {
         : 1.0;
     final width = compact ? media.size.width : 720.0;
 
+    final sheetContent = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ExcludeSemantics(
+          child: SizedBox(
+            height: widget.layout == PixelSheetLayout.theme
+                ? PixelThemeSheetStyle.headerHeight
+                : null,
+            child: Center(
+              child: widget.layout == PixelSheetLayout.theme
+                  ? const PixelThemeDragHandle()
+                  : Padding(
+                      padding: EdgeInsets.symmetric(vertical: tokens.spacingSm),
+                      child: PixelIcon(
+                        kind: PixelIconKind.dragHandle,
+                        color: tokens.outline,
+                        size: 32,
+                      ),
+                    ),
+            ),
+          ),
+        ),
+        Flexible(
+          child: SingleChildScrollView(
+            key: const ValueKey('pixel-sheet-scroll'),
+            padding: EdgeInsets.fromLTRB(
+              widget.layout == PixelSheetLayout.theme
+                  ? PixelThemeSheetStyle.contentInset
+                  : tokens.spacingMd,
+              0,
+              widget.layout == PixelSheetLayout.theme
+                  ? PixelThemeSheetStyle.contentInset
+                  : tokens.spacingMd,
+              widget.layout == PixelSheetLayout.theme
+                  ? PixelThemeSheetStyle.bottomInset
+                  : tokens.spacingLg,
+            ),
+            child: widget.child,
+          ),
+        ),
+      ],
+    );
+
+    final framedSheet = widget.layout == PixelSheetLayout.theme
+        ? Padding(
+            padding: const EdgeInsets.fromLTRB(
+              PixelThemeSheetStyle.sheetInset,
+              0,
+              PixelThemeSheetStyle.sheetInset,
+              PixelThemeSheetStyle.sheetInset,
+            ),
+            child: PixelThemeSheetFrame(child: sheetContent),
+          )
+        : PixelPanel(
+            color: tokens.chrome,
+            cutSize: 16,
+            shadowOffset: 0,
+            padding: EdgeInsets.zero,
+            child: sheetContent,
+          );
+
     return FocusScope.withExternalFocusNode(
       focusScopeNode: _focusScope,
       child: Focus(
@@ -99,39 +161,7 @@ class _PixelSheetState extends State<PixelSheet> {
             constraints: BoxConstraints(
               maxHeight: media.size.height * maxHeightFactor,
             ),
-            child: PixelPanel(
-              color: tokens.chrome,
-              cutSize: 16,
-              shadowOffset: 0,
-              padding: EdgeInsets.zero,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ExcludeSemantics(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: tokens.spacingSm),
-                      child: PixelIcon(
-                        kind: PixelIconKind.dragHandle,
-                        color: tokens.outline,
-                        size: 32,
-                      ),
-                    ),
-                  ),
-                  Flexible(
-                    child: SingleChildScrollView(
-                      key: const ValueKey('pixel-sheet-scroll'),
-                      padding: EdgeInsets.fromLTRB(
-                        tokens.spacingMd,
-                        0,
-                        tokens.spacingMd,
-                        tokens.spacingLg,
-                      ),
-                      child: widget.child,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            child: framedSheet,
           ),
         ),
       ),
