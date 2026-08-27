@@ -135,6 +135,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Version 1.0.0'), findsOneWidget);
+    expect(find.text('Build 1'), findsOneWidget);
+    expect(find.text('ducafecat'), findsOneWidget);
+    expect(find.text('https://ducafecat.com'), findsOneWidget);
+    expect(find.text('https://tiqlo.link'), findsOneWidget);
+    expect(
+      find.text('https://github.com/ducafecat/flutter_tiqlo_clock'),
+      findsOneWidget,
+    );
     expect(find.byType(PixelPanel), findsWidgets);
 
     await tester.tap(find.bySemanticsLabel('Back'));
@@ -159,7 +167,7 @@ void main() {
     await tester.tap(find.text('About'));
     await tester.pumpAndSettle();
 
-    final panel = tester.getRect(find.byType(PixelPanel));
+    final panel = tester.getRect(find.byType(PixelPanel).first);
     expect(panel.left, lessThan(30));
     expect(panel.right, greaterThan(1970));
 

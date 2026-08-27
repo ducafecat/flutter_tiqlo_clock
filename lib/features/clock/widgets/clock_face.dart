@@ -103,7 +103,7 @@ class _SessionFace extends StatelessWidget {
                     style: TextStyle(
                       color: digitColor,
                       fontFamily: themeId == ClockThemeId.digital
-                          ? 'DSEG7Classic'
+                          ? 'Handjet'
                           : 'Jersey25',
                       fontSize: timeSize,
                       fontWeight: themeId == ClockThemeId.digital
@@ -203,7 +203,7 @@ class DigitalClockFace extends StatelessWidget {
                       key: const ValueKey('digital-time'),
                       style: TextStyle(
                         color: theme.digit,
-                        fontFamily: 'DSEG7Classic',
+                        fontFamily: 'Handjet',
                         fontSize: fontSize,
                         fontWeight: FontWeight.w700,
                         height: 1,

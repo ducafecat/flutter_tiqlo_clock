@@ -52,6 +52,9 @@ dependencies:
   # 桌面端与 Web 全屏
   flutter_fullscreen: ^1.2.0
 
+  # 外部链接
+  url_launcher: ^6.3.2
+
   # 启动屏幕
   flutter_native_splash: ^2.4.8
 
@@ -80,10 +83,6 @@ flutter:
   assets:
     - assets/images/
   fonts:
-    - family: Silkscreen
-      fonts:
-        - asset: fonts/Silkscreen-Bold.ttf
-          weight: 700
     - family: PixelifySans
       fonts:
         - asset: fonts/PixelifySans-Regular.ttf
@@ -98,13 +97,11 @@ flutter:
       fonts:
         - asset: fonts/Jersey25-Regular.ttf
           weight: 400
-    - family: FlipClock
+    - family: Handjet
       fonts:
-        - asset: fonts/RobotoCondensed-Bold.ttf
-          weight: 700
-    - family: DSEG7Classic
-      fonts:
-        - asset: fonts/DSEG7Classic-Bold.ttf
+        - asset: fonts/Handjet.ttf
+          weight: 400
+        - asset: fonts/Handjet.ttf
           weight: 700
 
 icons_launcher:

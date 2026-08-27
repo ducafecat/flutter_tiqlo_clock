@@ -154,7 +154,7 @@ class PixelTokens extends ThemeExtension<PixelTokens> {
   );
 
   TextStyle digitalDisplay({double fontSize = 64, Color? color}) => TextStyle(
-    fontFamily: 'DSEG7Classic',
+    fontFamily: 'Handjet',
     fontFamilyFallback: _systemFallback,
     fontSize: fontSize,
     fontWeight: FontWeight.w700,

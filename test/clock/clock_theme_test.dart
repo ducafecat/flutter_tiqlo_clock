@@ -189,7 +189,7 @@ void main() {
     expect(find.byType(DigitalClockFace), findsOneWidget);
     expect(
       tester.widget<Text>(find.text('21:38')).style!.fontFamily,
-      'DSEG7Classic',
+      'Handjet',
     );
     expect(
       tester
