@@ -75,19 +75,19 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(WelcomePage), findsOneWidget);
-    expect(find.text('翻页时钟，重新想象'), findsOneWidget);
-    expect(find.byType(PixelButton), findsNWidgets(2));
+    expect(find.text('Flip Clock, Reimagined'), findsOneWidget);
+    expect(find.byType(PixelTextButton), findsNWidgets(2));
     expect(find.byType(PixelPageIndicator), findsOneWidget);
 
-    await tester.tap(find.text('下一步'));
+    await tester.tap(find.text('NEXT'));
     await tester.pumpAndSettle();
-    expect(find.text('一眼，看清时间'), findsOneWidget);
+    expect(find.text('Time at a Glance'), findsOneWidget);
 
-    await tester.tap(find.text('下一步'));
+    await tester.tap(find.text('NEXT'));
     await tester.pumpAndSettle();
-    expect(find.text('少些打扰，多些专注'), findsOneWidget);
+    expect(find.text('Less Noise, More Focus'), findsOneWidget);
 
-    await tester.tap(find.text('开始使用'));
+    await tester.tap(find.text('GET STARTED'));
     await tester.pumpAndSettle();
 
     expect(find.byType(ClockPage), findsOneWidget);
@@ -143,9 +143,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(WelcomePage), findsOneWidget);
-    await tester.tap(find.text('下一步'));
+    await tester.tap(find.text('NEXT'));
     await tester.pump();
-    expect(find.text('一眼，看清时间'), findsOneWidget);
+    expect(find.text('Time at a Glance'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();

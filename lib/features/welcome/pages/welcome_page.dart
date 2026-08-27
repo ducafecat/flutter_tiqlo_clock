@@ -19,18 +19,20 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
   static const _slides = [
     _WelcomeSlide(
       image: AppImages.welcome1Png,
-      title: '翻页时钟，重新想象',
-      description: '极简、专注、优雅。让每一次翻页，\n都成为时间流动的仪式。',
+      title: 'Flip Clock, Reimagined',
+      description:
+          'Minimal. Focused. Beautiful.\nLet every flip mark the moment.',
     ),
     _WelcomeSlide(
       image: AppImages.welcome2Png,
-      title: '一眼，看清时间',
-      description: '醒目的大数字，没有多余干扰。\n轻轻抬眼，时间清晰可见。',
+      title: 'Time at a Glance',
+      description: 'Bold digits. No distractions.\nOne glance is all it takes.',
     ),
     _WelcomeSlide(
       image: AppImages.welcome3Png,
-      title: '少些打扰，多些专注',
-      description: '适合书桌、床头与专注时刻。\n让 Tiqlo 陪你沉浸当下。',
+      title: 'Less Noise, More Focus',
+      description:
+          'Made for your desk, bedside, and focus time.\nStay present with Tiqlo.',
     ),
   ];
 
@@ -123,10 +125,9 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
               children: [
                 Align(
                   alignment: Alignment.centerRight,
-                  child: PixelButton(
+                  child: PixelTextButton(
                     onPressed: _isFinishing ? null : _finish,
-                    label: '跳过',
-                    compact: true,
+                    label: 'SKIP',
                   ),
                 ),
                 const Spacer(),
@@ -156,10 +157,10 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                       currentPage: _currentPage,
                     ),
                     const Spacer(),
-                    PixelButton(
+                    PixelTextButton(
                       onPressed: _isFinishing ? null : _next,
-                      label: _isLastPage ? '开始使用' : '下一步',
-                      tone: PixelButtonTone.primary,
+                      label: _isLastPage ? 'GET STARTED' : 'NEXT',
+                      prominent: true,
                     ),
                   ],
                 ),

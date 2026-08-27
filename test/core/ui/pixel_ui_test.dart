@@ -146,6 +146,38 @@ void main() {
     expect(presses, 1);
   });
 
+  testWidgets('PixelTextButton keeps a 48dp target and invokes its action', (
+    tester,
+  ) async {
+    var presses = 0;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: PixelTheme.darkTheme,
+        home: Scaffold(
+          body: Align(
+            alignment: Alignment.topLeft,
+            child: PixelTextButton(
+              label: 'NEXT',
+              prominent: true,
+              onPressed: () => presses++,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final button = find.bySemanticsLabel('NEXT');
+    expect(button, findsOneWidget);
+    final size = tester.getSize(
+      find.byKey(const ValueKey('pixel-text-button')),
+    );
+    expect(size.width, greaterThanOrEqualTo(48));
+    expect(size.height, 48);
+    await tester.tap(button);
+    expect(presses, 1);
+  });
+
   testWidgets('PixelActionTile exposes one button and invokes its action', (
     tester,
   ) async {

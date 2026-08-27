@@ -11,6 +11,7 @@ export 'pixel_section.dart';
 export 'pixel_selection_tile.dart';
 export 'pixel_sheet.dart';
 export 'pixel_switch.dart';
+export 'pixel_text_button.dart';
 export 'pixel_theme.dart';
 export 'pixel_toolbar.dart';
 export 'pixel_tokens.dart';
