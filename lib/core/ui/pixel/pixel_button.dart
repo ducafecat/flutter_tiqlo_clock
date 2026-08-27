@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'pixel_panel.dart';
 import 'pixel_pressable.dart';
+import 'pixel_theme_sheet_style.dart';
 import 'pixel_tokens.dart';
 
 enum PixelButtonTone { primary, secondary, danger }
@@ -31,7 +32,7 @@ class PixelButton extends StatelessWidget {
     final tokens = PixelTokens.of(context);
     final base = switch (tone) {
       PixelButtonTone.primary => tokens.accent,
-      PixelButtonTone.secondary => tokens.surface,
+      PixelButtonTone.secondary => PixelThemeSheetStyle.optionSurface,
       PixelButtonTone.danger => tokens.danger,
     };
     final foreground = tone == PixelButtonTone.secondary

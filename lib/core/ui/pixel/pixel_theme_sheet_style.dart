@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'pixel_shape.dart';
 
-/// Theme 弹层专用视觉常量。
+/// 以 Theme 参考稿定稿的 Pixel 组件视觉常量。
 ///
-/// 这些颜色与几何只服务于 Theme 参考稿，避免改变其他 Pixel UI 页面。
+/// 底部弹层和选择/操作控件共享这些颜色与几何，业务页面不再自行复制。
 abstract final class PixelThemeSheetStyle {
   static const panelShadow = Color(0xFF050505);
   static const panelFrame = Color(0xFF0B0C0B);

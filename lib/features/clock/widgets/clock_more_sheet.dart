@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/ui/pixel/pixel_ui.dart';
+import '../../../core/ui/pixel/pixel_theme_sheet_style.dart';
 
 class ClockMoreSheet extends StatelessWidget {
   const ClockMoreSheet({
@@ -19,22 +20,31 @@ class ClockMoreSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = PixelTokens.of(context);
-    return PixelPanel(
-      padding: EdgeInsets.zero,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          PixelSwitch(
-            label: 'Night Mode',
-            value: nightMode,
-            onChanged: onNightModeChanged,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        PixelThemeOptionFrame(
+          selected: false,
+          focused: false,
+          hovered: false,
+          pressed: false,
+          enabled: true,
+          focusColor: tokens.focus,
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: PixelSwitch(
+              label: 'Night Mode',
+              value: nightMode,
+              onChanged: onNightModeChanged,
+              compact: true,
+            ),
           ),
-          Container(height: 1, color: tokens.outline),
-          PixelActionTile(label: 'Settings', onPressed: onSettings),
-          Container(height: 1, color: tokens.outline),
-          PixelActionTile(label: 'About', onPressed: onAbout),
-        ],
-      ),
+        ),
+        SizedBox(height: tokens.spacingSm),
+        PixelActionTile(label: 'Settings', onPressed: onSettings),
+        SizedBox(height: tokens.spacingSm),
+        PixelActionTile(label: 'About', onPressed: onAbout),
+      ],
     );
   }
 }

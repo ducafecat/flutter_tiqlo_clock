@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_ui.dart';
+import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_theme_sheet_style.dart';
 
 void main() {
   testWidgets('PixelSwitch exposes one toggleable semantic node', (
@@ -59,6 +60,33 @@ void main() {
       ),
     );
 
+    expect(
+      tester.getSize(find.byKey(const ValueKey('pixel-switch-control'))),
+      const Size(64, 40),
+    );
+  });
+
+  testWidgets('PixelSwitch compact mode aligns with sheet action rows', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: PixelTheme.darkTheme,
+        home: const Scaffold(
+          body: Align(
+            alignment: Alignment.topLeft,
+            child: PixelSwitch(
+              label: 'Night Mode',
+              value: false,
+              onChanged: null,
+              compact: true,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.getSize(find.byType(PixelSwitch)).height, 48);
     expect(
       tester.getSize(find.byKey(const ValueKey('pixel-switch-control'))),
       const Size(64, 40),
@@ -332,6 +360,40 @@ void main() {
 
     expect(find.text('Sheet content'), findsNothing);
     expect(triggerFocus.hasFocus, isTrue);
+  });
+
+  testWidgets('all PixelSheet layouts share the Theme chrome', (tester) async {
+    Future<void> pumpSheet(PixelSheetLayout layout) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: PixelTheme.darkTheme,
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: PixelSheet(
+                layout: layout,
+                child: const SizedBox(height: 80, child: Text('Content')),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    await pumpSheet(PixelSheetLayout.content);
+    expect(find.byType(PixelThemeSheetFrame), findsOneWidget);
+    expect(
+      tester.getSize(find.byKey(const ValueKey('pixel-theme-drag-handle'))),
+      const Size(44, 8),
+    );
+
+    await pumpSheet(PixelSheetLayout.theme);
+    expect(find.byType(PixelThemeSheetFrame), findsOneWidget);
+    expect(
+      tester.getSize(find.byKey(const ValueKey('pixel-theme-drag-handle'))),
+      const Size(44, 8),
+    );
   });
 
   testWidgets('PixelSheet closes from the barrier and a downward drag', (

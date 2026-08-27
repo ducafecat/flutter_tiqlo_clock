@@ -10,11 +10,13 @@ class PixelSwitch extends StatefulWidget {
     required this.label,
     required this.value,
     required this.onChanged,
+    this.compact = false,
   });
 
   final String label;
   final bool value;
   final ValueChanged<bool>? onChanged;
+  final bool compact;
 
   @override
   State<PixelSwitch> createState() => _PixelSwitchState();
@@ -66,8 +68,14 @@ class _PixelSwitchState extends State<PixelSwitch> {
             child: AnimatedContainer(
               duration: motionDuration,
               curve: const _StepsTwoEnd(),
-              constraints: const BoxConstraints(minHeight: 63, minWidth: 48),
-              padding: const EdgeInsets.symmetric(horizontal: 19, vertical: 12),
+              constraints: BoxConstraints(
+                minHeight: widget.compact ? 48 : 63,
+                minWidth: 48,
+              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: widget.compact ? 18 : 19,
+                vertical: widget.compact ? 4 : 12,
+              ),
               decoration: BoxDecoration(
                 color: _pressed
                     ? const Color(0xFF302C27)
@@ -94,7 +102,10 @@ class _PixelSwitchState extends State<PixelSwitch> {
                     child: Text(
                       widget.label,
                       style: tokens
-                          .body(fontSize: 22, color: foreground)
+                          .body(
+                            fontSize: widget.compact ? 20 : 22,
+                            color: foreground,
+                          )
                           .copyWith(height: 1.25),
                     ),
                   ),
