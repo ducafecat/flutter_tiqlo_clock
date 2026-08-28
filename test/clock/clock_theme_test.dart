@@ -321,6 +321,43 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('Flip clock keeps equal landscape viewport margins', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(634, 300);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const snapshot = ClockSnapshot(
+      hour: 22,
+      minute: 48,
+      dateLabel: 'MON · AUG 24',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: FlipClockFace(
+            snapshot: snapshot,
+            landscape: true,
+            palette: FlipPaletteId.pureDark.palette,
+          ),
+        ),
+      ),
+    );
+
+    final cards = find.byKey(const ValueKey('flip-card-stack'));
+    final firstCard = tester.getRect(cards.first);
+    final secondCard = tester.getRect(cards.at(1));
+
+    expect(firstCard.top, greaterThanOrEqualTo(24));
+    expect(secondCard.top, greaterThanOrEqualTo(24));
+    expect(firstCard.bottom, lessThanOrEqualTo(300 - 24));
+    expect(secondCard.bottom, lessThanOrEqualTo(300 - 24));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('Digital theme colors time, period, and date independently', (
     tester,
   ) async {

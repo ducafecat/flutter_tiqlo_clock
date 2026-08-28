@@ -80,7 +80,7 @@ class FlipClockFace extends StatelessWidget {
               // Keep the flip frame and its axles from touching the viewport
               // edges on wide displays, while retaining the full portrait
               // reference layout.
-              padding: EdgeInsets.symmetric(horizontal: landscape ? 24 : 0),
+              padding: EdgeInsets.all(landscape ? 24 : 0),
               child: SizedBox.expand(
                 // FittedBox must receive the full, tight viewport constraints.
                 // Wrapping it in Center loosens those constraints, causing the
