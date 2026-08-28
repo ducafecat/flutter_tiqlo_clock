@@ -1,7 +1,7 @@
-<h1 align="center">Tiqlo — Flutter Flip Clock &amp; Focus Timer</h1>
+<h1 align="center">Tiqlo — Flutter Pixel Flip Clock &amp; Focus Timer</h1>
 
 <p align="center">
-  A minimal open-source Flutter flip clock, digital clock, focus timer, and countdown app for mobile, desktop, and web.
+  A distinctive open-source pixel-style clock with Flip, Digital, Focus, and Timer modes for mobile, desktop, and Web.
 </p>
 
 <p align="center">
@@ -25,18 +25,18 @@
 
 ---
 
-Tiqlo is an open-source Flutter clock app for mobile, desktop, and Web. Use it as a full-screen flip clock or digital desk clock, or start a built-in Focus or Timer countdown when you need to concentrate.
-Its responsive Minimal Pixel UI combines crisp pixel typography, stepped geometry, hard-edged outlines, and a restrained dark palette, keeping the time clear from across a room in portrait or landscape mode.
+Tiqlo is an open-source Flutter clock app for mobile, desktop, and Web. What sets it apart from ordinary clock apps is a cohesive pixel-style visual system—not merely a pixel font. From the Flip and Digital clock faces to every panel, button, outline, and shadow, the entire experience is built around crisp pixel geometry.
+Use it as a full-screen desk clock, or start a built-in Focus or Timer countdown when you need to concentrate. Its responsive design keeps the time clear from across a room in portrait or landscape mode.
 
 ## Try Tiqlo Online
 
 Open the [Tiqlo live Web app](https://tiqlo.link/#demo) in your browser—no clone, account, or installation required. Tap the clock to reveal its controls.
 
-## Flutter Flip Clock Features
+## Pixel Clock Features
 
+- A distinctive, end-to-end pixel aesthetic across clock faces, typography, controls, panels, and transitions.
 - Free, ad-free, and open source under the MIT License; no account required.
 - Digital and Flip clock faces, each with its own colour palettes.
-- Minimal Pixel UI with pixel typography, grid-aligned details, and crisp hard-edged controls.
 - Responsive portrait and landscape layouts; full-screen support on Web and desktop.
 - 12/24-hour time, leading zero, seconds, date, and weekday options.
 - Night Mode dims the display and temporarily hides the date and seconds.
@@ -45,12 +45,12 @@ Open the [Tiqlo live Web app](https://tiqlo.link/#demo) in your browser—no clo
 - Configurable keep-awake, sound, and vibration preferences.
 - Settings persist locally across launches.
 
-## Minimal Pixel UI Design
+## Pixel Style Is More Than a Font
 
-- Purpose-built typography assigns a dedicated pixel font to Flip digits, Digital digits, interface copy, and compact HUD labels.
-- Grid-aligned spacing, staircase-cut corners, crisp outlines, and zero-blur hard shadows create the pixel geometry without rasterising the interface.
+- Four purpose-built pixel fonts give Flip digits, Digital digits, interface copy, and compact HUD labels their own visual character.
+- Grid-aligned spacing, staircase-cut corners, crisp outlines, and zero-blur hard shadows carry the pixel language through every component—not just the clock face.
 - A restrained dark palette and high-contrast clock faces keep time readable from across a room.
-- Dynamic Flutter widgets preserve responsive layouts, accessible touch targets, keyboard focus states, and smooth Flip transitions across screen sizes.
+- Dynamic Flutter widgets preserve responsive layouts, accessible touch targets, keyboard focus states, and smooth Flip transitions without rasterising the interface.
 
 ## Run the Flutter Clock App
 
