@@ -5,7 +5,7 @@
 <h1 align="center">Tiqlo — Flutter 翻页时钟与专注计时器</h1>
 
 <p align="center">
-  全屏数字桌面时钟，采用专注、极简的像素界面。
+  面向手机、桌面和 Web 的极简开源 Flutter 翻页时钟、数字时钟、专注计时器与倒计时应用。
 </p>
 
 <p align="center">

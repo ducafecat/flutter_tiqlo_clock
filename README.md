@@ -5,7 +5,7 @@
 <h1 align="center">Tiqlo — Flutter Flip Clock &amp; Focus Timer</h1>
 
 <p align="center">
-  A full-screen digital desk clock with a focused, minimal pixel interface.
+  A minimal open-source Flutter flip clock, digital clock, focus timer, and countdown app for mobile, desktop, and web.
 </p>
 
 <p align="center">
