@@ -1,246 +1,62 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import '../../../clock/clock_engine.dart';
+import '../../../clock/clock_theme.dart';
 import '../../../clock/digital_theme.dart';
 import '../../../clock/flip_palette.dart';
-import '../../../clock/clock_theme.dart';
-import 'flip_clock_face.dart';
+import '../../../core/ui/app/app_ui_style.dart';
+import 'faces/pixel/pixel_clock_face.dart';
+import 'faces/pixel/pixel_digital_clock_face.dart';
+import 'faces/pixel/pixel_flip_clock_face.dart';
+import 'faces/standard/standard_clock_face.dart';
 
+export 'faces/pixel/pixel_digital_clock_face.dart';
+export 'faces/pixel/pixel_flip_clock_face.dart';
+export 'faces/standard/standard_digital_clock_face.dart';
+export 'faces/standard/standard_flip_clock_face.dart';
+
+/// Clock 表盘的唯一 seam。具体布局、绘制和动画完全留在各自 adapter 内。
 class ClockFace extends StatelessWidget {
   const ClockFace({
     super.key,
+    required this.style,
     required this.themeId,
-    required this.digitalTheme,
-    required this.flipPalette,
+    required this.digitalThemeId,
+    required this.flipPaletteId,
     required this.snapshot,
     required this.landscape,
   });
 
+  final AppUiStyle style;
   final ClockThemeId themeId;
-  final DigitalTheme digitalTheme;
-  final FlipPalette flipPalette;
+  final DigitalThemeId digitalThemeId;
+  final FlipPaletteId flipPaletteId;
   final ClockSnapshot snapshot;
   final bool landscape;
 
   @override
   Widget build(BuildContext context) {
-    final session = snapshot.session;
-    if (session != null) {
-      return _SessionFace(
-        session: session,
-        landscape: landscape,
+    return switch (style) {
+      AppUiStyle.pixel => PixelClockFace(
+        key: const ValueKey('pixel-clock-face'),
         themeId: themeId,
-        digitalTheme: digitalTheme,
-        flipPalette: flipPalette,
-      );
-    }
-    return switch (themeId) {
-      ClockThemeId.flip => FlipClockFace(
+        digitalThemeId: digitalThemeId,
+        flipPaletteId: flipPaletteId,
         snapshot: snapshot,
         landscape: landscape,
-        palette: flipPalette,
       ),
-      ClockThemeId.digital => DigitalClockFace(
+      AppUiStyle.standard => StandardClockFace(
+        key: const ValueKey('standard-clock-face'),
+        themeId: themeId,
+        digitalThemeId: digitalThemeId,
+        flipPaletteId: flipPaletteId,
         snapshot: snapshot,
         landscape: landscape,
-        theme: digitalTheme,
       ),
     };
   }
 }
 
-class _SessionFace extends StatelessWidget {
-  const _SessionFace({
-    required this.session,
-    required this.landscape,
-    required this.themeId,
-    required this.digitalTheme,
-    required this.flipPalette,
-  });
-
-  final SessionSnapshot session;
-  final bool landscape;
-  final ClockThemeId themeId;
-  final DigitalTheme digitalTheme;
-  final FlipPalette flipPalette;
-
-  @override
-  Widget build(BuildContext context) {
-    final digitColor = themeId == ClockThemeId.flip
-        ? flipPalette.digit
-        : digitalTheme.digit;
-    final secondaryColor = themeId == ClockThemeId.flip
-        ? flipPalette.digit.withValues(alpha: 0.7)
-        : digitalTheme.secondary;
-    final timeSize = switch (themeId) {
-      ClockThemeId.digital => landscape ? 136.0 : 88.0,
-      ClockThemeId.flip => landscape ? 120.0 : 72.0,
-    };
-    final complete = session.status == SessionStatus.complete;
-    final paused = session.status == SessionStatus.paused;
-    final primaryLabel = complete ? 'COMPLETE' : session.remainingLabel;
-    final semanticLabel = [
-      primaryLabel,
-      session.kindLabel,
-      if (paused) 'PAUSED',
-      if (complete) '${session.duration.inMinutes} min',
-    ].join(', ');
-
-    return Semantics(
-      container: true,
-      label: semanticLabel,
-      child: ExcludeSemantics(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-          child: SizedBox.expand(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    primaryLabel,
-                    key: const ValueKey('session-primary-label'),
-                    style: TextStyle(
-                      color: digitColor,
-                      fontFamily: themeId == ClockThemeId.digital
-                          ? 'DotGothic16'
-                          : 'Jersey25',
-                      fontSize: timeSize,
-                      fontWeight: themeId == ClockThemeId.digital
-                          ? FontWeight.w400
-                          : FontWeight.w400,
-                      letterSpacing: 2,
-                    ),
-                  ),
-                  if (complete) ...[
-                    const SizedBox(height: 16),
-                    Text(
-                      '${session.duration.inMinutes} min',
-                      style: TextStyle(
-                        color: secondaryColor,
-                        fontFamily: 'PixelifySans',
-                        fontSize: 18,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 16),
-                  Wrap(
-                    alignment: WrapAlignment.center,
-                    spacing: 16,
-                    runSpacing: 8,
-                    children: [
-                      Text(
-                        session.kindLabel,
-                        style: TextStyle(
-                          color: secondaryColor,
-                          fontFamily: 'Tiny5',
-                          fontSize: 18,
-                          letterSpacing: 2,
-                        ),
-                      ),
-                      if (paused)
-                        Text(
-                          'PAUSED',
-                          style: TextStyle(
-                            color: secondaryColor,
-                            fontFamily: 'Tiny5',
-                            fontSize: 18,
-                            letterSpacing: 2,
-                          ),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class DigitalClockFace extends StatelessWidget {
-  const DigitalClockFace({
-    super.key,
-    required this.snapshot,
-    required this.landscape,
-    required this.theme,
-  });
-
-  final ClockSnapshot snapshot;
-  final bool landscape;
-  final DigitalTheme theme;
-
-  @override
-  Widget build(BuildContext context) {
-    final time = [
-      snapshot.displayHour,
-      snapshot.displayMinute,
-      if (snapshot.showSeconds) snapshot.displaySecond,
-    ].join(':');
-    final fontSize = landscape ? 180.0 : 132.0;
-
-    return Semantics(
-      container: true,
-      label: snapshot.timeLabel,
-      child: ExcludeSemantics(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-          child: SizedBox.expand(
-            child: FittedBox(
-              fit: BoxFit.contain,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Transform.translate(
-                    key: const ValueKey('digital-time-optical-offset'),
-                    // DotGothic16 remains centered without an optical offset.
-                    offset: Offset.zero,
-                    child: Text(
-                      time,
-                      key: const ValueKey('digital-time'),
-                      style: TextStyle(
-                        color: theme.digit,
-                        fontFamily: 'DotGothic16',
-                        fontSize: fontSize,
-                        fontWeight: FontWeight.w400,
-                        height: 1,
-                      ),
-                    ),
-                  ),
-                  if (snapshot.period != null) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      snapshot.period!,
-                      style: TextStyle(
-                        color: theme.secondary,
-                        fontFamily: 'Tiny5',
-                        fontSize: 24,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 3,
-                      ),
-                    ),
-                  ],
-                  if (snapshot.showDate) ...[
-                    const SizedBox(height: 16),
-                    Text(
-                      snapshot.dateLabel,
-                      style: TextStyle(
-                        color: theme.secondary,
-                        fontFamily: 'PixelifySans',
-                        fontSize: 18,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// 兼容现有调用方；新测试应直接使用明确的 Pixel 类型。
+typedef FlipClockFace = PixelFlipClockFace;
+typedef DigitalClockFace = PixelDigitalClockFace;

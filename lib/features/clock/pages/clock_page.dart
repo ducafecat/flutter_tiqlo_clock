@@ -9,6 +9,7 @@ import '../../../clock/digital_theme.dart';
 import '../../../clock/flip_palette.dart';
 import '../../../clock/clock_providers.dart';
 import '../../../clock/clock_theme.dart';
+import '../../../core/providers/app_appearance_provider.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/ui/clock_full_screen.dart';
 import '../../../core/ui/ui.dart';
@@ -93,70 +94,24 @@ class _ClockPageState extends ConsumerState<ClockPage> {
 
   void _openClockTheme() {
     _hideChromeTimer?.cancel();
-    PixelSheet.show<void>(
+    AppSheet.show<void>(
       context: context,
       restoreFocus: _themeFocusNode,
-      layout: PixelSheetLayout.theme,
-      builder: (sheetContext) => StatefulBuilder(
-        builder: (context, setSheetState) {
-          final engine = ref.read(clockEngineProvider);
-          bool sheetIsMounted() => mounted && sheetContext.mounted;
-          return ClockThemeSheet(
-            clockThemeId: engine.clockThemeId,
-            flipPaletteId: engine.flipPaletteId,
-            digitalThemeId: engine.digitalThemeId,
-            onClockThemeSelected: (id) async {
-              await engine.setClockTheme(id);
-              _refreshThemeSheet(sheetIsMounted, setSheetState);
-            },
-            onFlipPaletteSelected: (id) async {
-              await engine.setFlipPalette(id);
-              _refreshThemeSheet(sheetIsMounted, setSheetState);
-            },
-            onDigitalThemeSelected: (id) async {
-              await engine.setDigitalTheme(id);
-              _refreshThemeSheet(sheetIsMounted, setSheetState);
-            },
-          );
-        },
-      ),
+      layout: AppSheetLayout.theme,
+      builder: (_) => const _ClockThemeSheetHost(),
     ).whenComplete(() {
       if (mounted) _showChrome();
     });
   }
 
-  void _refreshThemeSheet(
-    bool Function() sheetIsMounted,
-    StateSetter setSheetState,
-  ) {
-    if (!sheetIsMounted()) return;
-    ref.invalidate(clockSnapshotProvider);
-    setState(() {});
-    setSheetState(() {});
-  }
-
   void _openMore() {
     _hideChromeTimer?.cancel();
-    PixelSheet.show<void>(
+    AppSheet.show<void>(
       context: context,
       restoreFocus: _moreFocusNode,
-      builder: (sheetContext) => StatefulBuilder(
-        builder: (context, setSheetState) {
-          final engine = ref.read(clockEngineProvider);
-          return ClockMoreSheet(
-            nightMode: engine.nightMode,
-            onNightModeChanged: (value) async {
-              await engine.setNightMode(value);
-              if (!mounted || !sheetContext.mounted) return;
-              ref.invalidate(clockSnapshotProvider);
-              setSheetState(() {});
-              setState(() {});
-            },
-            onSettings: () =>
-                _openRouteFromSheet(sheetContext, AppRoutes.settings),
-            onAbout: () => _openRouteFromSheet(sheetContext, AppRoutes.about),
-          );
-        },
+      builder: (sheetContext) => _ClockMoreSheetHost(
+        onSettings: () => _openRouteFromSheet(sheetContext, AppRoutes.settings),
+        onAbout: () => _openRouteFromSheet(sheetContext, AppRoutes.about),
       ),
     ).whenComplete(() {
       if (mounted) _showChrome();
@@ -170,7 +125,8 @@ class _ClockPageState extends ConsumerState<ClockPage> {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = PixelTokens.of(context);
+    final ui = AppUiTheme.of(context);
+    final style = ref.watch(appUiStyleProvider);
     final snapshot = ref.watch(clockSnapshotProvider);
     ref.listen(clockSnapshotProvider, (previous, next) {
       _platformCoordinator.handleSnapshotChange(previous, next);
@@ -195,7 +151,7 @@ class _ClockPageState extends ConsumerState<ClockPage> {
         child: Padding(
           key: const ValueKey('clock-safe-content'),
           padding: EdgeInsets.symmetric(
-            horizontal: landscape ? tokens.spacingSm + tokens.spacingXs : 0,
+            horizontal: landscape ? ui.spacingSm + ui.spacingXs : 0,
           ),
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
@@ -203,9 +159,10 @@ class _ClockPageState extends ConsumerState<ClockPage> {
             child: Stack(
               children: [
                 ClockFace(
+                  style: style,
                   themeId: themeId,
-                  digitalTheme: digitalTheme,
-                  flipPalette: flipPalette,
+                  digitalThemeId: engine.digitalThemeId,
+                  flipPaletteId: engine.flipPaletteId,
                   snapshot: snapshot,
                   landscape: landscape,
                 ),
@@ -214,9 +171,9 @@ class _ClockPageState extends ConsumerState<ClockPage> {
                     alignment: Alignment.bottomCenter,
                     child: Padding(
                       padding: EdgeInsets.only(
-                        bottom: tokens.spacingSm + tokens.spacingXs,
+                        bottom: ui.spacingSm + ui.spacingXs,
                       ),
-                      child: PixelToolbar(
+                      child: AppToolbar(
                         key: const ValueKey('clock-chrome'),
                         actions: chromeActions,
                       ),
@@ -230,22 +187,22 @@ class _ClockPageState extends ConsumerState<ClockPage> {
     );
   }
 
-  List<PixelToolbarAction> _chromeActions(ClockSnapshot snapshot) {
+  List<AppToolbarAction> _chromeActions(ClockSnapshot snapshot) {
     final session = snapshot.session;
     final fullScreenButton = ClockFullScreen.isSupported
-        ? PixelToolbarAction(
+        ? AppToolbarAction(
             label: _isFullScreen ? 'Exit Fullscreen' : 'Fullscreen',
             onPressed: _toggleFullScreen,
           )
         : null;
     if (session == null) {
       return [
-        PixelToolbarAction(
+        AppToolbarAction(
           label: 'Theme',
           focusNode: _themeFocusNode,
           onPressed: _openClockTheme,
         ),
-        PixelToolbarAction(
+        AppToolbarAction(
           label: 'More',
           focusNode: _moreFocusNode,
           onPressed: _openMore,
@@ -255,7 +212,7 @@ class _ClockPageState extends ConsumerState<ClockPage> {
     }
     if (session.status == SessionStatus.complete) {
       return [
-        PixelToolbarAction(
+        AppToolbarAction(
           label: 'Done',
           onPressed: () {
             ref.read(clockEngineProvider).acknowledgeComplete();
@@ -267,7 +224,7 @@ class _ClockPageState extends ConsumerState<ClockPage> {
       ];
     }
     return [
-      PixelToolbarAction(
+      AppToolbarAction(
         label: session.status == SessionStatus.paused ? 'Resume' : 'Pause',
         onPressed: () {
           final engine = ref.read(clockEngineProvider);
@@ -280,9 +237,9 @@ class _ClockPageState extends ConsumerState<ClockPage> {
           _showChrome();
         },
       ),
-      PixelToolbarAction(
+      AppToolbarAction(
         label: 'Stop',
-        tone: PixelButtonTone.danger,
+        tone: AppButtonTone.danger,
         onPressed: () {
           ref.read(clockEngineProvider).stop();
           ref.read(sessionAlertsProvider).cancel();
@@ -292,5 +249,83 @@ class _ClockPageState extends ConsumerState<ClockPage> {
       ),
       ?fullScreenButton,
     ];
+  }
+}
+
+class _ClockThemeSheetHost extends ConsumerStatefulWidget {
+  const _ClockThemeSheetHost();
+
+  @override
+  ConsumerState<_ClockThemeSheetHost> createState() =>
+      _ClockThemeSheetHostState();
+}
+
+class _ClockThemeSheetHostState extends ConsumerState<_ClockThemeSheetHost> {
+  Future<void> _update(Future<void> Function(ClockEngine engine) update) async {
+    await update(ref.read(clockEngineProvider));
+    if (!mounted) return;
+    ref.invalidate(clockSnapshotProvider);
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final engine = ref.read(clockEngineProvider);
+    return ClockThemeSheet(
+      clockThemeId: engine.clockThemeId,
+      flipPaletteId: engine.flipPaletteId,
+      digitalThemeId: engine.digitalThemeId,
+      onClockThemeSelected: (id) =>
+          _update((engine) => engine.setClockTheme(id)),
+      onFlipPaletteSelected: (id) =>
+          _update((engine) => engine.setFlipPalette(id)),
+      onDigitalThemeSelected: (id) =>
+          _update((engine) => engine.setDigitalTheme(id)),
+    );
+  }
+}
+
+class _ClockMoreSheetHost extends ConsumerStatefulWidget {
+  const _ClockMoreSheetHost({required this.onSettings, required this.onAbout});
+
+  final VoidCallback onSettings;
+  final VoidCallback onAbout;
+
+  @override
+  ConsumerState<_ClockMoreSheetHost> createState() =>
+      _ClockMoreSheetHostState();
+}
+
+class _ClockMoreSheetHostState extends ConsumerState<_ClockMoreSheetHost> {
+  Future<void> _setPixelUiEnabled(bool value) async {
+    try {
+      await ref.read(appUiStyleProvider.notifier).setPixelUiEnabled(value);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to update Pixel UI.')),
+      );
+    }
+  }
+
+  Future<void> _setNightMode(bool value) async {
+    await ref.read(clockEngineProvider).setNightMode(value);
+    if (!mounted) return;
+    ref.invalidate(clockSnapshotProvider);
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final engine = ref.read(clockEngineProvider);
+    final style = ref.watch(appUiStyleProvider);
+    return ClockMoreSheet(
+      pixelUiEnabled: style == AppUiStyle.pixel,
+      onPixelUiChanged: _setPixelUiEnabled,
+      nightMode: engine.nightMode,
+      onNightModeChanged: _setNightMode,
+      onSettings: widget.onSettings,
+      onAbout: widget.onAbout,
+    );
   }
 }

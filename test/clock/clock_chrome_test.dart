@@ -117,7 +117,7 @@ void main() {
     await tester.tap(find.text('More'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(PixelSwitch), findsOneWidget);
+    expect(find.byType(PixelSwitch), findsNWidgets(2));
     expect(find.byType(PixelActionTile), findsNWidgets(2));
     expect(find.byType(SwitchListTile), findsNothing);
     expect(find.byType(ListTile), findsNothing);

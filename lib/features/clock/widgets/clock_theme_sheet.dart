@@ -26,13 +26,16 @@ class ClockThemeSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = PixelTokens.of(context);
+    final ui = AppUiTheme.of(context);
+    final optionGap = ui.isPixel
+        ? PixelThemeSheetStyle.optionGap
+        : ui.spacingSm;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _SheetTitle(label: 'Clock Style', tokens: tokens),
-        SizedBox(height: tokens.spacingSm + tokens.spacingXs),
+        const _SheetTitle(label: 'Clock Style'),
+        SizedBox(height: ui.spacingSm + ui.spacingXs),
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -41,9 +44,8 @@ class ClockThemeSheet extends StatelessWidget {
               index < ClockThemeId.values.length;
               index++
             ) ...[
-              if (index > 0)
-                const SizedBox(height: PixelThemeSheetStyle.optionGap),
-              PixelSelectionTile(
+              if (index > 0) SizedBox(height: optionGap),
+              AppSelectionTile(
                 key: ValueKey('clock-style-${ClockThemeId.values[index].name}'),
                 label: ClockThemeId.values[index].label,
                 selected: clockThemeId == ClockThemeId.values[index],
@@ -53,9 +55,9 @@ class ClockThemeSheet extends StatelessWidget {
             ],
           ],
         ),
-        SizedBox(height: tokens.spacingLg),
-        _SheetTitle(label: 'Color Theme', tokens: tokens),
-        SizedBox(height: tokens.spacingSm + tokens.spacingXs),
+        SizedBox(height: ui.spacingLg),
+        const _SheetTitle(label: 'Color Theme'),
+        SizedBox(height: ui.spacingSm + ui.spacingXs),
         Builder(
           builder: (context) {
             final options = clockThemeId == ClockThemeId.flip
@@ -80,11 +82,11 @@ class ClockThemeSheet extends StatelessWidget {
                       ),
                   ];
             return Wrap(
-              spacing: PixelThemeSheetStyle.optionGap,
-              runSpacing: PixelThemeSheetStyle.optionGap,
+              spacing: optionGap,
+              runSpacing: optionGap,
               children: [
                 for (final option in options)
-                  PixelColorOption(
+                  AppColorOption(
                     key: ValueKey(option.key),
                     label: option.label,
                     colors: option.colors,
@@ -103,20 +105,22 @@ class ClockThemeSheet extends StatelessWidget {
 }
 
 class _SheetTitle extends StatelessWidget {
-  const _SheetTitle({required this.label, required this.tokens});
+  const _SheetTitle({required this.label});
 
   final String label;
-  final PixelTokens tokens;
 
   @override
   Widget build(BuildContext context) {
+    final ui = AppUiTheme.of(context);
     return Semantics(
       header: true,
       child: Text(
         label,
-        style: tokens
+        style: ui
             .heading(fontSize: 18)
-            .copyWith(color: PixelThemeSheetStyle.text),
+            .copyWith(
+              color: ui.isPixel ? PixelThemeSheetStyle.text : ui.textPrimary,
+            ),
       ),
     );
   }

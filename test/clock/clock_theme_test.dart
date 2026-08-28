@@ -11,11 +11,12 @@ import 'package:flutter_tiqlo_clock/clock/clock_providers.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
 import 'package:flutter_tiqlo_clock/clock/prefs_clock_settings_store.dart';
 import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_ui.dart';
+import 'package:flutter_tiqlo_clock/core/ui/app/app_ui_style.dart';
+import 'package:flutter_tiqlo_clock/core/ui/app/app_controls.dart';
 import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_theme_sheet_style.dart';
 import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_face.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_theme_sheet.dart';
-import 'package:flutter_tiqlo_clock/features/clock/widgets/flip_clock_face.dart';
 import 'package:flutter_tiqlo_clock/main.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -79,13 +80,13 @@ void main() {
     await tester.tap(find.text('Theme'));
     await tester.pumpAndSettle();
 
-    final flip = tester.widget<PixelSelectionTile>(
+    final flip = tester.widget<AppSelectionTile>(
       find.byKey(const ValueKey('clock-style-flip')),
     );
-    final digital = tester.widget<PixelSelectionTile>(
+    final digital = tester.widget<AppSelectionTile>(
       find.byKey(const ValueKey('clock-style-digital')),
     );
-    final pureDark = tester.widget<PixelColorOption>(
+    final pureDark = tester.widget<AppColorOption>(
       find.byKey(const ValueKey('palette-pureDark')),
     );
 
@@ -1307,9 +1308,10 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: ClockFace(
+          style: AppUiStyle.pixel,
           themeId: ClockThemeId.digital,
-          digitalTheme: DigitalThemeId.digitalAmber.theme,
-          flipPalette: lightPalette,
+          digitalThemeId: DigitalThemeId.digitalAmber,
+          flipPaletteId: FlipPaletteId.light,
           snapshot: snapshot,
           landscape: false,
         ),
@@ -1328,9 +1330,10 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: ClockFace(
+          style: AppUiStyle.pixel,
           themeId: ClockThemeId.flip,
-          digitalTheme: DigitalThemeId.digitalAmber.theme,
-          flipPalette: lightPalette,
+          digitalThemeId: DigitalThemeId.digitalAmber,
+          flipPaletteId: FlipPaletteId.light,
           snapshot: snapshot,
           landscape: false,
         ),

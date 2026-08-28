@@ -10,6 +10,7 @@ import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
 import 'package:flutter_tiqlo_clock/clock/digital_theme.dart';
 import 'package:flutter_tiqlo_clock/clock/flip_palette.dart';
 import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_ui.dart';
+import 'package:flutter_tiqlo_clock/core/ui/app/app_ui_style.dart';
 import 'package:flutter_tiqlo_clock/features/about/pages/about_page.dart';
 import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_face.dart';
@@ -39,9 +40,10 @@ void main() {
       _goldenApp(
         key: const ValueKey('digital-golden'),
         child: ClockFace(
+          style: AppUiStyle.pixel,
           themeId: ClockThemeId.digital,
-          digitalTheme: DigitalThemeId.digital.theme,
-          flipPalette: FlipPaletteId.pureDark.palette,
+          digitalThemeId: DigitalThemeId.digital,
+          flipPaletteId: FlipPaletteId.pureDark,
           snapshot: const ClockSnapshot(
             hour: 21,
             minute: 38,
@@ -111,6 +113,8 @@ void main() {
           alignment: Alignment.bottomCenter,
           child: PixelSheet(
             child: ClockMoreSheet(
+              pixelUiEnabled: true,
+              onPixelUiChanged: (_) {},
               nightMode: false,
               onNightModeChanged: (_) {},
               onSettings: () {},

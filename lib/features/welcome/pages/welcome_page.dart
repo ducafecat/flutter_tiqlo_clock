@@ -67,8 +67,8 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
       _finish();
       return;
     }
-    final tokens = PixelTokens.of(context);
-    final duration = tokens.motionDuration(context, tokens.welcomePageDuration);
+    final ui = AppUiTheme.of(context);
+    final duration = ui.motionDuration(context, ui.welcomePageDuration);
     if (duration == Duration.zero) {
       _pageController.jumpToPage(_currentPage + 1);
     } else {
@@ -78,13 +78,13 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = PixelTokens.of(context);
-    final contentDuration = tokens.motionDuration(
+    final ui = AppUiTheme.of(context);
+    final contentDuration = ui.motionDuration(
       context,
-      tokens.welcomeContentDuration,
+      ui.welcomeContentDuration,
     );
     return Scaffold(
-      backgroundColor: tokens.background,
+      backgroundColor: ui.background,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -103,10 +103,10 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    tokens.background.withValues(alpha: 0),
-                    tokens.background.withValues(alpha: 0),
-                    tokens.background.withValues(alpha: 0.9),
-                    tokens.background,
+                    ui.background.withValues(alpha: 0),
+                    ui.background.withValues(alpha: 0),
+                    ui.background.withValues(alpha: 0.9),
+                    ui.background,
                   ],
                   stops: [0, 0.5, 0.76, 1],
                 ),
@@ -115,17 +115,17 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
           ),
           SafeArea(
             minimum: EdgeInsets.fromLTRB(
-              tokens.spacingLg,
-              tokens.spacingSm + tokens.spacingXs,
-              tokens.spacingLg,
-              tokens.spacingMd + tokens.spacingXs,
+              ui.spacingLg,
+              ui.spacingSm + ui.spacingXs,
+              ui.spacingLg,
+              ui.spacingMd + ui.spacingXs,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Align(
                   alignment: Alignment.centerRight,
-                  child: PixelTextButton(
+                  child: AppTextButton(
                     onPressed: _isFinishing ? null : _finish,
                     label: 'SKIP',
                   ),
@@ -139,25 +139,25 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     children: [
                       Text(
                         _slides[_currentPage].title,
-                        style: tokens.heading(fontSize: 30),
+                        style: ui.heading(fontSize: 30),
                       ),
-                      SizedBox(height: tokens.spacingSm),
+                      SizedBox(height: ui.spacingSm),
                       Text(
                         _slides[_currentPage].description,
-                        style: tokens.body(color: tokens.textSecondary),
+                        style: ui.body(color: ui.textSecondary),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: tokens.spacingLg),
+                SizedBox(height: ui.spacingLg),
                 Row(
                   children: [
-                    PixelPageIndicator(
+                    AppPageIndicator(
                       pageCount: _slides.length,
                       currentPage: _currentPage,
                     ),
                     const Spacer(),
-                    PixelTextButton(
+                    AppTextButton(
                       onPressed: _isFinishing ? null : _next,
                       label: _isLastPage ? 'GET STARTED' : 'NEXT',
                       prominent: true,

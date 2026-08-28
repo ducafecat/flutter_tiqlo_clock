@@ -82,6 +82,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/images/focus/
   fonts:
     - family: PixelifySans
       fonts:
@@ -101,6 +102,14 @@ flutter:
       fonts:
         - asset: fonts/DotGothic16-Regular.ttf
           weight: 400
+    - family: FlipClock
+      fonts:
+        - asset: fonts/standard/RobotoCondensed-Bold.ttf
+          weight: 700
+    - family: DSEG7Classic
+      fonts:
+        - asset: fonts/standard/DSEG7Classic-Bold.ttf
+          weight: 700
 
 # 图标生成配置
 icons_launcher:

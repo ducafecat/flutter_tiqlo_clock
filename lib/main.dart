@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'clock/clock_providers.dart';
 import 'clock/system_clock.dart';
 import 'core/config/app_config.dart';
+import 'core/providers/app_appearance_provider.dart';
 import 'core/router/app_router.dart';
 import 'core/ui/clock_full_screen.dart';
 import 'core/ui/clock_system_ui.dart';
@@ -61,11 +62,17 @@ class MyApp extends ConsumerWidget {
         showWelcome: welcomeEnabled,
       ),
     );
+    final uiStyle = ref.watch(appUiStyleProvider);
 
     return MaterialApp.router(
       title: AppConfig.appName,
       debugShowCheckedModeBanner: false,
-      theme: PixelTheme.darkTheme,
+      theme: switch (uiStyle) {
+        AppUiStyle.pixel => PixelTheme.darkTheme,
+        AppUiStyle.standard => StandardTheme.darkTheme,
+      },
+      builder: (context, child) =>
+          AppUiScope(style: uiStyle, child: child ?? const SizedBox.shrink()),
       routerConfig: router,
     );
   }

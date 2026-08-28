@@ -37,7 +37,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Widget build(BuildContext context) {
     final engine = ref.watch(clockEngineProvider);
     _keepAwake = engine.keepAwake;
-    return PixelPageScaffold(
+    return AppPageScaffold(
       title: 'Settings',
       onBack: () => AppRoutes.backToClock(context),
       portraitMaxWidth: 426,
@@ -50,7 +50,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   List<Widget> _buildSections(ClockEngine engine) => [
-    PixelSection(
+    AppSection(
       title: 'Time & Date',
       children: [
         _switch(
@@ -80,7 +80,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         ),
       ],
     ),
-    PixelSection(
+    AppSection(
       title: 'Display',
       children: [
         _switch(
@@ -96,7 +96,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         ),
       ],
     ),
-    PixelSection(
+    AppSection(
       title: 'Alerts',
       children: [
         _switch(
@@ -113,12 +113,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     ),
   ];
 
-  PixelSwitch _switch({
+  AppSwitch _switch({
     required String label,
     required bool value,
     required Future<void> Function(bool value) onChanged,
     bool refreshSnapshot = false,
-  }) => PixelSwitch(
+  }) => AppSwitch(
     label: label,
     value: value,
     onChanged: (value) async {

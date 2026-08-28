@@ -1,5 +1,9 @@
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  exclude:
+    - packages/**
+
 plugins:
   riverpod_lint: 3.1.4
 

@@ -57,54 +57,54 @@ class _AboutPageState extends State<AboutPage> {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = PixelTokens.of(context);
-    return PixelPageScaffold(
+    final ui = AppUiTheme.of(context);
+    return AppPageScaffold(
       title: 'About',
       onBack: () => AppRoutes.backToClock(context),
       portraitMaxWidth: 720,
-      builder: (context, layout) => PixelPageList(
+      builder: (context, layout) => AppPageList(
         layout: layout,
         children: [
-          _AppIdentityPanel(tokens: tokens),
-          PixelSection(
+          _AppIdentityPanel(ui: ui),
+          AppSection(
             title: 'Author',
             showDividers: false,
             children: [
-              const PixelInfoRow(label: 'Name', value: 'ducafecat'),
-              PixelLinkTile(
+              const AppInfoRow(label: 'Name', value: 'ducafecat'),
+              AppLinkTile(
                 label: 'Website',
                 value: _authorSite.toString(),
                 onPressed: () => _openLink(_authorSite),
               ),
             ],
           ),
-          PixelSection(
+          AppSection(
             title: 'Tiqlo',
             showDividers: false,
             children: [
-              PixelLinkTile(
+              AppLinkTile(
                 label: 'Official Website',
                 value: _tiqloSite.toString(),
                 onPressed: () => _openLink(_tiqloSite),
               ),
             ],
           ),
-          PixelSection(
+          AppSection(
             title: 'Open Source',
             showDividers: false,
             children: [
-              PixelLinkTile(
+              AppLinkTile(
                 label: 'Source Code',
                 value: _sourceCode.toString(),
                 onPressed: () => _openLink(_sourceCode),
               ),
             ],
           ),
-          const PixelSection(
+          const AppSection(
             title: 'Flutter Packages',
             showDividers: false,
             children: [
-              PixelTextList(
+              AppTextList(
                 values: [
                   'flutter',
                   'cupertino_icons',
@@ -129,15 +129,17 @@ class _AboutPageState extends State<AboutPage> {
               ),
             ],
           ),
-          const PixelSection(
+          const AppSection(
             title: 'Fonts',
             showDividers: false,
             children: [
-              PixelTextList(
+              AppTextList(
                 values: [
                   'DotGothic16 — Digital clock',
+                  'DSEG7 Classic — Standard digital clock',
                   'Jersey 25 — Flip clock',
                   'Pixelify Sans — Interface',
+                  'Roboto Condensed — Standard flip clock',
                   'Tiny5 — Clock HUD',
                 ],
               ),
@@ -150,25 +152,25 @@ class _AboutPageState extends State<AboutPage> {
 }
 
 class _AppIdentityPanel extends StatelessWidget {
-  const _AppIdentityPanel({required this.tokens});
+  const _AppIdentityPanel({required this.ui});
 
-  final PixelTokens tokens;
+  final AppUiTheme ui;
 
   @override
-  Widget build(BuildContext context) => PixelPanel(
+  Widget build(BuildContext context) => AppPanel(
     child: Column(
       children: [
-        Text('Tiqlo', style: tokens.heading(fontSize: 38)),
-        SizedBox(height: tokens.spacingSm + tokens.spacingXs),
+        Text('Tiqlo', style: ui.heading(fontSize: 38)),
+        SizedBox(height: ui.spacingSm + ui.spacingXs),
         Text(
           'Version ${AppConfig.version}',
-          style: tokens.body(fontSize: 18),
+          style: ui.body(fontSize: 18),
           textAlign: TextAlign.center,
         ),
-        SizedBox(height: tokens.spacingXs),
+        SizedBox(height: ui.spacingXs),
         Text(
           'Build ${AppConfig.buildNumber}',
-          style: tokens.body(fontSize: 16, color: tokens.textSecondary),
+          style: ui.body(fontSize: 16, color: ui.textSecondary),
           textAlign: TextAlign.center,
         ),
       ],

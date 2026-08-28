@@ -32,8 +32,8 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     super.didChangeDependencies();
     if (_navigationStarted) return;
     _navigationStarted = true;
-    final tokens = PixelTokens.of(context);
-    _continueToApp(tokens.motionDuration(context, tokens.splashDuration));
+    final ui = AppUiTheme.of(context);
+    _continueToApp(ui.motionDuration(context, ui.splashDuration));
   }
 
   Future<void> _continueToApp(Duration duration) async {
@@ -48,13 +48,13 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = PixelTokens.of(context);
-    final duration = tokens.motionDuration(context, tokens.splashDuration);
+    final ui = AppUiTheme.of(context);
+    final duration = ui.motionDuration(context, ui.splashDuration);
     final splash = SizedBox.expand(
       child: Image.asset(AppImages.splashPng, fit: BoxFit.cover),
     );
     return Scaffold(
-      backgroundColor: tokens.background,
+      backgroundColor: ui.background,
       body: duration == Duration.zero
           ? splash
           : TweenAnimationBuilder<double>(
