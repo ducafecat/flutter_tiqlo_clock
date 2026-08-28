@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="assets/images/3.0x/welcome-2.png" alt="Tiqlo Flutter 翻頁時鐘與極簡像素介面" width="260" />
-</p>
-
 <h1 align="center">Tiqlo — Flutter 翻頁時鐘與專注計時器</h1>
 
 <p align="center">
@@ -9,10 +5,22 @@
 </p>
 
 <p align="center">
-  <a href="https://tiqlo.link/">Tiqlo 產品網站</a> ·
+  <a href="https://flutter.dev/"><img src="https://img.shields.io/badge/Flutter-02569B?style=flat-square&amp;logo=flutter&amp;logoColor=white" alt="使用 Flutter 建立" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/ducafecat/flutter_tiqlo_clock?style=flat-square" alt="MIT 授權條款" /></a>
+  <a href="https://github.com/ducafecat/flutter_tiqlo_clock/stargazers"><img src="https://img.shields.io/github/stars/ducafecat/flutter_tiqlo_clock?style=flat-square&amp;logo=github" alt="GitHub Stars" /></a>
+  <img src="https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-ED780C?style=flat-square" alt="支援 Android、iOS、Web 和桌面平台" />
+</p>
+
+<p align="center">
+  <a href="https://tiqlo.link/#demo">線上體驗</a> ·
+  <a href="https://tiqlo.link/">產品網站</a> ·
   <a href="README.md">English</a> ·
   <a href="README.zh-CN.md">簡體中文</a> ·
   <a href="README.zh-TW.md">繁體中文</a>
+</p>
+
+<p align="center">
+  <img src="docs/github/tiqlo-preview.png" alt="Tiqlo Flutter 翻頁時鐘、數位時鐘與專注計時器介面" width="100%" />
 </p>
 
 ---
@@ -20,16 +28,13 @@
 Tiqlo 是一款面向手機、桌面和 Web 的開源跨平台 Flutter 時鐘應用程式。它既可作為全螢幕翻頁時鐘或數位桌面時鐘，也可在需要集中注意力時啟動內建 Focus 專注計時或 Timer 倒數計時。
 響應式的現代極簡像素 UI 結合清晰的像素字體、階梯幾何、硬邊描邊和克制的深色配色，在橫向和直向畫面中都能保持遠距離可讀性。
 
-<p align="center">
-  <img src="assets/images/3.0x/welcome-1.png" alt="手機上全螢幕顯示的 Tiqlo 翻頁時鐘" width="30%" />
-  <img src="assets/images/3.0x/welcome-2.png" alt="Tiqlo 數位時鐘的清晰像素時間介面" width="30%" />
-  <img src="assets/images/3.0x/welcome-3.png" alt="Tiqlo 全螢幕桌面時鐘" width="30%" />
-</p>
+## 線上體驗 Tiqlo
 
----
+在瀏覽器中開啟 [Tiqlo 線上 Web 應用程式](https://tiqlo.link/#demo)，無需複製程式碼、註冊帳號或安裝軟體。點擊時鐘即可顯示控制項。
 
 ## Flutter 翻頁時鐘功能
 
+- 免費、無廣告，並基於 MIT License 開源；無需帳號。
 - 兩種 Clock 外觀：Digital 與 Flip，可分別選擇配色。
 - 現代極簡像素 UI：像素字體、網格對齊細節與清晰的硬邊控制項。
 - 自適應橫豎螢幕版面；Web 與桌面端支援全螢幕顯示。

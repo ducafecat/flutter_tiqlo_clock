@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="assets/images/3.0x/welcome-2.png" alt="Tiqlo Flutter flip clock with a minimal pixel UI" width="260" />
-</p>
-
 <h1 align="center">Tiqlo — Flutter Flip Clock &amp; Focus Timer</h1>
 
 <p align="center">
@@ -9,10 +5,22 @@
 </p>
 
 <p align="center">
-  <a href="https://tiqlo.link/">Tiqlo Website</a> ·
+  <a href="https://flutter.dev/"><img src="https://img.shields.io/badge/Flutter-02569B?style=flat-square&amp;logo=flutter&amp;logoColor=white" alt="Built with Flutter" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/ducafecat/flutter_tiqlo_clock?style=flat-square" alt="MIT License" /></a>
+  <a href="https://github.com/ducafecat/flutter_tiqlo_clock/stargazers"><img src="https://img.shields.io/github/stars/ducafecat/flutter_tiqlo_clock?style=flat-square&amp;logo=github" alt="GitHub stars" /></a>
+  <img src="https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-ED780C?style=flat-square" alt="Platforms: Android, iOS, Web, and desktop" />
+</p>
+
+<p align="center">
+  <a href="https://tiqlo.link/#demo">Live Demo</a> ·
+  <a href="https://tiqlo.link/">Website</a> ·
   <a href="README.md">English</a> ·
   <a href="README.zh-CN.md">简体中文</a> ·
   <a href="README.zh-TW.md">繁體中文</a>
+</p>
+
+<p align="center">
+  <img src="docs/github/tiqlo-preview.png" alt="Tiqlo Flutter Flip Clock, Digital Clock, and Focus Timer interfaces" width="100%" />
 </p>
 
 ---
@@ -20,16 +28,13 @@
 Tiqlo is an open-source Flutter clock app for mobile, desktop, and Web. Use it as a full-screen flip clock or digital desk clock, or start a built-in Focus or Timer countdown when you need to concentrate.
 Its responsive Minimal Pixel UI combines crisp pixel typography, stepped geometry, hard-edged outlines, and a restrained dark palette, keeping the time clear from across a room in portrait or landscape mode.
 
-<p align="center">
-  <img src="assets/images/3.0x/welcome-1.png" alt="Full-screen Tiqlo flip clock on a phone" width="30%" />
-  <img src="assets/images/3.0x/welcome-2.png" alt="Tiqlo digital clock with a clear pixel time display" width="30%" />
-  <img src="assets/images/3.0x/welcome-3.png" alt="Tiqlo full-screen desktop clock" width="30%" />
-</p>
+## Try Tiqlo Online
 
----
+Open the [Tiqlo live Web app](https://tiqlo.link/#demo) in your browser—no clone, account, or installation required. Tap the clock to reveal its controls.
 
 ## Flutter Flip Clock Features
 
+- Free, ad-free, and open source under the MIT License; no account required.
 - Digital and Flip clock faces, each with its own colour palettes.
 - Minimal Pixel UI with pixel typography, grid-aligned details, and crisp hard-edged controls.
 - Responsive portrait and landscape layouts; full-screen support on Web and desktop.

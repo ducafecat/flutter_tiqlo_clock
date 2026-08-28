@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="assets/images/3.0x/welcome-2.png" alt="Tiqlo Flutter 翻页时钟与极简像素界面" width="260" />
-</p>
-
 <h1 align="center">Tiqlo — Flutter 翻页时钟与专注计时器</h1>
 
 <p align="center">
@@ -9,10 +5,22 @@
 </p>
 
 <p align="center">
-  <a href="https://tiqlo.link/">Tiqlo 产品网站</a> ·
+  <a href="https://flutter.dev/"><img src="https://img.shields.io/badge/Flutter-02569B?style=flat-square&amp;logo=flutter&amp;logoColor=white" alt="使用 Flutter 构建" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/ducafecat/flutter_tiqlo_clock?style=flat-square" alt="MIT 许可证" /></a>
+  <a href="https://github.com/ducafecat/flutter_tiqlo_clock/stargazers"><img src="https://img.shields.io/github/stars/ducafecat/flutter_tiqlo_clock?style=flat-square&amp;logo=github" alt="GitHub Stars" /></a>
+  <img src="https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-ED780C?style=flat-square" alt="支持 Android、iOS、Web 和桌面平台" />
+</p>
+
+<p align="center">
+  <a href="https://tiqlo.link/#demo">在线体验</a> ·
+  <a href="https://tiqlo.link/">产品网站</a> ·
   <a href="README.md">English</a> ·
   <a href="README.zh-CN.md">简体中文</a> ·
   <a href="README.zh-TW.md">繁體中文</a>
+</p>
+
+<p align="center">
+  <img src="docs/github/tiqlo-preview.png" alt="Tiqlo Flutter 翻页时钟、数字时钟与专注计时器界面" width="100%" />
 </p>
 
 ---
@@ -20,16 +28,13 @@
 Tiqlo 是一款面向手机、桌面和 Web 的开源跨平台 Flutter 时钟应用。它既可作为全屏翻页时钟或数字桌面时钟，也可在需要集中注意力时启动内置 Focus 专注计时或 Timer 倒计时。
 响应式的现代极简像素 UI 结合清晰的像素字体、阶梯几何、硬边描边和克制的深色配色，在横屏和竖屏中都能保持远距离可读性。
 
-<p align="center">
-  <img src="assets/images/3.0x/welcome-1.png" alt="手机上全屏显示的 Tiqlo 翻页时钟" width="30%" />
-  <img src="assets/images/3.0x/welcome-2.png" alt="Tiqlo 数字时钟的清晰像素时间界面" width="30%" />
-  <img src="assets/images/3.0x/welcome-3.png" alt="Tiqlo 全屏桌面时钟" width="30%" />
-</p>
+## 在线体验 Tiqlo
 
----
+在浏览器中打开 [Tiqlo 在线 Web 应用](https://tiqlo.link/#demo)，无需克隆代码、注册账号或安装软件。点击时钟即可显示控制项。
 
 ## Flutter 翻页时钟功能
 
+- 免费、无广告，并基于 MIT License 开源；无需账号。
 - 两种 Clock 外观：Digital 与 Flip，可分别选择配色。
 - 现代极简像素 UI：像素字体、网格对齐细节与清晰的硬边控件。
 - 自适应横竖屏布局；Web 与桌面端支持全屏显示。
