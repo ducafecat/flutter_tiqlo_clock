@@ -4,7 +4,6 @@ import '../../../clock/clock_theme.dart';
 import '../../../clock/digital_theme.dart';
 import '../../../clock/flip_palette.dart';
 import '../../../core/ui/ui.dart';
-import '../../../core/ui/pixel/pixel_theme_sheet_style.dart';
 
 class ClockThemeSheet extends StatelessWidget {
   const ClockThemeSheet({
@@ -27,14 +26,12 @@ class ClockThemeSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ui = AppUiTheme.of(context);
-    final optionGap = ui.isPixel
-        ? PixelThemeSheetStyle.optionGap
-        : ui.spacingSm;
+    final optionGap = ui.spacingXs;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const _SheetTitle(label: 'Clock Style'),
+        const AppSheetSectionTitle(label: 'Clock Style'),
         SizedBox(height: ui.spacingSm + ui.spacingXs),
         Column(
           mainAxisSize: MainAxisSize.min,
@@ -56,7 +53,7 @@ class ClockThemeSheet extends StatelessWidget {
           ],
         ),
         SizedBox(height: ui.spacingLg),
-        const _SheetTitle(label: 'Color Theme'),
+        const AppSheetSectionTitle(label: 'Color Theme'),
         SizedBox(height: ui.spacingSm + ui.spacingXs),
         Builder(
           builder: (context) {
@@ -100,28 +97,6 @@ class ClockThemeSheet extends StatelessWidget {
           },
         ),
       ],
-    );
-  }
-}
-
-class _SheetTitle extends StatelessWidget {
-  const _SheetTitle({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final ui = AppUiTheme.of(context);
-    return Semantics(
-      header: true,
-      child: Text(
-        label,
-        style: ui
-            .heading(fontSize: 18)
-            .copyWith(
-              color: ui.isPixel ? PixelThemeSheetStyle.text : ui.textPrimary,
-            ),
-      ),
     );
   }
 }

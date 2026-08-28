@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../pixel/pixel_tokens.dart';
 import '../standard/standard_theme.dart';
+import '../standard/standard_tokens.dart';
 import 'app_ui_style.dart';
 
 class AppUiTheme {
@@ -41,18 +42,19 @@ class AppUiTheme {
         welcomeContentDuration: tokens.welcomeContentDuration,
       );
     }
+    final theme = Theme.of(context);
     final scheme = Theme.of(context).colorScheme;
     return AppUiTheme._(
       style: style,
-      background: scheme.surface,
-      surface: scheme.surfaceContainerHighest,
+      background: theme.scaffoldBackgroundColor,
+      surface: scheme.surface,
       textPrimary: scheme.onSurface,
       textSecondary: scheme.onSurfaceVariant,
       accent: scheme.primary,
-      spacingXs: 4,
-      spacingSm: 8,
-      spacingMd: 16,
-      spacingLg: 24,
+      spacingXs: StandardSpacing.xs,
+      spacingSm: StandardSpacing.sm,
+      spacingMd: StandardSpacing.md,
+      spacingLg: StandardSpacing.lg,
       splashDuration: const Duration(milliseconds: 900),
       welcomePageDuration: const Duration(milliseconds: 360),
       welcomeContentDuration: const Duration(milliseconds: 240),

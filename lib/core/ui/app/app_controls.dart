@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../pixel/pixel_ui.dart';
+import '../standard/standard_ui.dart';
 import 'app_ui_style.dart';
 import 'app_ui_theme.dart';
 
@@ -30,12 +31,11 @@ class AppSwitch extends StatelessWidget {
         compact: compact,
       );
     }
-    return SwitchListTile(
-      title: Text(label),
+    return StandardSwitch(
+      label: label,
       value: value,
       onChanged: onChanged,
-      contentPadding: EdgeInsets.symmetric(horizontal: compact ? 12 : 16),
-      dense: compact,
+      compact: compact,
     );
   }
 }
@@ -64,14 +64,11 @@ class AppActionTile extends StatelessWidget {
         trailing: trailing,
       );
     }
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: ListTile(
-        leading: leading,
-        trailing: trailing ?? const Icon(Icons.chevron_right),
-        title: Text(label),
-        onTap: onPressed,
-      ),
+    return StandardActionTile(
+      label: label,
+      onPressed: onPressed,
+      leading: leading,
+      trailing: trailing,
     );
   }
 }
@@ -97,17 +94,10 @@ class AppSelectionTile extends StatelessWidget {
         onSelected: onSelected,
       );
     }
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      color: selected
-          ? Theme.of(context).colorScheme.primaryContainer
-          : Theme.of(context).colorScheme.surface,
-      child: ListTile(
-        title: Text(label),
-        selected: selected,
-        trailing: selected ? const Icon(Icons.check) : null,
-        onTap: onSelected,
-      ),
+    return StandardSelectionTile(
+      label: label,
+      selected: selected,
+      onSelected: onSelected,
     );
   }
 }
@@ -139,17 +129,12 @@ class AppColorOption extends StatelessWidget {
         minWidth: minWidth,
       );
     }
-    final swatch = colors.first.computeLuminance() < 0.02 && colors.length > 1
-        ? colors[1]
-        : colors.first;
-    return ConstrainedBox(
-      constraints: BoxConstraints(minWidth: minWidth),
-      child: ChoiceChip(
-        avatar: CircleAvatar(backgroundColor: swatch),
-        label: Text(label),
-        selected: selected,
-        onSelected: onSelected == null ? null : (_) => onSelected!(),
-      ),
+    return StandardColorOption(
+      label: label,
+      colors: colors,
+      selected: selected,
+      onSelected: onSelected,
+      minWidth: minWidth,
     );
   }
 }
@@ -178,17 +163,11 @@ class AppTextButton extends StatelessWidget {
         prominent: prominent,
       );
     }
-    if (prominent) {
-      return FilledButton(
-        focusNode: focusNode,
-        onPressed: onPressed,
-        child: Text(label),
-      );
-    }
-    return TextButton(
+    return StandardTextButton(
+      label: label,
       focusNode: focusNode,
       onPressed: onPressed,
-      child: Text(label),
+      prominent: prominent,
     );
   }
 }
@@ -209,28 +188,10 @@ class AppPageIndicator extends StatelessWidget {
       return PixelPageIndicator(pageCount: pageCount, currentPage: currentPage);
     }
     final ui = AppUiTheme.of(context);
-    return Semantics(
-      label: '第 ${currentPage + 1} 页，共 $pageCount 页',
-      child: ExcludeSemantics(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (var index = 0; index < pageCount; index++)
-              AnimatedContainer(
-                duration: ui.motionDuration(context, ui.welcomeContentDuration),
-                width: index == currentPage ? 24 : 7,
-                height: 7,
-                margin: EdgeInsets.only(right: index == pageCount - 1 ? 0 : 7),
-                decoration: BoxDecoration(
-                  color: index == currentPage
-                      ? ui.accent
-                      : ui.textSecondary.withValues(alpha: 0.45),
-                  borderRadius: BorderRadius.circular(99),
-                ),
-              ),
-          ],
-        ),
-      ),
+    return StandardPageIndicator(
+      pageCount: pageCount,
+      currentPage: currentPage,
+      duration: ui.motionDuration(context, ui.welcomeContentDuration),
     );
   }
 }
@@ -274,50 +235,15 @@ class AppToolbar extends StatelessWidget {
       );
     }
 
-    final portrait = MediaQuery.orientationOf(context) == Orientation.portrait;
-    final buttons = [for (final action in actions) _StandardButton(action)];
-    if (portrait && MediaQuery.sizeOf(context).width < 600) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (var index = 0; index < buttons.length; index++) ...[
-              if (index > 0) const SizedBox(height: 8),
-              buttons[index],
-            ],
-          ],
-        ),
-      );
-    }
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: 8,
-      runSpacing: 8,
-      children: buttons,
-    );
-  }
-}
-
-class _StandardButton extends StatelessWidget {
-  const _StandardButton(this.action);
-
-  final AppToolbarAction action;
-
-  @override
-  Widget build(BuildContext context) {
-    final style = action.tone == AppButtonTone.danger
-        ? FilledButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.error,
-            foregroundColor: Theme.of(context).colorScheme.onError,
-          )
-        : null;
-    return FilledButton.tonal(
-      focusNode: action.focusNode,
-      style: style,
-      onPressed: action.onPressed,
-      child: Text(action.label),
+    return StandardToolbar(
+      actions: [
+        for (final action in actions)
+          StandardToolbarAction(
+            label: action.label,
+            onPressed: action.onPressed,
+            focusNode: action.focusNode,
+          ),
+      ],
     );
   }
 }

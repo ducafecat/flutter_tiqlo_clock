@@ -2,9 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../pixel/pixel_sheet.dart';
+import '../pixel/pixel_theme_sheet_style.dart';
+import '../standard/standard_sheet.dart';
 import 'app_ui_style.dart';
+import 'app_ui_theme.dart';
 
 enum AppSheetLayout { theme, content }
+
+class AppSheetSectionTitle extends StatelessWidget {
+  const AppSheetSectionTitle({super.key, required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    if (AppUiScope.of(context) == AppUiStyle.standard) {
+      return StandardSheetSectionTitle(label: label);
+    }
+    final ui = AppUiTheme.of(context);
+    return Semantics(
+      header: true,
+      child: Text(
+        label,
+        style: ui
+            .heading(fontSize: 18)
+            .copyWith(color: PixelThemeSheetStyle.text),
+      ),
+    );
+  }
+}
 
 class AppSheet extends StatefulWidget {
   const AppSheet({
@@ -79,7 +105,12 @@ class _AppSheetState extends State<AppSheet> {
                 : PixelSheetLayout.content,
             child: widget.child,
           )
-        : _StandardSheet(layout: widget.layout, child: widget.child);
+        : StandardSheet(
+            layout: widget.layout == AppSheetLayout.theme
+                ? StandardSheetLayout.theme
+                : StandardSheetLayout.content,
+            child: widget.child,
+          );
     return FocusScope.withExternalFocusNode(
       focusScopeNode: _focusScope,
       child: Focus(
@@ -87,56 +118,6 @@ class _AppSheetState extends State<AppSheet> {
         skipTraversal: true,
         onKeyEvent: _handleKey,
         child: child,
-      ),
-    );
-  }
-}
-
-class _StandardSheet extends StatelessWidget {
-  const _StandardSheet({required this.layout, required this.child});
-
-  final AppSheetLayout layout;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final media = MediaQuery.of(context);
-    final maxHeight = layout == AppSheetLayout.theme
-        ? media.size.height *
-              (media.orientation == Orientation.landscape ? 0.9 : 0.8)
-        : media.size.height;
-    final width = media.size.width > 720 ? 720.0 : media.size.width;
-    return SizedBox(
-      width: width,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: maxHeight),
-        child: Material(
-          color: Theme.of(context).colorScheme.surface,
-          elevation: 8,
-          clipBehavior: Clip.antiAlias,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.outline,
-                  borderRadius: BorderRadius.circular(99),
-                ),
-              ),
-              Flexible(
-                child: SingleChildScrollView(
-                  key: const ValueKey('standard-sheet-scroll'),
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                  child: child,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
