@@ -102,6 +102,7 @@ flutter:
         - asset: fonts/DotGothic16-Regular.ttf
           weight: 400
 
+# 图标生成配置
 icons_launcher:
   image_path: "assets/icons/ic_logo.png"
   platforms:
@@ -109,6 +110,12 @@ icons_launcher:
       enable: true
     android:
       enable: true
+      image_path: "assets/icons/android/icon.png"
+      notification_image: "assets/icons/android/notification.png"
+      adaptive_background_image: "assets/icons/android/adaptive_background.png"
+      adaptive_foreground_image: "assets/icons/android/adaptive_foreground.png"
+      adaptive_round_image: "assets/icons/android/adaptive_round.png"
+      adaptive_monochrome_image: "assets/icons/android/adaptive_monochrome.png"
     web:
       enable: true
     macos:
@@ -118,10 +125,16 @@ icons_launcher:
     linux:
       enable: true
 
+# 启动屏幕配置
 flutter_native_splash:
-  color: "#F9F6EF"
-  color_dark: "#2D2A24"
-  image: "assets/icons/ic_logo.png"
-  fullscreen: true
+  color: "#000000"
+  image: assets/splash/tiqlo_splash.png
   android: true
   ios: true
+  web: false
+  android_gravity: center
+  ios_content_mode: center
+  android_12:
+    color: "#000000"
+    image: assets/splash/tiqlo_splash_android12.png
+    icon_background_color: "#000000"
