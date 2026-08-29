@@ -45,13 +45,7 @@ void main() {
     );
 
     expect(find.text('TIME & DATE'), findsOneWidget);
-    expect(
-      find.descendant(
-        of: find.byType(StandardSettingsGroup),
-        matching: find.byType(Divider),
-      ),
-      findsOneWidget,
-    );
+    expect(find.byType(StandardSettingsGroup), findsOneWidget);
 
     await tester.tap(find.text('24 Hour'));
     await tester.pump();

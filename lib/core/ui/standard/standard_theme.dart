@@ -72,7 +72,7 @@ abstract final class StandardTheme {
       textTheme: textTheme,
       dividerColor: border,
       appBarTheme: AppBarTheme(
-        backgroundColor: card,
+        backgroundColor: background,
         foregroundColor: cardForeground,
         elevation: 0,
         scrolledUnderElevation: 0,

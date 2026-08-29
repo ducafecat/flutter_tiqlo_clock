@@ -141,11 +141,13 @@ class _SettingsSections extends StatelessWidget {
   final double maxWidth;
   final List<Widget> sections;
 
-  static const _gap = 25.0;
+  static const _gap = StandardSpacing.lg;
 
   @override
   Widget build(BuildContext context) {
-    final horizontalPadding = landscape ? 24.0 : 18.0;
+    final horizontalPadding = landscape
+        ? StandardSpacing.lg
+        : StandardSpacing.md;
     final availableWidth = maxWidth - horizontalPadding * 2;
     final scaleExtra = (MediaQuery.textScalerOf(context).scale(1) - 1)
         .clamp(0.0, 1.0)
@@ -163,9 +165,9 @@ class _SettingsSections extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.fromLTRB(
         horizontalPadding,
-        18,
+        StandardSpacing.lg,
         horizontalPadding,
-        28,
+        StandardSpacing.xl,
       ),
       children: [
         if (landscape)

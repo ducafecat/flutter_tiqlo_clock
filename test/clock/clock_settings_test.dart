@@ -10,6 +10,7 @@ import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_ui.dart';
 import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
 import 'package:flutter_tiqlo_clock/main.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'fake_clock.dart';
 
@@ -18,6 +19,13 @@ void main() {
 
   setUpAll(() async {
     await initializeDateFormatting('en');
+    PackageInfo.setMockInitialValues(
+      appName: 'Tiqlo',
+      packageName: 'flutter_tiqlo_clock',
+      version: '1.0.1',
+      buildNumber: '2',
+      buildSignature: '',
+    );
   });
 
   testWidgets('turning off 24 Hour shows AM/PM on Clock', (tester) async {
@@ -134,8 +142,6 @@ void main() {
     await tester.tap(find.text('About'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Version 1.0.0'), findsOneWidget);
-    expect(find.text('Build 1'), findsOneWidget);
     expect(find.text('ducafecat'), findsOneWidget);
     expect(find.text('https://ducafecat.com'), findsOneWidget);
     expect(find.text('https://tiqlo.link'), findsOneWidget);
@@ -144,6 +150,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.byType(PixelPanel), findsWidgets);
+    expect(find.text('Version 1.0.1 (2)'), findsOneWidget);
 
     await tester.tap(find.bySemanticsLabel('Back'));
     await tester.pumpAndSettle();

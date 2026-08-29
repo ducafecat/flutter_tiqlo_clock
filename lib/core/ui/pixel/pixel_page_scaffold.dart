@@ -71,16 +71,16 @@ class PixelPageList extends StatelessWidget {
     for (var index = 0; index < children.length; index++) {
       items.add(children[index]);
       if (index != children.length - 1) {
-        items.add(SizedBox(height: tokens.spacingLg));
+        items.add(SizedBox(height: tokens.spacingMd));
       }
     }
 
     return ListView(
       padding: EdgeInsets.fromLTRB(
         layout.isLandscape ? tokens.spacingLg : tokens.spacingMd,
-        tokens.spacingLg,
+        tokens.spacingMd,
         layout.isLandscape ? tokens.spacingLg : tokens.spacingMd,
-        tokens.spacingLg + tokens.spacingSm,
+        tokens.spacingLg,
       ),
       children: items,
     );

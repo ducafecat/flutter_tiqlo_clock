@@ -17,22 +17,23 @@ abstract final class StandardColors {
   static const lightDestructiveForeground = Color(0xFFFFFFFF);
   static const lightBorder = Color(0xFFD9D0B8);
 
-  static const darkBackground = Color(0xFF2D2A24);
-  static const darkForeground = Color(0xFFCCC3A8);
-  static const darkCard = Color(0xFF373330);
-  static const darkCardForeground = Color(0xFFF9F6EF);
+  static const darkBackground = clockSheet;
+  static const darkForeground = Color(0xFFFFFFFF);
+  static const darkCard = sheetGroup;
+  static const darkCardForeground = Color(0xFFFFFFFF);
   static const darkPrimary = Color(0xFFCA7835);
   static const darkPrimaryForeground = Color(0xFFFFFFFF);
-  static const darkMuted = Color(0xFF222019);
-  static const darkMutedForeground = Color(0xFFBFB89E);
+  static const darkMuted = Color(0xFF000000);
+  static const darkMutedForeground = Color(0xB3FFFFFF);
   static const darkDestructive = Color(0xFFD04B2B);
   static const darkDestructiveForeground = Color(0xFFFFFFFF);
-  static const darkBorder = Color(0xFF474038);
+  static const darkBorder = Color(0x1FFFFFFF);
 
   static const welcomeAccent = Color(0xFFE8B66B);
   static const clockChrome = Color(0xE61C1C1E);
   static const clockSheet = Color(0xFF1C1C1E);
-  static const moreSheet = Color(0xFF212121);
+  static const moreSheet = clockSheet;
+  static const sheetGroup = Color(0xFF2E2E32);
   static const sheetBarrier = Color(0xC2000000);
 }
 

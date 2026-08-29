@@ -26,23 +26,31 @@ class ClockMoreSheet extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        AppSwitch(
-          label: 'Pixel UI',
-          value: pixelUiEnabled,
-          onChanged: onPixelUiChanged,
-          compact: true,
+        AppSheetGroup(
+          pixelSeparator: ui.spacingSm,
+          children: [
+            AppSwitch(
+              label: 'Pixel UI',
+              value: pixelUiEnabled,
+              onChanged: onPixelUiChanged,
+              compact: true,
+            ),
+            AppSwitch(
+              label: 'Night Mode',
+              value: nightMode,
+              onChanged: onNightModeChanged,
+              compact: true,
+            ),
+          ],
         ),
-        SizedBox(height: ui.spacingSm),
-        AppSwitch(
-          label: 'Night Mode',
-          value: nightMode,
-          onChanged: onNightModeChanged,
-          compact: true,
+        SizedBox(height: ui.isPixel ? ui.spacingSm : ui.spacingMd),
+        AppSheetGroup(
+          pixelSeparator: ui.spacingSm,
+          children: [
+            AppActionTile(label: 'Settings', onPressed: onSettings),
+            AppActionTile(label: 'About', onPressed: onAbout),
+          ],
         ),
-        SizedBox(height: ui.spacingSm),
-        AppActionTile(label: 'Settings', onPressed: onSettings),
-        SizedBox(height: ui.spacingSm),
-        AppActionTile(label: 'About', onPressed: onAbout),
       ],
     );
   }

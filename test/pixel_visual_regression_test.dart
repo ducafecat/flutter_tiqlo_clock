@@ -18,6 +18,7 @@ import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_more_sheet.dart
 import 'package:flutter_tiqlo_clock/features/settings/pages/settings_page.dart';
 import 'package:flutter_tiqlo_clock/features/welcome/pages/welcome_page.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'clock/fake_clock.dart';
 
@@ -26,6 +27,13 @@ void main() {
 
   setUpAll(() async {
     await initializeDateFormatting('en');
+    PackageInfo.setMockInitialValues(
+      appName: 'Tiqlo',
+      packageName: 'flutter_tiqlo_clock',
+      version: '1.0.1',
+      buildNumber: '2',
+      buildSignature: '',
+    );
     final bodyFont = FontLoader('PixelifySans')
       ..addFont(rootBundle.load('fonts/PixelifySans-Regular.ttf'));
     await bodyFont.load();

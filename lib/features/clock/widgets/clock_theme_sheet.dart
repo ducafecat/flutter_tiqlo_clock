@@ -33,23 +33,16 @@ class ClockThemeSheet extends StatelessWidget {
       children: [
         const AppSheetSectionTitle(label: 'Clock Style'),
         SizedBox(height: ui.spacingSm + ui.spacingXs),
-        Column(
-          mainAxisSize: MainAxisSize.min,
+        AppSheetGroup(
+          pixelSeparator: optionGap,
           children: [
-            for (
-              var index = 0;
-              index < ClockThemeId.values.length;
-              index++
-            ) ...[
-              if (index > 0) SizedBox(height: optionGap),
+            for (final id in ClockThemeId.values)
               AppSelectionTile(
-                key: ValueKey('clock-style-${ClockThemeId.values[index].name}'),
-                label: ClockThemeId.values[index].label,
-                selected: clockThemeId == ClockThemeId.values[index],
-                onSelected: () =>
-                    onClockThemeSelected(ClockThemeId.values[index]),
+                key: ValueKey('clock-style-${id.name}'),
+                label: id.label,
+                selected: clockThemeId == id,
+                onSelected: () => onClockThemeSelected(id),
               ),
-            ],
           ],
         ),
         SizedBox(height: ui.spacingLg),
@@ -78,7 +71,7 @@ class ClockThemeSheet extends StatelessWidget {
                         select: () => onDigitalThemeSelected(id),
                       ),
                   ];
-            return Wrap(
+            final grid = Wrap(
               spacing: optionGap,
               runSpacing: optionGap,
               children: [
@@ -89,10 +82,15 @@ class ClockThemeSheet extends StatelessWidget {
                     colors: option.colors,
                     selected: option.selected,
                     onSelected: option.select,
-                    // 按文字内容形成参考稿中的不等宽三列。
                     minWidth: 0,
                   ),
               ],
+            );
+            if (ui.isPixel) return grid;
+            return AppSheetGroup(
+              showDividers: false,
+              padding: EdgeInsets.all(ui.spacingSm),
+              children: [grid],
             );
           },
         ),

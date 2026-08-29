@@ -55,6 +55,9 @@ dependencies:
   # 外部链接
   url_launcher: ^6.3.2
 
+  # 应用版本
+  package_info_plus: ^10.2.1
+
   # 启动屏幕
   flutter_native_splash: ^2.4.8
 

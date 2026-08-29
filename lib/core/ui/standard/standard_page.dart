@@ -54,12 +54,12 @@ class StandardPageList extends StatelessWidget {
     return ListView.separated(
       padding: EdgeInsets.fromLTRB(
         layout.isLandscape ? StandardSpacing.lg : StandardSpacing.md,
-        StandardSpacing.lg,
+        StandardSpacing.md,
         layout.isLandscape ? StandardSpacing.lg : StandardSpacing.md,
-        StandardSpacing.xl,
+        StandardSpacing.lg,
       ),
       itemCount: children.length,
-      separatorBuilder: (_, _) => const SizedBox(height: StandardSpacing.lg),
+      separatorBuilder: (_, _) => const SizedBox(height: StandardSpacing.md),
       itemBuilder: (_, index) => children[index],
     );
   }
@@ -142,24 +142,43 @@ class StandardSettingsGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final line = theme.colorScheme.onSurface.withValues(alpha: 0.12);
     final items = <Widget>[];
     for (var index = 0; index < children.length; index++) {
-      items.add(children[index]);
+      final child = children[index];
       if (showDividers && index != children.length - 1) {
-        items.add(const Divider());
+        items.add(
+          Stack(
+            children: [
+              child,
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: IgnorePointer(
+                  child: ColoredBox(
+                    color: line,
+                    child: const SizedBox(height: 1, width: double.infinity),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      } else {
+        items.add(child);
       }
     }
-    final theme = Theme.of(context);
     return Material(
       color: theme.colorScheme.surface,
-      elevation: 1,
-      shadowColor: const Color(0x14000000),
-      shape: RoundedRectangleBorder(
-        borderRadius: StandardRadius.card,
-        side: BorderSide(color: theme.colorScheme.outline),
-      ),
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: StandardRadius.card),
       clipBehavior: Clip.hardEdge,
-      child: Column(children: items),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: items,
+      ),
     );
   }
 }
@@ -201,7 +220,11 @@ class StandardPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: StandardRadius.card),
+      clipBehavior: Clip.hardEdge,
       child: Padding(padding: padding, child: child),
     );
   }
@@ -216,6 +239,9 @@ class StandardInfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      dense: true,
+      visualDensity: VisualDensity.compact,
+      minTileHeight: 44,
       title: Text(label, style: StandardTextStyles.bodyOn(context)),
       trailing: Text(value, style: StandardTextStyles.secondaryOn(context)),
     );
@@ -237,9 +263,14 @@ class StandardLinkTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      dense: true,
+      visualDensity: VisualDensity.compact,
       title: Text(label, style: StandardTextStyles.bodyOn(context)),
       subtitle: Text(value, style: StandardTextStyles.metaOn(context)),
-      trailing: const Icon(Icons.open_in_new),
+      trailing: Icon(
+        Icons.open_in_new,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
       onTap: onPressed,
     );
   }
@@ -252,17 +283,23 @@ class StandardTextList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(StandardSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (var index = 0; index < values.length; index++) ...[
-            Text(values[index], style: StandardTextStyles.secondaryOn(context)),
-            if (index != values.length - 1)
-              const SizedBox(height: StandardSpacing.xs),
+    return SizedBox(
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.all(StandardSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (var index = 0; index < values.length; index++) ...[
+              Text(
+                values[index],
+                style: StandardTextStyles.secondaryOn(context),
+              ),
+              if (index != values.length - 1)
+                const SizedBox(height: StandardSpacing.xs),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

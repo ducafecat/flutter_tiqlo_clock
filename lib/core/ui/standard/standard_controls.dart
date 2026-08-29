@@ -22,8 +22,8 @@ class StandardSwitch extends StatelessWidget {
       title: Text(label, style: StandardTextStyles.bodyOn(context)),
       value: value,
       onChanged: onChanged,
-      contentPadding: EdgeInsets.symmetric(
-        horizontal: compact ? StandardSpacing.sm : StandardSpacing.md,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: StandardSpacing.md,
       ),
       dense: compact,
     );
@@ -48,7 +48,12 @@ class StandardActionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: leading,
-      trailing: trailing,
+      trailing:
+          trailing ??
+          Icon(
+            Icons.chevron_right,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
       title: Text(label, style: StandardTextStyles.bodyOn(context)),
       onTap: onPressed,
     );
@@ -70,14 +75,18 @@ class StandardSelectionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return ListTile(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      title: Text(label),
-      selected: selected,
-      selectedColor: scheme.onSurface,
-      selectedTileColor: scheme.onSurface.withValues(alpha: 0.08),
-      trailing: selected ? Icon(Icons.check, color: scheme.onSurface) : null,
-      onTap: onSelected,
+    return Material(
+      color: selected
+          ? scheme.onSurface.withValues(alpha: 0.12)
+          : Colors.transparent,
+      child: ListTile(
+        title: Text(label, style: StandardTextStyles.bodyOn(context)),
+        selected: selected,
+        selectedColor: scheme.onSurface,
+        selectedTileColor: Colors.transparent,
+        trailing: selected ? Icon(Icons.check, color: scheme.onSurface) : null,
+        onTap: onSelected,
+      ),
     );
   }
 }
@@ -108,31 +117,63 @@ class StandardColorOption extends StatelessWidget {
     final foreground = scheme.onSurface;
     final swatchBackground = colors.first;
     final swatchForeground = colors.length > 1 ? colors[1] : colors.first;
-    return ConstrainedBox(
-      constraints: BoxConstraints(minWidth: minWidth),
-      child: ChoiceChip(
-        avatar: CircleAvatar(
-          backgroundColor: swatchBackground,
-          foregroundColor: swatchForeground,
-          child: Container(
-            width: StandardSpacing.xs,
-            height: StandardSpacing.xs,
-            decoration: BoxDecoration(
-              color: swatchForeground,
-              shape: BoxShape.circle,
+    final checkColor = swatchBackground.computeLuminance() > 0.45
+        ? Colors.black87
+        : Colors.white;
+    return Semantics(
+      button: true,
+      enabled: onSelected != null,
+      selected: selected,
+      label: label,
+      child: ExcludeSemantics(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minWidth: minWidth, minHeight: 40),
+          child: Material(
+            color: foreground.withValues(alpha: selected ? 0.16 : 0.05),
+            shape: RoundedRectangleBorder(
+              borderRadius: StandardRadius.control,
+              side: BorderSide(
+                color: foreground.withValues(alpha: selected ? 0.55 : 0.12),
+                width: selected ? 1.5 : 1,
+              ),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: onSelected,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: StandardSpacing.sm,
+                  vertical: StandardSpacing.xs,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 18,
+                      height: 18,
+                      decoration: BoxDecoration(
+                        color: swatchBackground,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: swatchForeground, width: 1.5),
+                      ),
+                      child: selected
+                          ? Icon(Icons.check, size: 12, color: checkColor)
+                          : null,
+                    ),
+                    const SizedBox(width: StandardSpacing.xs),
+                    Text(
+                      label,
+                      style: StandardTextStyles.secondary.copyWith(
+                        color: foreground,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
-        label: Text(label),
-        selected: selected,
-        selectedColor: foreground.withValues(alpha: 0.16),
-        backgroundColor: foreground.withValues(alpha: 0.06),
-        side: BorderSide(
-          color: foreground.withValues(alpha: selected ? 0.7 : 0.12),
-        ),
-        labelStyle: TextStyle(color: foreground),
-        checkmarkColor: foreground,
-        onSelected: onSelected == null ? null : (_) => onSelected!(),
       ),
     );
   }

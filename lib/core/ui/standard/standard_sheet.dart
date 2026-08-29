@@ -19,11 +19,9 @@ class StandardSheetSectionTitle extends StatelessWidget {
           vertical: StandardSpacing.xs,
         ),
         child: Text(
-          label,
-          style: StandardTextStyles.meta.copyWith(
+          label.toUpperCase(),
+          style: StandardTextStyles.label.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.2,
           ),
         ),
       ),
@@ -59,12 +57,21 @@ class StandardSheet extends StatelessWidget {
         : StandardColors.moreSheet;
     final baseTheme = Theme.of(context);
     final foreground = Colors.white;
+    final outline = Colors.white.withValues(alpha: 0.12);
     final sheetTheme = baseTheme.copyWith(
       colorScheme: baseTheme.colorScheme.copyWith(
-        surface: background,
+        surface: StandardColors.sheetGroup,
         onSurface: foreground,
         onSurfaceVariant: Colors.white70,
-        outline: Colors.white.withValues(alpha: 0.12),
+        outline: outline,
+      ),
+      dividerColor: outline,
+      dividerTheme: DividerThemeData(
+        color: outline,
+        thickness: 1,
+        indent: 0,
+        endIndent: 0,
+        space: 1,
       ),
       textTheme: baseTheme.textTheme.copyWith(
         displaySmall: baseTheme.textTheme.displaySmall?.copyWith(

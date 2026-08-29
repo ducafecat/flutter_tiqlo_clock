@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../pixel/pixel_sheet.dart';
 import '../pixel/pixel_theme_sheet_style.dart';
-import '../standard/standard_sheet.dart';
+import '../standard/standard_ui.dart';
 import 'app_ui_style.dart';
 import 'app_ui_theme.dart';
 
@@ -28,6 +28,53 @@ class AppSheetSectionTitle extends StatelessWidget {
             .heading(fontSize: 18)
             .copyWith(color: PixelThemeSheetStyle.text),
       ),
+    );
+  }
+}
+
+class AppSheetGroup extends StatelessWidget {
+  const AppSheetGroup({
+    super.key,
+    required this.children,
+    this.showDividers = true,
+    this.pixelSeparator,
+    this.padding,
+  });
+
+  final List<Widget> children;
+  final bool showDividers;
+  final double? pixelSeparator;
+  final EdgeInsetsGeometry? padding;
+
+  @override
+  Widget build(BuildContext context) {
+    if (AppUiScope.of(context) == AppUiStyle.pixel) {
+      final gap = pixelSeparator ?? AppUiTheme.of(context).spacingXs;
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var index = 0; index < children.length; index++) ...[
+            if (index > 0) SizedBox(height: gap),
+            children[index],
+          ],
+        ],
+      );
+    }
+    return StandardSettingsGroup(
+      showDividers: showDividers,
+      children: [
+        if (padding == null)
+          ...children
+        else
+          Padding(
+            padding: padding!,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: children,
+            ),
+          ),
+      ],
     );
   }
 }
