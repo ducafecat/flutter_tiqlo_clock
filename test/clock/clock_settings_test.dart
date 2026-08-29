@@ -218,6 +218,14 @@ void main() {
     expect(engine.flipPaletteId, FlipPaletteId.orange);
     expect(find.text('THU · AUG 20'), findsNothing);
     expect(find.byType(ClockPage), findsOneWidget);
+    expect(
+      tester
+          .widget<AnimatedOpacity>(
+            find.byKey(const ValueKey('clock-night-dim')),
+          )
+          .opacity,
+      0.35,
+    );
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();

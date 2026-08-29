@@ -158,13 +158,21 @@ class _ClockPageState extends ConsumerState<ClockPage> {
             onTap: _toggleChrome,
             child: Stack(
               children: [
-                ClockFace(
-                  style: style,
-                  themeId: themeId,
-                  digitalThemeId: engine.digitalThemeId,
-                  flipPaletteId: engine.flipPaletteId,
-                  snapshot: snapshot,
-                  landscape: landscape,
+                AnimatedOpacity(
+                  key: const ValueKey('clock-night-dim'),
+                  opacity: snapshot.nightMode ? 0.35 : 1,
+                  duration: ui.motionDuration(
+                    context,
+                    const Duration(milliseconds: 240),
+                  ),
+                  child: ClockFace(
+                    style: style,
+                    themeId: themeId,
+                    digitalThemeId: engine.digitalThemeId,
+                    flipPaletteId: engine.flipPaletteId,
+                    snapshot: snapshot,
+                    landscape: landscape,
+                  ),
                 ),
                 if (_chromeVisible)
                   Align(
