@@ -20,7 +20,15 @@
 </p>
 
 <p align="center">
-  <img src="docs/github/tiqlo-preview.png" alt="Tiqlo Flutter Flip Clock, Digital Clock, and Focus Timer interfaces" width="100%" />
+  <img src="docs/github/tiqlo-preview.png" alt="Tiqlo Pixel style (default): Flip Clock, Digital Clock, and Focus Timer" width="100%" />
+  <br />
+  Pixel style (default)
+</p>
+
+<p align="center">
+  <img src="docs/github/tiqlo-preview-android.png" alt="Tiqlo Standard style: Flip Clock, Digital Clock, and Focus Timer" width="100%" />
+  <br />
+  Standard style
 </p>
 
 ---
@@ -34,6 +42,7 @@ Open the [Tiqlo live Web app](https://tiqlo.link/#demo) in your browser—no clo
 
 ## Pixel Clock Features
 
+- Two UI themes: Pixel (default) and Standard. Switch them from the More menu.
 - A distinctive, end-to-end pixel aesthetic across clock faces, typography, controls, panels, and transitions.
 - Free, ad-free, and open source under the MIT License; no account required.
 - Digital and Flip clock faces, each with its own colour palettes.

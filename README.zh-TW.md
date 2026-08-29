@@ -20,7 +20,15 @@
 </p>
 
 <p align="center">
-  <img src="docs/github/tiqlo-preview.png" alt="Tiqlo Flutter 翻頁時鐘、數位時鐘與專注計時器介面" width="100%" />
+  <img src="docs/github/tiqlo-preview.png" alt="Tiqlo 像素風格（預設）：翻頁時鐘、數位時鐘與專注計時器介面" width="100%" />
+  <br />
+  像素風格（預設）
+</p>
+
+<p align="center">
+  <img src="docs/github/tiqlo-preview-android.png" alt="Tiqlo 標準風格：翻頁時鐘、數位時鐘與專注計時器介面" width="100%" />
+  <br />
+  標準風格
 </p>
 
 ---
@@ -34,6 +42,7 @@ Tiqlo 是一款面向手機、桌面和 Web 的開源跨平台 Flutter 時鐘應
 
 ## 像素風時鐘功能
 
+- 兩種介面主題：預設像素風，以及標準風格。可在彈出選單 More 中切換。
 - 獨特且完整的像素風體驗，貫穿時鐘介面、字體、控制項、面板與翻頁過渡。
 - 免費、無廣告，並基於 MIT License 開源；無需帳號。
 - 兩種 Clock 外觀：Digital 與 Flip，可分別選擇配色。
