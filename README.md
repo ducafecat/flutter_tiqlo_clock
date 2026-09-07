@@ -8,10 +8,12 @@
   <a href="https://flutter.dev/"><img src="https://img.shields.io/badge/Flutter-02569B?style=flat-square&amp;logo=flutter&amp;logoColor=white" alt="Built with Flutter" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/ducafecat/flutter_tiqlo_clock?style=flat-square" alt="MIT License" /></a>
   <a href="https://github.com/ducafecat/flutter_tiqlo_clock/stargazers"><img src="https://img.shields.io/github/stars/ducafecat/flutter_tiqlo_clock?style=flat-square&amp;logo=github" alt="GitHub stars" /></a>
+  <a href="https://apps.apple.com/us/app/tiqlo-pixel-flip-clock/id6804964763"><img src="https://img.shields.io/badge/App%20Store-Download-0D96F6?style=flat-square&amp;logo=apple&amp;logoColor=white" alt="Download on the App Store" /></a>
   <img src="https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-ED780C?style=flat-square" alt="Platforms: Android, iOS, Web, and desktop" />
 </p>
 
 <p align="center">
+  <a href="https://apps.apple.com/us/app/tiqlo-pixel-flip-clock/id6804964763">App Store</a> ·
   <a href="https://tiqlo.link/#demo">Live Demo</a> ·
   <a href="https://tiqlo.link/">Website</a> ·
   <a href="README.md">English</a> ·
@@ -36,9 +38,9 @@
 Tiqlo is an open-source Flutter clock app for mobile, desktop, and Web. What sets it apart from ordinary clock apps is a cohesive pixel-style visual system—not merely a pixel font. From the Flip and Digital clock faces to every panel, button, outline, and shadow, the entire experience is built around crisp pixel geometry.
 Use it as a full-screen desk clock, or start a built-in Focus or Timer countdown when you need to concentrate. Its responsive design keeps the time clear from across a room in portrait or landscape mode.
 
-## Try Tiqlo Online
+## Try Tiqlo
 
-Open the [Tiqlo live Web app](https://tiqlo.link/#demo) in your browser—no clone, account, or installation required. Tap the clock to reveal its controls.
+Tiqlo is now on the [App Store](https://apps.apple.com/us/app/tiqlo-pixel-flip-clock/id6804964763). You can also open the [live Web app](https://tiqlo.link/#demo) in your browser—no clone, account, or installation required. Tap the clock to reveal its controls.
 
 ## Pixel Clock Features
 

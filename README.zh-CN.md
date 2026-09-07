@@ -8,10 +8,12 @@
   <a href="https://flutter.dev/"><img src="https://img.shields.io/badge/Flutter-02569B?style=flat-square&amp;logo=flutter&amp;logoColor=white" alt="使用 Flutter 构建" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/ducafecat/flutter_tiqlo_clock?style=flat-square" alt="MIT 许可证" /></a>
   <a href="https://github.com/ducafecat/flutter_tiqlo_clock/stargazers"><img src="https://img.shields.io/github/stars/ducafecat/flutter_tiqlo_clock?style=flat-square&amp;logo=github" alt="GitHub Stars" /></a>
+  <a href="https://apps.apple.com/us/app/tiqlo-pixel-flip-clock/id6804964763"><img src="https://img.shields.io/badge/App%20Store-Download-0D96F6?style=flat-square&amp;logo=apple&amp;logoColor=white" alt="前往 App Store 下载" /></a>
   <img src="https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-ED780C?style=flat-square" alt="支持 Android、iOS、Web 和桌面平台" />
 </p>
 
 <p align="center">
+  <a href="https://apps.apple.com/us/app/tiqlo-pixel-flip-clock/id6804964763">App Store</a> ·
   <a href="https://tiqlo.link/#demo">在线体验</a> ·
   <a href="https://tiqlo.link/">产品网站</a> ·
   <a href="README.md">English</a> ·
@@ -36,9 +38,9 @@
 Tiqlo 是一款面向手机、桌面和 Web 的开源跨平台 Flutter 时钟应用。它与普通时钟应用最不同的地方，是从 Flip 与 Digital 时钟界面，到面板、按钮、描边和阴影，都采用统一的像素风视觉系统，而不只是换上一套像素字体。
 你可以将它用作全屏桌面时钟，也可以在需要集中注意力时启动内置 Focus 专注计时或 Timer 倒计时。响应式设计让时间在横屏和竖屏中都能保持远距离可读性。
 
-## 在线体验 Tiqlo
+## 体验 Tiqlo
 
-在浏览器中打开 [Tiqlo 在线 Web 应用](https://tiqlo.link/#demo)，无需克隆代码、注册账号或安装软件。点击时钟即可显示控制项。
+Tiqlo 已上架 [App Store](https://apps.apple.com/us/app/tiqlo-pixel-flip-clock/id6804964763)。也可以在浏览器中打开 [Tiqlo 在线 Web 应用](https://tiqlo.link/#demo)，无需克隆代码、注册账号或安装软件。点击时钟即可显示控制项。
 
 ## 像素风时钟功能
 
