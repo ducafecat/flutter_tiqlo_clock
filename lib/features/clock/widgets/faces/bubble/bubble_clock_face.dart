@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -21,7 +22,10 @@ class BubbleClockFace extends StatefulWidget {
 }
 
 class _BubbleClockFaceState extends State<BubbleClockFace> {
-  static const _glyphScale = 0.82;
+  static const _glyphWidthScale = 0.82;
+  static const _glyphHeightScale = 1.05;
+  // Keep each slot slightly tilted; the digit adds a fixed variation.
+  static const _slotTiltDegrees = <double>[-2, 2, -1.5, 1.5];
 
   // SVG viewBox widths, scaled from their shared 180-unit height to 160.
   static const _digitWidths = <double>[
@@ -100,6 +104,11 @@ class _BubbleClockFaceState extends State<BubbleClockFace> {
         child: ExcludeSemantics(
           child: LayoutBuilder(
             builder: (context, constraints) {
+              final horizontalScale = constraints.maxWidth / 370;
+              final verticalScale = constraints.maxHeight / 160;
+              final fillVerticalSpace =
+                  constraints.maxWidth > constraints.maxHeight &&
+                  verticalScale > horizontalScale;
               return Center(
                 child: TweenAnimationBuilder<Offset>(
                   tween: Tween<Offset>(
@@ -118,7 +127,7 @@ class _BubbleClockFaceState extends State<BubbleClockFace> {
                     height: constraints.maxHeight,
                     child: FittedBox(
                       key: const ValueKey('bubble-content-viewport'),
-                      fit: BoxFit.contain,
+                      fit: fillVerticalSpace ? BoxFit.fill : BoxFit.contain,
                       child: SizedBox(
                         width: 370,
                         height: 160,
@@ -177,7 +186,9 @@ class _BubbleClockFaceState extends State<BubbleClockFace> {
                                 left: 125,
                                 top: 0,
                                 child: Transform.scale(
-                                  scale: _glyphScale,
+                                  scaleY: fillVerticalSpace
+                                      ? horizontalScale / verticalScale
+                                      : 1,
                                   child: _BubbleColon(
                                     key: const ValueKey('bubble-colon'),
                                     topColor: widget.palette.colonTop,
@@ -213,11 +224,18 @@ class _BubbleClockFaceState extends State<BubbleClockFace> {
       ((digit * 7 + slot * 11) % 9 - 4) * 0.65,
       ((digit * 11 + slot * 5) % 7 - 3) * 0.7,
     );
+    final tilt =
+        (_slotTiltDegrees[slot] + (digit % 3 - 1) * 0.5) * math.pi / 180;
     return SizedBox(
       width: 130,
       height: 160,
       child: AnimatedSwitcher(
         duration: digitDuration,
+        layoutBuilder: (currentChild, previousChildren) => Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: [...previousChildren, ?currentChild],
+        ),
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeInCubic,
         transitionBuilder: (child, animation) => FadeTransition(
@@ -234,20 +252,25 @@ class _BubbleClockFaceState extends State<BubbleClockFace> {
           curve: Curves.easeOutCubic,
           builder: (context, digitColor, _) => Transform.translate(
             offset: offset,
-            child: Transform.scale(
-              scale: _glyphScale,
-              child: Center(
-                child: Opacity(
-                  key: ValueKey('bubble-glyph-$digit'),
-                  opacity: 0.86,
-                  child: SvgPicture.asset(
-                    'assets/bubble/$digit.svg',
-                    width: _digitWidths[digit],
-                    height: 160,
-                    fit: BoxFit.fill,
-                    colorFilter: ColorFilter.mode(
-                      digitColor ?? color,
-                      BlendMode.srcIn,
+            child: Transform.rotate(
+              key: ValueKey('bubble-digit-tilt-$slot'),
+              angle: tilt,
+              child: Transform.scale(
+                scaleX: _glyphWidthScale,
+                scaleY: _glyphHeightScale,
+                child: Center(
+                  child: Opacity(
+                    key: ValueKey('bubble-glyph-$digit'),
+                    opacity: 0.86,
+                    child: SvgPicture.asset(
+                      'assets/bubble/$digit.svg',
+                      width: _digitWidths[digit],
+                      height: 160,
+                      fit: BoxFit.fill,
+                      colorFilter: ColorFilter.mode(
+                        digitColor ?? color,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ),
                 ),

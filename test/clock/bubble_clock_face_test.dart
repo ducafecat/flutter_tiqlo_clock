@@ -369,8 +369,24 @@ void main() {
     final secondDigit = tester.getRect(
       find.byKey(const ValueKey('bubble-glyph-2')),
     );
-    expect(firstDigit.height, lessThan(305));
+    final viewport = tester.getRect(
+      find.byKey(const ValueKey('bubble-content-viewport')),
+    );
+    expect(firstDigit.height, greaterThan(340));
+    expect(firstDigit.top, lessThan(viewport.top));
+    expect(firstDigit.bottom, greaterThan(viewport.bottom));
     expect(firstDigit.top, isNot(secondDigit.top));
+    final firstTilt = tester.widget<Transform>(
+      find.byKey(const ValueKey('bubble-digit-tilt-0')),
+    );
+    final secondTilt = tester.widget<Transform>(
+      find.byKey(const ValueKey('bubble-digit-tilt-1')),
+    );
+    expect(firstTilt.transform.storage[1], isNot(0));
+    expect(
+      firstTilt.transform.storage[1],
+      isNot(secondTilt.transform.storage[1]),
+    );
 
     await expectLater(
       find.byKey(const ValueKey('bubble-clock-landscape-golden')),

@@ -210,6 +210,42 @@ void main() {
     container.dispose();
   });
 
+  testWidgets('landscape Bubble uses the full vertical viewport', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(844, 390);
+    tester.view.devicePixelRatio = 1;
+    tester.view.padding = const FakeViewPadding(top: 59, bottom: 34);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetPadding);
+
+    final engine = ClockEngine(
+      clock: FakeClock(wall: DateTime(2026, 8, 20, 21, 35)),
+      locale: const Locale('en'),
+      clockThemeId: ClockThemeId.bubble,
+    );
+    final container = ProviderContainer(
+      overrides: [clockEngineProvider.overrideWithValue(engine)],
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MyApp(showOnboarding: false),
+      ),
+    );
+
+    final viewport = tester.getRect(
+      find.byKey(const ValueKey('bubble-content-viewport')),
+    );
+    expect(viewport.top, 0);
+    expect(viewport.bottom, 390);
+    expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
+
   testWidgets('chrome interaction restarts the 3 second hide', (tester) async {
     final container = await _pumpClock(tester);
 

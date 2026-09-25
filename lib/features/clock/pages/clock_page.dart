@@ -146,6 +146,7 @@ class _ClockPageState extends ConsumerState<ClockPage> {
       ClockThemeId.digital => digitalTheme.background,
       ClockThemeId.bubble => bubblePalette.background,
     };
+    final bubbleLandscape = landscape && themeId == ClockThemeId.bubble;
     final chromeActions = _chromeActions(snapshot);
 
     return Scaffold(
@@ -154,6 +155,8 @@ class _ClockPageState extends ConsumerState<ClockPage> {
       body: SafeArea(
         left: !landscape,
         right: !landscape,
+        top: !bubbleLandscape,
+        bottom: !bubbleLandscape,
         child: Padding(
           key: const ValueKey('clock-safe-content'),
           padding: EdgeInsets.symmetric(
