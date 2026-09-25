@@ -84,7 +84,7 @@ class _BubbleClockFaceState extends State<BubbleClockFace> {
               final landscape = constraints.maxWidth > constraints.maxHeight;
               final fontSize = landscape
                   ? constraints.maxHeight * 0.92
-                  : constraints.maxWidth * 0.32;
+                  : constraints.maxWidth * 0.70;
               return Center(
                 child: TweenAnimationBuilder<Offset>(
                   tween: Tween<Offset>(
@@ -109,6 +109,7 @@ class _BubbleClockFaceState extends State<BubbleClockFace> {
                         child: _BubbleTimeDisplay(
                           hour: hour,
                           minute: minute,
+                          landscape: landscape,
                           palette: widget.palette,
                           fontSize: fontSize,
                           digitDuration: digitDuration,
@@ -131,6 +132,7 @@ class _BubbleTimeDisplay extends StatelessWidget {
   const _BubbleTimeDisplay({
     required this.hour,
     required this.minute,
+    required this.landscape,
     required this.palette,
     required this.fontSize,
     required this.digitDuration,
@@ -139,6 +141,7 @@ class _BubbleTimeDisplay extends StatelessWidget {
 
   final String hour;
   final String minute;
+  final bool landscape;
   final BubblePalette palette;
   final double fontSize;
   final Duration digitDuration;
@@ -197,6 +200,73 @@ class _BubbleTimeDisplay extends StatelessWidget {
     final colonSize = fontSize * 0.16;
     final horizontalInset = fontSize * 0.06;
     final verticalInset = fontSize * 0.10;
+
+    Widget digitAt(int index, double left, double top) => Positioned(
+      left: left,
+      top: top,
+      width: sizes[index].width,
+      height: lineHeight,
+      child: _BubbleDigit(
+        value: values[index].value,
+        color: values[index].color,
+        slot: values[index].slot,
+        style: _digitStyle(fontSize, values[index].color),
+        digitDuration: digitDuration,
+        colorDuration: colorDuration,
+        tiltDegrees: _slotTiltDegrees[values[index].slot],
+      ),
+    );
+
+    if (!landscape) {
+      double rowWidth(int start, int end) {
+        var width = sizes[start].width;
+        for (var i = start + 1; i < end; i++) {
+          width +=
+              fontSize * _pairKerning(values[i - 1].value, values[i].value);
+          width += sizes[i].width;
+        }
+        return width;
+      }
+
+      final hourWidth = rowWidth(0, hourDigits.length);
+      final minuteWidth = rowWidth(hourDigits.length, values.length);
+      final width = math.max(hourWidth, minuteWidth) + horizontalInset * 2;
+      final positions = List<double>.filled(values.length, 0);
+
+      void placeRow(int start, int end, double rowWidth) {
+        var x = (width - rowWidth) / 2;
+        for (var i = start; i < end; i++) {
+          if (i > start) {
+            x += fontSize * _pairKerning(values[i - 1].value, values[i].value);
+          }
+          positions[i] = x;
+          x += sizes[i].width;
+        }
+      }
+
+      placeRow(0, hourDigits.length, hourWidth);
+      placeRow(hourDigits.length, values.length, minuteWidth);
+      final rowGap = fontSize * 0.34;
+      final hourTop = verticalInset;
+      final minuteTop = hourTop + lineHeight + rowGap;
+      return SizedBox(
+        key: const ValueKey('bubble-portrait-layout'),
+        width: width,
+        height: minuteTop + lineHeight + verticalInset,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            for (var i = 0; i < values.length; i++)
+              digitAt(
+                i,
+                positions[i],
+                i < hourDigits.length ? hourTop : minuteTop,
+              ),
+          ],
+        ),
+      );
+    }
+
     final positions = <double>[];
     var x = horizontalInset;
     var colonLeft = 0.0;
@@ -218,21 +288,7 @@ class _BubbleTimeDisplay extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           for (var i = 0; i < values.length; i++)
-            Positioned(
-              left: positions[i],
-              top: verticalInset,
-              width: sizes[i].width,
-              height: lineHeight,
-              child: _BubbleDigit(
-                value: values[i].value,
-                color: values[i].color,
-                slot: values[i].slot,
-                style: _digitStyle(fontSize, values[i].color),
-                digitDuration: digitDuration,
-                colorDuration: colorDuration,
-                tiltDegrees: _slotTiltDegrees[values[i].slot],
-              ),
-            ),
+            digitAt(i, positions[i], verticalInset),
           Positioned(
             left: colonLeft,
             top: verticalInset + (lineHeight - colonSize * 3) / 2,

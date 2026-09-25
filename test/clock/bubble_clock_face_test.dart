@@ -52,7 +52,9 @@ void main() {
     }
   });
 
-  testWidgets('Bubble colon dots blend over adjacent digits', (tester) async {
+  testWidgets('Bubble landscape colon dots blend over adjacent digits', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(844, 390);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -373,11 +375,75 @@ void main() {
       ),
     );
     await tester.pump(const Duration(milliseconds: 320));
+    expect(
+      find.byKey(const ValueKey('bubble-portrait-layout')),
+      findsOneWidget,
+    );
+    final firstHour = tester.getRect(
+      find.byKey(const ValueKey('bubble-digit-tilt-0')),
+    );
+    final secondHour = tester.getRect(
+      find.byKey(const ValueKey('bubble-digit-tilt-1')),
+    );
+    final firstMinute = tester.getRect(
+      find.byKey(const ValueKey('bubble-digit-tilt-2')),
+    );
+    final secondMinute = tester.getRect(
+      find.byKey(const ValueKey('bubble-digit-tilt-3')),
+    );
+    expect(firstHour.center.dy, closeTo(secondHour.center.dy, 1));
+    expect(firstMinute.center.dy, closeTo(secondMinute.center.dy, 1));
+    expect(firstHour.bottom, lessThan(firstMinute.top));
+    expect(find.byKey(const ValueKey('bubble-colon')), findsNothing);
     expect(tester.takeException(), isNull);
     await expectLater(
       find.byKey(const ValueKey('bubble-portrait-golden')),
       matchesGoldenFile('goldens/bubble_21_14_390x844.png'),
     );
+  });
+
+  testWidgets('Bubble portrait centers a single digit hour above minutes', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      _clock(const ClockSnapshot(hour: 9, minute: 8, dateLabel: '')),
+    );
+    await tester.pump(const Duration(milliseconds: 320));
+    final hour = tester.getRect(find.byKey(const ValueKey('bubble-glyph-9')));
+    final minute = tester.getRect(find.byKey(const ValueKey('bubble-glyph-0')));
+    expect(hour.center.dx, closeTo(195, 10));
+    expect(hour.bottom, lessThan(minute.top));
+    expect(find.bySemanticsLabel('9:08'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Bubble portrait fits a compact phone', (tester) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      _clock(const ClockSnapshot(hour: 23, minute: 59, dateLabel: '')),
+    );
+    await tester.pump(const Duration(milliseconds: 320));
+
+    const screen = Rect.fromLTWH(0, 0, 320, 568);
+    for (final digit in ['2', '3', '5', '9']) {
+      final rect = tester.getRect(find.byKey(ValueKey('bubble-glyph-$digit')));
+      expect(screen.contains(rect.topLeft), isTrue);
+      expect(screen.contains(rect.bottomRight), isTrue);
+    }
+    expect(
+      tester.getRect(find.byKey(const ValueKey('bubble-glyph-2'))).bottom,
+      lessThan(
+        tester.getRect(find.byKey(const ValueKey('bubble-glyph-5'))).top,
+      ),
+    );
+    expect(tester.takeException(), isNull);
   });
 }
 
