@@ -372,9 +372,9 @@ void main() {
     final viewport = tester.getRect(
       find.byKey(const ValueKey('bubble-content-viewport')),
     );
-    expect(firstDigit.height, greaterThan(340));
-    expect(firstDigit.top, lessThan(viewport.top));
-    expect(firstDigit.bottom, greaterThan(viewport.bottom));
+    expect(firstDigit.height, lessThan(315));
+    expect(firstDigit.top, greaterThan(viewport.top));
+    expect(firstDigit.bottom, lessThan(viewport.bottom));
     expect(firstDigit.top, isNot(secondDigit.top));
     final firstTilt = tester.widget<Transform>(
       find.byKey(const ValueKey('bubble-digit-tilt-0')),
@@ -391,6 +391,30 @@ void main() {
     await expectLater(
       find.byKey(const ValueKey('bubble-clock-landscape-golden')),
       matchesGoldenFile('goldens/bubble_clock_landscape_844x390.png'),
+    );
+  });
+
+  testWidgets('Bubble 22:22 keeps the curved tops of all four twos', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(844, 390);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      RepaintBoundary(
+        key: const ValueKey('bubble-four-twos-golden'),
+        child: _clock(const ClockSnapshot(hour: 22, minute: 22, dateLabel: '')),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump();
+
+    expect(find.byKey(const ValueKey('bubble-glyph-2')), findsNWidgets(4));
+    await expectLater(
+      find.byKey(const ValueKey('bubble-four-twos-golden')),
+      matchesGoldenFile('goldens/bubble_clock_four_twos_844x390.png'),
     );
   });
 }
@@ -413,6 +437,7 @@ Widget _clock(
   BubblePalette? palette,
   bool disableAnimations = false,
 }) => MaterialApp(
+  debugShowCheckedModeBanner: false,
   home: Scaffold(
     body: MediaQuery(
       data: MediaQueryData(disableAnimations: disableAnimations),

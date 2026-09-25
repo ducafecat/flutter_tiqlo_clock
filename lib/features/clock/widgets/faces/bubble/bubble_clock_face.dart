@@ -22,8 +22,7 @@ class BubbleClockFace extends StatefulWidget {
 }
 
 class _BubbleClockFaceState extends State<BubbleClockFace> {
-  static const _glyphWidthScale = 0.82;
-  static const _glyphHeightScale = 1.05;
+  static const _glyphScale = 0.82;
   // Keep each slot slightly tilted; the digit adds a fixed variation.
   static const _slotTiltDegrees = <double>[-2, 2, -1.5, 1.5];
 
@@ -104,11 +103,6 @@ class _BubbleClockFaceState extends State<BubbleClockFace> {
         child: ExcludeSemantics(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final horizontalScale = constraints.maxWidth / 370;
-              final verticalScale = constraints.maxHeight / 160;
-              final fillVerticalSpace =
-                  constraints.maxWidth > constraints.maxHeight &&
-                  verticalScale > horizontalScale;
               return Center(
                 child: TweenAnimationBuilder<Offset>(
                   tween: Tween<Offset>(
@@ -127,7 +121,7 @@ class _BubbleClockFaceState extends State<BubbleClockFace> {
                     height: constraints.maxHeight,
                     child: FittedBox(
                       key: const ValueKey('bubble-content-viewport'),
-                      fit: fillVerticalSpace ? BoxFit.fill : BoxFit.contain,
+                      fit: BoxFit.contain,
                       child: SizedBox(
                         width: 370,
                         height: 160,
@@ -185,16 +179,11 @@ class _BubbleClockFaceState extends State<BubbleClockFace> {
                               Positioned(
                                 left: 125,
                                 top: 0,
-                                child: Transform.scale(
-                                  scaleY: fillVerticalSpace
-                                      ? horizontalScale / verticalScale
-                                      : 1,
-                                  child: _BubbleColon(
-                                    key: const ValueKey('bubble-colon'),
-                                    topColor: widget.palette.colonTop,
-                                    bottomColor: widget.palette.colonBottom,
-                                    colorDuration: colorDuration,
-                                  ),
+                                child: _BubbleColon(
+                                  key: const ValueKey('bubble-colon'),
+                                  topColor: widget.palette.colonTop,
+                                  bottomColor: widget.palette.colonBottom,
+                                  colorDuration: colorDuration,
                                 ),
                               ),
                             ],
@@ -256,8 +245,7 @@ class _BubbleClockFaceState extends State<BubbleClockFace> {
               key: ValueKey('bubble-digit-tilt-$slot'),
               angle: tilt,
               child: Transform.scale(
-                scaleX: _glyphWidthScale,
-                scaleY: _glyphHeightScale,
+                scale: _glyphScale,
                 child: Center(
                   child: Opacity(
                     key: ValueKey('bubble-glyph-$digit'),
