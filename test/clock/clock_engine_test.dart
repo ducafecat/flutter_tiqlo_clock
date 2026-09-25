@@ -170,6 +170,22 @@ void main() {
     expect(reloaded.clockThemeId, ClockThemeId.digital);
   });
 
+  test('Bubble ignores seconds and refreshes at the next minute', () {
+    final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38, 24));
+    final engine = ClockEngine(
+      clock: clock,
+      clockThemeId: ClockThemeId.bubble,
+      showSeconds: true,
+    );
+
+    expect(engine.snapshot.showSeconds, isFalse);
+    expect(engine.untilNextWallTick, const Duration(seconds: 36));
+
+    engine.setClockTheme(ClockThemeId.digital);
+    expect(engine.snapshot.showSeconds, isTrue);
+    expect(engine.untilNextWallTick, const Duration(seconds: 1));
+  });
+
   test('clock palette defaults to Pure Dark and persists across reload', () {
     final store = MemoryClockSettingsStore();
     final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38));

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_engine.dart';
+import 'package:flutter_tiqlo_clock/clock/bubble_palette.dart';
 import 'package:flutter_tiqlo_clock/clock/digital_theme.dart';
 import 'package:flutter_tiqlo_clock/clock/flip_palette.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_providers.dart';
@@ -16,6 +17,7 @@ import 'package:flutter_tiqlo_clock/core/ui/app/app_controls.dart';
 import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_theme_sheet_style.dart';
 import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_face.dart';
+import 'package:flutter_tiqlo_clock/features/clock/widgets/faces/bubble/bubble_clock_face.dart';
 import 'package:flutter_tiqlo_clock/features/clock/widgets/clock_theme_sheet.dart';
 import 'package:flutter_tiqlo_clock/main.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -104,6 +106,78 @@ void main() {
     container.dispose();
   });
 
+  testWidgets('Bubble theme and its palette update the clock immediately', (
+    tester,
+  ) async {
+    final engine = ClockEngine(
+      clock: FakeClock(wall: DateTime(2026, 8, 20, 21, 38)),
+      locale: const Locale('en'),
+      clockThemeId: ClockThemeId.bubble,
+    );
+    final container = ProviderContainer(
+      overrides: [clockEngineProvider.overrideWithValue(engine)],
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MyApp(showOnboarding: false),
+      ),
+    );
+
+    expect(find.byType(BubbleClockFace), findsOneWidget);
+    expect(engine.bubblePaletteId, BubblePaletteId.blue);
+
+    await tester.tap(find.byType(ClockPage));
+    await tester.pump();
+    await tester.tap(find.text('Theme'));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester
+          .widget<AppSelectionTile>(
+            find.byKey(const ValueKey('clock-style-bubble')),
+          )
+          .selected,
+      isTrue,
+    );
+    expect(
+      find.byType(PixelColorOption),
+      findsNWidgets(BubblePaletteId.values.length),
+    );
+
+    await tester.tap(find.byKey(const ValueKey('bubble-theme-greenMix')));
+    await tester.pump();
+    expect(engine.bubblePaletteId, BubblePaletteId.greenMix);
+    expect(
+      tester
+          .widget<Scaffold>(find.byKey(const ValueKey('clock-scaffold')))
+          .backgroundColor,
+      BubblePaletteId.greenMix.palette.background,
+    );
+    expect(find.byType(BubbleClockFace), findsOneWidget);
+
+    await engine.setNightMode(true);
+    container.invalidate(clockSnapshotProvider);
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<Scaffold>(find.byKey(const ValueKey('clock-scaffold')))
+          .backgroundColor,
+      BubblePalette.night.background,
+    );
+    expect(
+      tester
+          .widget<AnimatedOpacity>(
+            find.byKey(const ValueKey('clock-night-dim')),
+          )
+          .opacity,
+      1,
+    );
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
+
   testWidgets('Digital and Flip keep independent theme selections', (
     tester,
   ) async {
@@ -127,7 +201,7 @@ void main() {
     await tester.tap(find.text('Theme'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(PixelSelectionTile), findsNWidgets(2));
+    expect(find.byType(PixelSelectionTile), findsNWidgets(3));
     expect(find.text('Clock Style'), findsOneWidget);
     expect(find.text('Color Theme'), findsOneWidget);
     expect(

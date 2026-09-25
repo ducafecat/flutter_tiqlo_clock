@@ -1,3 +1,4 @@
+import 'bubble_palette.dart';
 import 'digital_theme.dart';
 import 'flip_palette.dart';
 import 'clock_theme.dart';
@@ -10,6 +11,7 @@ abstract class ClockSettingsStore {
   ClockThemeId loadClockThemeId();
   DigitalThemeId loadDigitalThemeId();
   FlipPaletteId loadFlipPaletteId();
+  BubblePaletteId loadBubblePaletteId();
   bool loadShowDate();
   bool loadShowLeadingZero();
   Future<void> saveTimeFormat(TimeFormat format);
@@ -17,6 +19,7 @@ abstract class ClockSettingsStore {
   Future<void> saveClockThemeId(ClockThemeId id);
   Future<void> saveDigitalThemeId(DigitalThemeId id);
   Future<void> saveFlipPaletteId(FlipPaletteId id);
+  Future<void> saveBubblePaletteId(BubblePaletteId id);
   Future<void> saveShowDate(bool value);
   Future<void> saveShowLeadingZero(bool value);
   StoredSession? loadSession();
@@ -68,6 +71,7 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   ClockThemeId clockThemeId = ClockThemeId.flip;
   DigitalThemeId digitalThemeId = DigitalThemeId.pureDark;
   FlipPaletteId flipPaletteId = FlipPaletteId.pureDark;
+  BubblePaletteId bubblePaletteId = BubblePaletteId.blue;
   bool showDate = false;
   bool showLeadingZero = false;
   StoredSession? session;
@@ -93,6 +97,9 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
 
   @override
   FlipPaletteId loadFlipPaletteId() => flipPaletteId;
+
+  @override
+  BubblePaletteId loadBubblePaletteId() => bubblePaletteId;
 
   @override
   bool loadShowDate() => showDate;
@@ -123,6 +130,11 @@ class MemoryClockSettingsStore implements ClockSettingsStore {
   @override
   Future<void> saveFlipPaletteId(FlipPaletteId id) async {
     flipPaletteId = id;
+  }
+
+  @override
+  Future<void> saveBubblePaletteId(BubblePaletteId id) async {
+    bubblePaletteId = id;
   }
 
   @override

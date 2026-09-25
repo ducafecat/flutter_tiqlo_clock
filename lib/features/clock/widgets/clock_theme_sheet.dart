@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../clock/clock_theme.dart';
+import '../../../clock/bubble_palette.dart';
 import '../../../clock/digital_theme.dart';
 import '../../../clock/flip_palette.dart';
 import '../../../core/ui/ui.dart';
@@ -11,17 +12,21 @@ class ClockThemeSheet extends StatelessWidget {
     required this.clockThemeId,
     required this.flipPaletteId,
     required this.digitalThemeId,
+    this.bubblePaletteId = BubblePaletteId.blue,
     required this.onClockThemeSelected,
     required this.onFlipPaletteSelected,
     required this.onDigitalThemeSelected,
+    this.onBubblePaletteSelected,
   });
 
   final ClockThemeId clockThemeId;
   final FlipPaletteId flipPaletteId;
   final DigitalThemeId digitalThemeId;
+  final BubblePaletteId bubblePaletteId;
   final ValueChanged<ClockThemeId> onClockThemeSelected;
   final ValueChanged<FlipPaletteId> onFlipPaletteSelected;
   final ValueChanged<DigitalThemeId> onDigitalThemeSelected;
+  final ValueChanged<BubblePaletteId>? onBubblePaletteSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -50,27 +55,43 @@ class ClockThemeSheet extends StatelessWidget {
         SizedBox(height: ui.spacingSm + ui.spacingXs),
         Builder(
           builder: (context) {
-            final options = clockThemeId == ClockThemeId.flip
-                ? [
-                    for (final id in FlipPaletteId.values)
-                      (
-                        key: 'palette-${id.name}',
-                        label: id.label,
-                        colors: [id.palette.cardTop, id.palette.digit],
-                        selected: flipPaletteId == id,
-                        select: () => onFlipPaletteSelected(id),
-                      ),
-                  ]
-                : [
-                    for (final id in DigitalThemeId.values)
-                      (
-                        key: 'digital-theme-${id.name}',
-                        label: id.label,
-                        colors: [id.theme.background, id.theme.digit],
-                        selected: digitalThemeId == id,
-                        select: () => onDigitalThemeSelected(id),
-                      ),
-                  ];
+            final options = switch (clockThemeId) {
+              ClockThemeId.flip => [
+                for (final id in FlipPaletteId.values)
+                  (
+                    key: 'palette-${id.name}',
+                    label: id.label,
+                    colors: [id.palette.cardTop, id.palette.digit],
+                    selected: flipPaletteId == id,
+                    select: () => onFlipPaletteSelected(id),
+                  ),
+              ],
+              ClockThemeId.digital => [
+                for (final id in DigitalThemeId.values)
+                  (
+                    key: 'digital-theme-${id.name}',
+                    label: id.label,
+                    colors: [id.theme.background, id.theme.digit],
+                    selected: digitalThemeId == id,
+                    select: () => onDigitalThemeSelected(id),
+                  ),
+              ],
+              ClockThemeId.bubble => [
+                for (final id in BubblePaletteId.values)
+                  (
+                    key: 'bubble-theme-${id.name}',
+                    label: id.label,
+                    colors: [
+                      id.palette.digit1,
+                      id.palette.digit2,
+                      id.palette.digit3,
+                      id.palette.digit4,
+                    ],
+                    selected: bubblePaletteId == id,
+                    select: () => onBubblePaletteSelected?.call(id),
+                  ),
+              ],
+            };
             final grid = Wrap(
               spacing: optionGap,
               runSpacing: optionGap,

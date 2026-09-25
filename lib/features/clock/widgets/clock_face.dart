@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../clock/clock_engine.dart';
+import '../../../clock/bubble_palette.dart';
 import '../../../clock/clock_theme.dart';
 import '../../../clock/digital_theme.dart';
 import '../../../clock/flip_palette.dart';
@@ -23,6 +24,8 @@ class ClockFace extends StatelessWidget {
     required this.themeId,
     required this.digitalThemeId,
     required this.flipPaletteId,
+    this.bubblePaletteId = BubblePaletteId.blue,
+    this.nightMode = false,
     required this.snapshot,
     required this.landscape,
   });
@@ -31,6 +34,8 @@ class ClockFace extends StatelessWidget {
   final ClockThemeId themeId;
   final DigitalThemeId digitalThemeId;
   final FlipPaletteId flipPaletteId;
+  final BubblePaletteId bubblePaletteId;
+  final bool nightMode;
   final ClockSnapshot snapshot;
   final bool landscape;
 
@@ -42,6 +47,8 @@ class ClockFace extends StatelessWidget {
         themeId: themeId,
         digitalThemeId: digitalThemeId,
         flipPaletteId: flipPaletteId,
+        bubblePaletteId: bubblePaletteId,
+        nightMode: nightMode,
         snapshot: snapshot,
         landscape: landscape,
       ),
@@ -50,6 +57,8 @@ class ClockFace extends StatelessWidget {
         themeId: themeId,
         digitalThemeId: digitalThemeId,
         flipPaletteId: flipPaletteId,
+        bubblePaletteId: bubblePaletteId,
+        nightMode: nightMode,
         snapshot: snapshot,
         landscape: landscape,
       ),

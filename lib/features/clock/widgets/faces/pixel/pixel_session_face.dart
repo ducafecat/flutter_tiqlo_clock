@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../clock/clock_engine.dart';
+import '../../../../../clock/bubble_palette.dart';
 import '../../../../../clock/clock_theme.dart';
 import '../../../../../clock/digital_theme.dart';
 import '../../../../../clock/flip_palette.dart';
@@ -13,6 +14,7 @@ class PixelSessionFace extends StatelessWidget {
     required this.themeId,
     required this.digitalTheme,
     required this.flipPalette,
+    this.bubblePalette,
   });
 
   final SessionSnapshot session;
@@ -20,18 +22,24 @@ class PixelSessionFace extends StatelessWidget {
   final ClockThemeId themeId;
   final DigitalTheme digitalTheme;
   final FlipPalette flipPalette;
+  final BubblePalette? bubblePalette;
 
   @override
   Widget build(BuildContext context) {
-    final digitColor = themeId == ClockThemeId.flip
-        ? flipPalette.digit
-        : digitalTheme.digit;
-    final secondaryColor = themeId == ClockThemeId.flip
-        ? flipPalette.digit.withValues(alpha: 0.7)
-        : digitalTheme.secondary;
+    final digitColor = switch (themeId) {
+      ClockThemeId.flip => flipPalette.digit,
+      ClockThemeId.digital => digitalTheme.digit,
+      ClockThemeId.bubble => bubblePalette?.digit1 ?? digitalTheme.digit,
+    };
+    final secondaryColor = switch (themeId) {
+      ClockThemeId.flip => flipPalette.digit.withValues(alpha: 0.7),
+      ClockThemeId.digital => digitalTheme.secondary,
+      ClockThemeId.bubble => bubblePalette?.colonTop ?? digitalTheme.secondary,
+    };
     final timeSize = switch (themeId) {
       ClockThemeId.digital => landscape ? 136.0 : 88.0,
       ClockThemeId.flip => landscape ? 120.0 : 72.0,
+      ClockThemeId.bubble => landscape ? 120.0 : 72.0,
     };
     final complete = session.status == SessionStatus.complete;
     final paused = session.status == SessionStatus.paused;

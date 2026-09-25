@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:intl/intl.dart';
 
 import 'clock.dart';
+import 'bubble_palette.dart';
 import 'digital_theme.dart';
 import 'flip_palette.dart';
 import 'clock_settings_store.dart';
@@ -107,6 +108,7 @@ class ClockEngine {
     ClockThemeId? clockThemeId,
     DigitalThemeId? digitalThemeId,
     FlipPaletteId? flipPaletteId,
+    BubblePaletteId? bubblePaletteId,
     bool soundEnabled = true,
     bool vibrationEnabled = true,
     bool nightMode = false,
@@ -127,6 +129,10 @@ class ClockEngine {
            store?.loadFlipPaletteId() ??
            flipPaletteId ??
            FlipPaletteId.pureDark,
+       bubblePaletteId =
+           store?.loadBubblePaletteId() ??
+           bubblePaletteId ??
+           BubblePaletteId.blue,
        soundEnabled = store?.loadSoundEnabled() ?? soundEnabled,
        vibrationEnabled = store?.loadVibrationEnabled() ?? vibrationEnabled,
        nightMode = store?.loadNightMode() ?? nightMode,
@@ -146,6 +152,7 @@ class ClockEngine {
   ClockThemeId clockThemeId;
   DigitalThemeId digitalThemeId;
   FlipPaletteId flipPaletteId;
+  BubblePaletteId bubblePaletteId;
   bool soundEnabled;
   bool vibrationEnabled;
   bool nightMode;
@@ -172,7 +179,7 @@ class ClockEngine {
       second: now.second,
       dateLabel: _dateLabel(now),
       period: twentyFour ? null : (now.hour < 12 ? 'AM' : 'PM'),
-      showSeconds: showSeconds && !night,
+      showSeconds: showSeconds && !night && clockThemeId != ClockThemeId.bubble,
       showDate: showDate && !night,
       showLeadingZero: showLeadingZero,
       nightMode: night,
@@ -191,7 +198,7 @@ class ClockEngine {
       return Duration(microseconds: 1000000 - rem);
     }
     final now = clock.wallNow();
-    if (showSeconds && !nightMode) {
+    if (showSeconds && !nightMode && clockThemeId != ClockThemeId.bubble) {
       final nextSecond = DateTime(
         now.year,
         now.month,
@@ -245,6 +252,11 @@ class ClockEngine {
   Future<void> setFlipPalette(FlipPaletteId id) {
     flipPaletteId = id;
     return _store?.saveFlipPaletteId(id) ?? Future<void>.value();
+  }
+
+  Future<void> setBubblePalette(BubblePaletteId id) {
+    bubblePaletteId = id;
+    return _store?.saveBubblePaletteId(id) ?? Future<void>.value();
   }
 
   Future<void> setSoundEnabled(bool value) {

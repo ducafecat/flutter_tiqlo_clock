@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../clock/clock_engine.dart';
+import '../../../clock/bubble_palette.dart';
 import '../../../clock/digital_theme.dart';
 import '../../../clock/flip_palette.dart';
 import '../../../clock/clock_providers.dart';
@@ -137,9 +138,14 @@ class _ClockPageState extends ConsumerState<ClockPage> {
     final themeId = engine.clockThemeId;
     final digitalTheme = engine.digitalThemeId.theme;
     final flipPalette = engine.flipPaletteId.palette;
-    final backgroundColor = themeId == ClockThemeId.flip
-        ? flipPalette.background
-        : digitalTheme.background;
+    final bubblePalette = snapshot.nightMode
+        ? BubblePalette.night
+        : engine.bubblePaletteId.palette;
+    final backgroundColor = switch (themeId) {
+      ClockThemeId.flip => flipPalette.background,
+      ClockThemeId.digital => digitalTheme.background,
+      ClockThemeId.bubble => bubblePalette.background,
+    };
     final chromeActions = _chromeActions(snapshot);
 
     return Scaffold(
@@ -160,7 +166,9 @@ class _ClockPageState extends ConsumerState<ClockPage> {
               children: [
                 AnimatedOpacity(
                   key: const ValueKey('clock-night-dim'),
-                  opacity: snapshot.nightMode ? 0.35 : 1,
+                  opacity: snapshot.nightMode && themeId != ClockThemeId.bubble
+                      ? 0.35
+                      : 1,
                   duration: ui.motionDuration(
                     context,
                     const Duration(milliseconds: 240),
@@ -170,6 +178,8 @@ class _ClockPageState extends ConsumerState<ClockPage> {
                     themeId: themeId,
                     digitalThemeId: engine.digitalThemeId,
                     flipPaletteId: engine.flipPaletteId,
+                    bubblePaletteId: engine.bubblePaletteId,
+                    nightMode: snapshot.nightMode,
                     snapshot: snapshot,
                     landscape: landscape,
                   ),
@@ -283,12 +293,15 @@ class _ClockThemeSheetHostState extends ConsumerState<_ClockThemeSheetHost> {
       clockThemeId: engine.clockThemeId,
       flipPaletteId: engine.flipPaletteId,
       digitalThemeId: engine.digitalThemeId,
+      bubblePaletteId: engine.bubblePaletteId,
       onClockThemeSelected: (id) =>
           _update((engine) => engine.setClockTheme(id)),
       onFlipPaletteSelected: (id) =>
           _update((engine) => engine.setFlipPalette(id)),
       onDigitalThemeSelected: (id) =>
           _update((engine) => engine.setDigitalTheme(id)),
+      onBubblePaletteSelected: (id) =>
+          _update((engine) => engine.setBubblePalette(id)),
     );
   }
 }

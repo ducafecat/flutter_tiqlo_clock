@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'bubble_palette.dart';
 import 'digital_theme.dart';
 import 'flip_palette.dart';
 import 'clock_settings_store.dart';
@@ -13,6 +14,7 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   static const _themeKey = 'clock.theme_id';
   static const _digitalThemeKey = 'clock.digital_theme_id';
   static const _flipPaletteKey = 'clock.flip_palette_id';
+  static const _bubblePaletteKey = 'clock.bubble_palette_id';
   static const _legacyPaletteKey = 'clock.color_theme_id';
   static const _dateKey = 'clock.show_date';
   static const _leadingZeroKey = 'clock.show_leading_zero';
@@ -71,6 +73,7 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
     return switch (_prefs.getString(_themeKey)) {
       'flip' => ClockThemeId.flip,
       'digital' => ClockThemeId.digital,
+      'bubble' => ClockThemeId.bubble,
       _ => ClockThemeId.flip,
     };
   }
@@ -108,6 +111,20 @@ class PrefsClockSettingsStore implements ClockSettingsStore {
   @override
   Future<void> saveFlipPaletteId(FlipPaletteId id) {
     return _enqueue(() => _prefs.setString(_flipPaletteKey, id.name));
+  }
+
+  @override
+  BubblePaletteId loadBubblePaletteId() {
+    final stored = _prefs.getString(_bubblePaletteKey);
+    return BubblePaletteId.values.firstWhere(
+      (id) => id.name == stored,
+      orElse: () => BubblePaletteId.blue,
+    );
+  }
+
+  @override
+  Future<void> saveBubblePaletteId(BubblePaletteId id) {
+    return _enqueue(() => _prefs.setString(_bubblePaletteKey, id.name));
   }
 
   @override
