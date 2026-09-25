@@ -8,6 +8,7 @@ import 'package:flutter_tiqlo_clock/clock/clock_providers.dart';
 import 'package:flutter_tiqlo_clock/clock/clock_theme.dart';
 import 'package:flutter_tiqlo_clock/core/ui/pixel/pixel_ui.dart';
 import 'package:flutter_tiqlo_clock/features/clock/pages/clock_page.dart';
+import 'package:flutter_tiqlo_clock/features/clock/widgets/faces/bubble/bubble_clock_face.dart';
 import 'package:flutter_tiqlo_clock/main.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -65,6 +66,45 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(container.read(clockEngineProvider).snapshot.timeLabel, '21:38:00');
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    container.dispose();
+  });
+
+  testWidgets('Show Seconds adds seconds to the Bubble clock', (tester) async {
+    final engine = ClockEngine(
+      clock: FakeClock(wall: DateTime(2026, 8, 20, 21, 38, 24)),
+      locale: const Locale('en'),
+      clockThemeId: ClockThemeId.bubble,
+    );
+    final container = ProviderContainer(
+      overrides: [clockEngineProvider.overrideWithValue(engine)],
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MyApp(showOnboarding: false),
+      ),
+    );
+    expect(find.byType(BubbleClockFace), findsOneWidget);
+    expect(find.bySemanticsLabel('21:38'), findsOneWidget);
+
+    await tester.tap(find.byType(ClockPage));
+    await tester.pump();
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Show Seconds'));
+    await tester.pump();
+    await tester.tap(find.bySemanticsLabel('Back'));
+    await tester.pumpAndSettle();
+
+    expect(engine.snapshot.showSeconds, isTrue);
+    expect(engine.snapshot.timeLabel, '21:38:24');
+    expect(find.bySemanticsLabel('21:38:24'), findsOneWidget);
+    expect(find.byKey(const ValueKey('bubble-digit-tilt-4')), findsOneWidget);
+    expect(find.byKey(const ValueKey('bubble-digit-tilt-5')), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();

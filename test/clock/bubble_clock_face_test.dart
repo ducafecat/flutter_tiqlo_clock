@@ -86,22 +86,96 @@ void main() {
     }
   });
 
-  testWidgets('Bubble animates only the changed digit for 280 ms', (
+  testWidgets('Bubble landscape shows seconds with a second colon', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(844, 390);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      RepaintBoundary(
+        key: const ValueKey('bubble-seconds-landscape-golden'),
+        child: _clock(
+          const ClockSnapshot(
+            hour: 21,
+            minute: 38,
+            second: 47,
+            showSeconds: true,
+            dateLabel: '',
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 320));
+    expect(find.bySemanticsLabel('21:38:47'), findsOneWidget);
+    expect(find.byKey(const ValueKey('bubble-digit-tilt-4')), findsOneWidget);
+    expect(find.byKey(const ValueKey('bubble-digit-tilt-5')), findsOneWidget);
+    expect(find.byKey(const ValueKey('bubble-colon')), findsOneWidget);
+    expect(find.byKey(const ValueKey('bubble-seconds-colon')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await expectLater(
+      find.byKey(const ValueKey('bubble-seconds-landscape-golden')),
+      matchesGoldenFile('goldens/bubble_21_38_47_844x390.png'),
+    );
+  });
+
+  testWidgets(
+    'Bubble animates a changed second digit without replacing minutes',
+    (tester) async {
+      Widget clock(int second) => _clock(
+        ClockSnapshot(
+          hour: 21,
+          minute: 38,
+          second: second,
+          showSeconds: true,
+          dateLabel: '',
+        ),
+      );
+      await tester.pumpWidget(clock(47));
+      await tester.pumpWidget(clock(48));
+      await tester.pump(const Duration(milliseconds: 140));
+      expect(find.byKey(const ValueKey('bubble-glyph-7')), findsOneWidget);
+      expect(find.byKey(const ValueKey('bubble-glyph-8')), findsNWidgets(2));
+      await tester.pump(const Duration(milliseconds: 180));
+      expect(find.byKey(const ValueKey('bubble-glyph-7')), findsNothing);
+      expect(find.byKey(const ValueKey('bubble-glyph-8')), findsNWidgets(2));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('Bubble flips only the changed digit for 280 ms', (tester) async {
     await tester.pumpWidget(
       _clock(const ClockSnapshot(hour: 21, minute: 38, dateLabel: '')),
     );
     await tester.pumpWidget(
       _clock(const ClockSnapshot(hour: 21, minute: 39, dateLabel: '')),
     );
-    await tester.pump(const Duration(milliseconds: 140));
+    await tester.pump(const Duration(milliseconds: 70));
+    final oldDigit = tester.widget<Transform>(
+      find.byKey(const ValueKey('bubble-digit-flip-3-8')),
+    );
+    final unchangedDigit = tester.widget<Transform>(
+      find.byKey(const ValueKey('bubble-digit-flip-0-2')),
+    );
+    expect(oldDigit.transform.storage[6].abs(), greaterThan(0.4));
+    expect(unchangedDigit.transform.storage[6], closeTo(0, 0.001));
+    expect(_flipOpacity(tester, 'bubble-digit-flip-3-8'), 1);
+    expect(_flipOpacity(tester, 'bubble-digit-flip-3-9'), 0);
+    await tester.pump(const Duration(milliseconds: 70));
+    final newDigit = tester.widget<Transform>(
+      find.byKey(const ValueKey('bubble-digit-flip-3-9')),
+    );
+    expect(newDigit.transform.storage[6].abs(), greaterThan(0.8));
+    await tester.pump(const Duration(milliseconds: 70));
+    expect(_flipOpacity(tester, 'bubble-digit-flip-3-8'), 0);
+    expect(_flipOpacity(tester, 'bubble-digit-flip-3-9'), 1);
     expect(find.byKey(const ValueKey('bubble-glyph-8')), findsOneWidget);
     expect(find.byKey(const ValueKey('bubble-glyph-9')), findsOneWidget);
     expect(find.byKey(const ValueKey('bubble-glyph-2')), findsOneWidget);
     expect(find.byKey(const ValueKey('bubble-glyph-1')), findsOneWidget);
     expect(find.byKey(const ValueKey('bubble-glyph-3')), findsOneWidget);
-    await tester.pump(const Duration(milliseconds: 180));
+    await tester.pump(const Duration(milliseconds: 110));
     expect(find.byKey(const ValueKey('bubble-glyph-8')), findsNothing);
     expect(find.byKey(const ValueKey('bubble-glyph-9')), findsOneWidget);
     expect(tester.takeException(), isNull);
@@ -240,6 +314,17 @@ void main() {
 
   testWidgets('Bubble respects reduced motion', (tester) async {
     await tester.pumpWidget(_clock(_snapshot, disableAnimations: true));
+    await tester.pumpWidget(
+      _clock(
+        const ClockSnapshot(hour: 21, minute: 39, dateLabel: ''),
+        disableAnimations: true,
+      ),
+    );
+    expect(find.byKey(const ValueKey('bubble-glyph-8')), findsNothing);
+    final digit = tester.widget<Transform>(
+      find.byKey(const ValueKey('bubble-digit-flip-3-9')),
+    );
+    expect(digit.transform.storage[6], closeTo(0, 0.001));
     for (final switcher in tester.widgetList<AnimatedSwitcher>(
       find.byType(AnimatedSwitcher),
     )) {
@@ -402,6 +487,45 @@ void main() {
     );
   });
 
+  testWidgets('Bubble portrait places seconds below minutes without colons', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      RepaintBoundary(
+        key: const ValueKey('bubble-seconds-portrait-golden'),
+        child: _clock(
+          const ClockSnapshot(
+            hour: 21,
+            minute: 38,
+            second: 47,
+            showSeconds: true,
+            dateLabel: '',
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 320));
+    final minute = tester.getRect(
+      find.byKey(const ValueKey('bubble-digit-tilt-2')),
+    );
+    final second = tester.getRect(
+      find.byKey(const ValueKey('bubble-digit-tilt-4')),
+    );
+    expect(minute.bottom, lessThan(second.top));
+    expect(find.byKey(const ValueKey('bubble-colon')), findsNothing);
+    expect(find.byKey(const ValueKey('bubble-seconds-colon')), findsNothing);
+    expect(find.bySemanticsLabel('21:38:47'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await expectLater(
+      find.byKey(const ValueKey('bubble-seconds-portrait-golden')),
+      matchesGoldenFile('goldens/bubble_21_38_47_390x844.png'),
+    );
+  });
+
   testWidgets('Bubble portrait centers a single digit hour above minutes', (
     tester,
   ) async {
@@ -456,6 +580,17 @@ Color? _dotColor(WidgetTester tester, String key) {
   );
   return (box.decoration as BoxDecoration).color;
 }
+
+double _flipOpacity(WidgetTester tester, String key) => tester
+    .widget<Opacity>(
+      find
+          .descendant(
+            of: find.byKey(ValueKey(key)),
+            matching: find.byType(Opacity),
+          )
+          .first,
+    )
+    .opacity;
 
 const _snapshot = ClockSnapshot(
   hour: 21,

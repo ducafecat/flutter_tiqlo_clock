@@ -170,7 +170,7 @@ void main() {
     expect(reloaded.clockThemeId, ClockThemeId.digital);
   });
 
-  test('Bubble ignores seconds and refreshes at the next minute', () {
+  test('Bubble shows seconds and refreshes at the next second', () {
     final clock = FakeClock(wall: DateTime(2026, 8, 20, 21, 38, 24));
     final engine = ClockEngine(
       clock: clock,
@@ -178,9 +178,15 @@ void main() {
       showSeconds: true,
     );
 
+    expect(engine.snapshot.showSeconds, isTrue);
+    expect(engine.snapshot.timeLabel, '21:38:24');
+    expect(engine.untilNextWallTick, const Duration(seconds: 1));
+
+    engine.setShowSeconds(false);
     expect(engine.snapshot.showSeconds, isFalse);
     expect(engine.untilNextWallTick, const Duration(seconds: 36));
 
+    engine.setShowSeconds(true);
     engine.setClockTheme(ClockThemeId.digital);
     expect(engine.snapshot.showSeconds, isTrue);
     expect(engine.untilNextWallTick, const Duration(seconds: 1));

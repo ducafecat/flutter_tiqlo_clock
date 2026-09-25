@@ -179,7 +179,7 @@ class ClockEngine {
       second: now.second,
       dateLabel: _dateLabel(now),
       period: twentyFour ? null : (now.hour < 12 ? 'AM' : 'PM'),
-      showSeconds: showSeconds && !night && clockThemeId != ClockThemeId.bubble,
+      showSeconds: showSeconds && !night,
       showDate: showDate && !night,
       showLeadingZero: showLeadingZero,
       nightMode: night,
@@ -198,7 +198,7 @@ class ClockEngine {
       return Duration(microseconds: 1000000 - rem);
     }
     final now = clock.wallNow();
-    if (showSeconds && !nightMode && clockThemeId != ClockThemeId.bubble) {
+    if (showSeconds && !nightMode) {
       final nextSecond = DateTime(
         now.year,
         now.month,

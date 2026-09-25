@@ -55,9 +55,15 @@ class _BubbleClockFaceState extends State<BubbleClockFace> {
   Widget build(BuildContext context) {
     final hour = widget.snapshot.displayHour;
     final minute = widget.snapshot.displayMinute;
-    final semanticTime = widget.snapshot.is24Hour
+    final second = widget.snapshot.showSeconds
+        ? widget.snapshot.displaySecond
+        : null;
+    final displayedTime = second == null
         ? '$hour:$minute'
-        : '$hour:$minute ${widget.snapshot.period ?? ''}'.trim();
+        : '$hour:$minute:$second';
+    final semanticTime = widget.snapshot.is24Hour
+        ? displayedTime
+        : '$displayedTime ${widget.snapshot.period ?? ''}'.trim();
     final disableAnimations =
         MediaQuery.maybeOf(context)?.disableAnimations ?? false;
     final digitDuration = disableAnimations
@@ -109,6 +115,7 @@ class _BubbleClockFaceState extends State<BubbleClockFace> {
                         child: _BubbleTimeDisplay(
                           hour: hour,
                           minute: minute,
+                          second: second,
                           landscape: landscape,
                           palette: widget.palette,
                           fontSize: fontSize,
@@ -132,6 +139,7 @@ class _BubbleTimeDisplay extends StatelessWidget {
   const _BubbleTimeDisplay({
     required this.hour,
     required this.minute,
+    required this.second,
     required this.landscape,
     required this.palette,
     required this.fontSize,
@@ -141,13 +149,14 @@ class _BubbleTimeDisplay extends StatelessWidget {
 
   final String hour;
   final String minute;
+  final String? second;
   final bool landscape;
   final BubblePalette palette;
   final double fontSize;
   final Duration digitDuration;
   final Duration colorDuration;
 
-  static const _slotTiltDegrees = <double>[-4, 3.5, -3.5, 4];
+  static const _slotTiltDegrees = <double>[-4, 3.5, -3.5, 4, -4, 3.5];
 
   static double _pairKerning(String left, String right) =>
       switch ('$left$right') {
@@ -191,6 +200,10 @@ class _BubbleTimeDisplay extends StatelessWidget {
       (value: hourDigits.last, color: palette.digit2, slot: 1),
       (value: minute[0], color: palette.digit3, slot: 2),
       (value: minute[1], color: palette.digit4, slot: 3),
+      if (second != null) ...[
+        (value: second![0], color: palette.digit1, slot: 4),
+        (value: second![1], color: palette.digit2, slot: 5),
+      ],
     ];
     final sizes = [for (final digit in values) _measureDigit(digit.value)];
     final lineHeight = sizes.fold<double>(
@@ -228,10 +241,19 @@ class _BubbleTimeDisplay extends StatelessWidget {
         return width;
       }
 
-      final hourWidth = rowWidth(0, hourDigits.length);
-      final minuteWidth = rowWidth(hourDigits.length, values.length);
-      final width = math.max(hourWidth, minuteWidth) + horizontalInset * 2;
+      final rowEnds = <int>[
+        hourDigits.length,
+        hourDigits.length + 2,
+        if (second != null) values.length,
+      ];
+      final rowWidths = <double>[
+        rowWidth(0, rowEnds[0]),
+        rowWidth(rowEnds[0], rowEnds[1]),
+        if (second != null) rowWidth(rowEnds[1], rowEnds[2]),
+      ];
+      final width = rowWidths.reduce(math.max) + horizontalInset * 2;
       final positions = List<double>.filled(values.length, 0);
+      final rowTops = List<double>.filled(values.length, 0);
 
       void placeRow(int start, int end, double rowWidth) {
         var x = (width - rowWidth) / 2;
@@ -244,36 +266,37 @@ class _BubbleTimeDisplay extends StatelessWidget {
         }
       }
 
-      placeRow(0, hourDigits.length, hourWidth);
-      placeRow(hourDigits.length, values.length, minuteWidth);
       final rowGap = fontSize * 0.34;
-      final hourTop = verticalInset;
-      final minuteTop = hourTop + lineHeight + rowGap;
+      var rowStart = 0;
+      for (var row = 0; row < rowEnds.length; row++) {
+        final rowEnd = rowEnds[row];
+        placeRow(rowStart, rowEnd, rowWidths[row]);
+        for (var i = rowStart; i < rowEnd; i++) {
+          rowTops[i] = verticalInset + row * (lineHeight + rowGap);
+        }
+        rowStart = rowEnd;
+      }
       return SizedBox(
         key: const ValueKey('bubble-portrait-layout'),
         width: width,
-        height: minuteTop + lineHeight + verticalInset,
+        height: rowTops.last + lineHeight + verticalInset,
         child: Stack(
           clipBehavior: Clip.none,
           children: [
             for (var i = 0; i < values.length; i++)
-              digitAt(
-                i,
-                positions[i],
-                i < hourDigits.length ? hourTop : minuteTop,
-              ),
+              digitAt(i, positions[i], rowTops[i]),
           ],
         ),
       );
     }
 
     final positions = <double>[];
+    final colonPositions = <double>[];
     var x = horizontalInset;
-    var colonLeft = 0.0;
     for (var i = 0; i < values.length; i++) {
-      if (i == hourDigits.length) {
-        colonLeft = x - colonSize * 0.52;
-        x = colonLeft + colonSize * 0.55;
+      if (i == hourDigits.length || i == hourDigits.length + 2) {
+        colonPositions.add(x - colonSize * 0.52);
+        x = colonPositions.last + colonSize * 0.55;
       } else if (i > 0) {
         x += fontSize * _pairKerning(values[i - 1].value, values[i].value);
       }
@@ -289,17 +312,18 @@ class _BubbleTimeDisplay extends StatelessWidget {
         children: [
           for (var i = 0; i < values.length; i++)
             digitAt(i, positions[i], verticalInset),
-          Positioned(
-            left: colonLeft,
-            top: verticalInset + (lineHeight - colonSize * 3) / 2,
-            child: _BubbleColon(
-              key: const ValueKey('bubble-colon'),
-              topColor: palette.colonTop,
-              bottomColor: palette.colonBottom,
-              size: colonSize,
-              colorDuration: colorDuration,
+          for (var i = 0; i < colonPositions.length; i++)
+            Positioned(
+              left: colonPositions[i],
+              top: verticalInset + (lineHeight - colonSize * 3) / 2,
+              child: _BubbleColon(
+                key: ValueKey(i == 0 ? 'bubble-colon' : 'bubble-seconds-colon'),
+                topColor: palette.colonTop,
+                bottomColor: palette.colonBottom,
+                size: colonSize,
+                colorDuration: colorDuration,
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -336,14 +360,29 @@ class _BubbleDigit extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [...previousChildren, ?currentChild],
       ),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
-      transitionBuilder: (child, animation) => FadeTransition(
-        opacity: animation,
-        child: ScaleTransition(
-          scale: Tween<double>(begin: 0.94, end: 1).animate(animation),
-          child: child,
-        ),
+      switchInCurve: Curves.linear,
+      switchOutCurve: Curves.linear,
+      transitionBuilder: (child, animation) => AnimatedBuilder(
+        animation: animation,
+        child: child,
+        builder: (context, child) {
+          final digitValue = (child!.key! as ValueKey<String>).value;
+          final outgoing = animation.status == AnimationStatus.reverse;
+          final progress = animation.value;
+          final phase = outgoing ? (1 - progress) * 2 : (progress - 0.5) * 2;
+          final eased = Curves.easeInOut.transform(phase.clamp(0.0, 1.0));
+          final angle = outgoing
+              ? eased * math.pi / 2
+              : (eased - 1) * math.pi / 2;
+          return Transform(
+            key: ValueKey('bubble-digit-flip-$slot-$digitValue'),
+            alignment: Alignment.center,
+            transform: Matrix4.identity()
+              ..setEntry(3, 2, 0.001)
+              ..rotateX(angle),
+            child: Opacity(opacity: progress >= 0.5 ? 1 : 0, child: child),
+          );
+        },
       ),
       child: TweenAnimationBuilder<Color?>(
         key: ValueKey(value),
