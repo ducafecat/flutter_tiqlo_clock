@@ -148,15 +148,15 @@ class _BubbleTimeDisplay extends StatelessWidget {
 
   static double _pairKerning(String left, String right) =>
       switch ('$left$right') {
-        '11' => -0.060,
-        '12' => -0.110,
-        '20' => -0.170,
-        '21' => -0.100,
-        '22' => -0.170,
-        '23' => -0.160,
-        '49' => -0.110,
-        '52' => -0.180,
-        _ => -0.140,
+        '11' => -0.050,
+        '12' => -0.090,
+        '20' => -0.140,
+        '21' => -0.080,
+        '22' => -0.140,
+        '23' => -0.130,
+        '49' => -0.090,
+        '52' => -0.150,
+        _ => -0.110,
       };
 
   static TextStyle _digitStyle(double fontSize, Color color) => TextStyle(

@@ -275,8 +275,8 @@ void main() {
       final second = tester.getRect(
         find.byKey(const ValueKey('bubble-digit-tilt-1')),
       );
-      expect(first.intersect(second).width / second.width, greaterThan(0.18));
-      expect(first.intersect(second).width / second.width, lessThan(0.50));
+      expect(first.intersect(second).width / second.width, greaterThan(0.10));
+      expect(first.intersect(second).width / second.width, lessThan(0.35));
       final centers = [
         for (var slot = 0; slot < 4; slot++)
           tester.getCenter(find.byKey(ValueKey('bubble-digit-tilt-$slot'))).dy,
