@@ -12,7 +12,6 @@ dependencies:
 
   # UI
   cupertino_icons: ^1.0.8
-  flutter_svg: ^2.3.0
 
   # 图片资源生成
   image: ^4.8.0
@@ -87,8 +86,11 @@ flutter:
   assets:
     - assets/images/
     - assets/images/focus/
-    - assets/bubble/
   fonts:
+    - family: BubbleClock
+      fonts:
+        - asset: assets/fonts/bubble/Fredoka-Medium.ttf
+          weight: 500
     - family: PixelifySans
       fonts:
         - asset: fonts/PixelifySans-Regular.ttf
