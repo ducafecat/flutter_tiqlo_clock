@@ -1,7 +1,7 @@
-<h1 align="center">Tiqlo — Flutter 像素风翻页时钟与专注计时器</h1>
+<h1 align="center">Tiqlo — Flutter 翻页、数字与 Bubble 时钟</h1>
 
 <p align="center">
-  一款以完整像素风视觉系统为特色，支持 Flip、Digital、Focus 与 Timer 模式的开源跨平台时钟。
+  一款开源跨平台时钟应用，提供 Flip、Digital、Bubble 三种表盘、像素与标准两种界面风格，以及 Focus 和 Timer 模式。
 </p>
 
 <p align="center">
@@ -33,24 +33,31 @@
   标准风格
 </p>
 
+<p align="center">
+  <img src="docs/github/bubble-clock-preview.png" alt="Tiqlo Bubble 时钟表盘的横屏与竖屏布局及配色面板" width="100%" />
+  <br />
+  Bubble 时钟主题
+</p>
+
 ---
 
-Tiqlo 是一款面向手机、桌面和 Web 的开源跨平台 Flutter 时钟应用。它与普通时钟应用最不同的地方，是从 Flip 与 Digital 时钟界面，到面板、按钮、描边和阴影，都采用统一的像素风视觉系统，而不只是换上一套像素字体。
-你可以将它用作全屏桌面时钟，也可以在需要集中注意力时启动内置 Focus 专注计时或 Timer 倒计时。响应式设计让时间在横屏和竖屏中都能保持远距离可读性。
+Tiqlo 是一款面向手机、桌面和 Web 的开源跨平台 Flutter 时钟应用。你可以选择像素或标准界面，再切换 Flip、Digital 与 Bubble 时钟表盘。像素风格将清晰的像素几何延伸到时钟、控件和面板；Bubble 主题以超大圆润数字显示时间，并为数字分别配色，提供十套调色板。你可以将它用作全屏桌面时钟，也可以在需要集中注意力时启动内置 Focus 或 Timer 计时。响应式布局让时间在横屏和竖屏中都清晰易读。
 
 ## 体验 Tiqlo
 
 Tiqlo 已上架 [App Store](https://apps.apple.com/us/app/tiqlo-pixel-flip-clock/id6804964763)。也可以在浏览器中打开 [Tiqlo 在线 Web 应用](https://tiqlo.link/#demo)，无需克隆代码、注册账号或安装软件。点击时钟即可显示控制项。
 
-## 像素风时钟功能
+## 时钟功能
 
-- 两种界面主题：默认像素风，以及标准风格。可在弹出菜单 More 中切换。
-- 独特且完整的像素风体验，贯穿时钟界面、字体、控件、面板与翻页过渡。
+- 三种时钟表盘：Flip、Digital 和 Bubble；在任一界面风格下都可从 Clock Style 面板切换。
+- 两种界面风格：像素风（默认）和标准风格。
+- Bubble 圆润数字表盘支持分别为数字配色，并提供十套调色板。
+- 像素风格将像素美学贯穿时钟表盘、字体、控件、面板与翻页过渡。
 - 免费、无广告，并基于 MIT License 开源；无需账号。
-- 两种 Clock 外观：Digital 与 Flip，可分别选择配色。
+- Flip 与 Digital 表盘均可分别选择配色。
 - 自适应横竖屏布局；Web 与桌面端支持全屏显示。
 - 12 / 24 小时制、前导零、秒数、日期和星期显示开关。
-- Night Mode：降低显示亮度，并暂时隐藏日期和秒数。
+- Night Mode：降低显示亮度、暂时隐藏日期和秒数，并将 Bubble 切换为深红配色。
 - Focus 与 Timer Session：暂停、继续、停止和完成提醒。
 - Focus 完成后记录当日次数和分钟数。
 - 可配置屏幕常亮、提示音与震动。
@@ -62,6 +69,12 @@ Tiqlo 已上架 [App Store](https://apps.apple.com/us/app/tiqlo-pixel-flip-clock
 - 网格对齐间距、阶梯切角、清晰描边和零模糊硬阴影，将像素语言延伸到每一个组件，而不只停留在时钟表面。
 - 克制的深色配色与高对比时钟界面，兼顾复古感与远距离可读性。
 - 使用动态 Flutter Widget，在不栅格化界面的前提下，保留响应式布局、无障碍点击区、键盘焦点状态和流畅的翻页过渡。
+
+## Bubble 时钟主题
+
+- Fredoka 圆润数字与圆点冒号，组成醒目的大尺寸时钟表盘。
+- 十套调色板可分别为小时和分钟数字配色，所选配色会保存在本地。
+- 横屏采用单行布局，竖屏会自动调整表盘排布；数字变化时带有平滑动画。
 
 ## 运行 Flutter 时钟应用
 
@@ -98,7 +111,7 @@ flutter build web --release
 
 当前版本与完整配置请查看 [`pubspec.yaml`](pubspec.yaml)。
 
-## Tiqlo 使用的像素字体
+## Tiqlo 使用的像素与 Bubble 字体
 
 | 字体 | Flutter family | 字重 / 文件 | 用途 |
 | --- | --- | --- | --- |
@@ -106,8 +119,9 @@ flutter build web --release
 | Tiny5 | `Tiny5` | 400 `Tiny5-Regular.ttf` | AM/PM、FOCUS、TIMER、PAUSED 等紧凑 HUD 标签 |
 | Jersey 25 | `Jersey25` | 400 `Jersey25-Regular.ttf` | 翻页时钟数字 |
 | DotGothic16 | `DotGothic16` | 400 `DotGothic16-Regular.ttf` | 数字时钟数字 |
+| Fredoka | `BubbleClock` | 500 `Fredoka-Medium.ttf` | Bubble 时钟数字 |
 
-所有内置字体均采用 SIL Open Font License 1.1；上游来源、固定校验值与许可文件记录在 [`fonts/licenses`](fonts/licenses/SOURCES.md)。
+表中字体采用 SIL Open Font License 1.1。像素字体的上游来源、固定校验值与许可文件记录在 [`fonts/licenses`](fonts/licenses/SOURCES.md)；Fredoka 的许可文件随字体附于 [`assets/fonts/bubble/OFL.txt`](assets/fonts/bubble/OFL.txt)。
 
 ## 开发 Skills
 

@@ -1,7 +1,7 @@
-<h1 align="center">Tiqlo — Flutter 像素風翻頁時鐘與專注計時器</h1>
+<h1 align="center">Tiqlo — Flutter 翻頁、數位與 Bubble 時鐘</h1>
 
 <p align="center">
-  一款以完整像素風視覺系統為特色，支援 Flip、Digital、Focus 與 Timer 模式的開源跨平台時鐘。
+  一款開源跨平台時鐘應用，提供 Flip、Digital、Bubble 三種錶面、像素與標準兩種介面風格，以及 Focus 和 Timer 模式。
 </p>
 
 <p align="center">
@@ -33,24 +33,31 @@
   標準風格
 </p>
 
+<p align="center">
+  <img src="docs/github/bubble-clock-preview.png" alt="Tiqlo Bubble 時鐘錶面在橫向與直向版面及配色選擇面板" width="100%" />
+  <br />
+  Bubble 時鐘主題
+</p>
+
 ---
 
-Tiqlo 是一款面向手機、桌面和 Web 的開源跨平台 Flutter 時鐘應用程式。它與一般時鐘應用程式最不同的地方，是從 Flip 與 Digital 時鐘介面，到面板、按鈕、描邊和陰影，都採用一致的像素風視覺系統，而不只是換上一套像素字體。
-你可以將它用作全螢幕桌面時鐘，也可以在需要集中注意力時啟動內建 Focus 專注計時或 Timer 倒數計時。響應式設計讓時間在橫向和直向畫面中都能保持遠距離可讀性。
+Tiqlo 是一款面向手機、桌面與 Web 的開源跨平台 Flutter 時鐘應用程式。你可以選擇像素或標準介面，再切換 Flip、Digital 與 Bubble 時鐘錶面。像素風格將清晰的像素幾何延伸至時鐘、控制項與面板；Bubble 主題以超大圓潤數字呈現時間，並為數字分別配色，提供十組調色盤。你可以將它用作全螢幕桌面時鐘，也可以在需要專注時啟動內建 Focus 或 Timer 計時。響應式版面讓時間在橫向與直向螢幕中都清晰易讀。
 
 ## 體驗 Tiqlo
 
 Tiqlo 已上架 [App Store](https://apps.apple.com/us/app/tiqlo-pixel-flip-clock/id6804964763)。也可以在瀏覽器中開啟 [Tiqlo 線上 Web 應用程式](https://tiqlo.link/#demo)，無需複製程式碼、註冊帳號或安裝軟體。點擊時鐘即可顯示控制項。
 
-## 像素風時鐘功能
+## 時鐘功能
 
-- 兩種介面主題：預設像素風，以及標準風格。可在彈出選單 More 中切換。
-- 獨特且完整的像素風體驗，貫穿時鐘介面、字體、控制項、面板與翻頁過渡。
+- 三種時鐘錶面：Flip、Digital 與 Bubble；在任一介面風格下都可從 Clock Style 面板切換。
+- 兩種介面風格：像素風（預設）與標準風格。
+- Bubble 圓潤數字錶面支援個別配色，並提供十組調色盤。
+- 像素風格將像素美學貫穿時鐘錶面、字體、控制項、面板與翻頁過渡。
 - 免費、無廣告，並基於 MIT License 開源；無需帳號。
-- 兩種 Clock 外觀：Digital 與 Flip，可分別選擇配色。
+- Flip 與 Digital 錶面均可分別選擇配色。
 - 自適應橫豎螢幕版面；Web 與桌面端支援全螢幕顯示。
 - 12 / 24 小時制、前導零、秒數、日期和星期顯示開關。
-- Night Mode：降低顯示亮度，並暫時隱藏日期和秒數。
+- Night Mode：降低顯示亮度、暫時隱藏日期和秒數，並將 Bubble 切換為深紅配色。
 - Focus 與 Timer Session：暫停、繼續、停止和完成提醒。
 - Focus 完成後記錄當日次數和分鐘數。
 - 可設定螢幕常亮、提示音與震動。
@@ -62,6 +69,12 @@ Tiqlo 已上架 [App Store](https://apps.apple.com/us/app/tiqlo-pixel-flip-clock
 - 網格對齊間距、階梯切角、清晰描邊和零模糊硬陰影，將像素語言延伸至每一個元件，而不只停留在時鐘表面。
 - 克制的深色配色與高對比時鐘介面，兼顧復古感與遠距離可讀性。
 - 使用動態 Flutter Widget，在不柵格化介面的前提下，保留響應式版面、無障礙點擊區、鍵盤焦點狀態和流暢的翻頁過渡。
+
+## Bubble 時鐘主題
+
+- Fredoka 圓潤數字與圓點冒號，組成醒目的大尺寸時鐘錶面。
+- 十組調色盤可分別為小時與分鐘數字配色，所選配色會儲存在本機。
+- 橫向採用單行版面，直向會自動調整錶面配置；數字變化時帶有平滑動畫。
 
 ## 執行 Flutter 時鐘應用程式
 
@@ -98,7 +111,7 @@ flutter build web --release
 
 目前版本與完整設定請參閱 [`pubspec.yaml`](pubspec.yaml)。
 
-## Tiqlo 使用的像素字體
+## Tiqlo 使用的像素與 Bubble 字體
 
 | 字體 | Flutter family | 字重 / 檔案 | 用途 |
 | --- | --- | --- | --- |
@@ -106,8 +119,9 @@ flutter build web --release
 | Tiny5 | `Tiny5` | 400 `Tiny5-Regular.ttf` | AM/PM、FOCUS、TIMER、PAUSED 等緊湊 HUD 標籤 |
 | Jersey 25 | `Jersey25` | 400 `Jersey25-Regular.ttf` | 翻頁時鐘數字 |
 | DotGothic16 | `DotGothic16` | 400 `DotGothic16-Regular.ttf` | 數位時鐘數字 |
+| Fredoka | `BubbleClock` | 500 `Fredoka-Medium.ttf` | Bubble 時鐘數字 |
 
-所有內建字體均採用 SIL Open Font License 1.1；上游來源、固定校驗值與授權檔案記錄在 [`fonts/licenses`](fonts/licenses/SOURCES.md)。
+表列字體採用 SIL Open Font License 1.1。像素字體的上游來源、固定校驗值與授權檔案記錄在 [`fonts/licenses`](fonts/licenses/SOURCES.md)；Fredoka 的授權檔案隨字體附於 [`assets/fonts/bubble/OFL.txt`](assets/fonts/bubble/OFL.txt)。
 
 ## 開發 Skills
 

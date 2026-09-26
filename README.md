@@ -1,7 +1,7 @@
-<h1 align="center">Tiqlo — Flutter Pixel Flip Clock &amp; Focus Timer</h1>
+<h1 align="center">Tiqlo — Flutter Flip, Digital &amp; Bubble Clock</h1>
 
 <p align="center">
-  A distinctive open-source pixel-style clock with Flip, Digital, Focus, and Timer modes for mobile, desktop, and Web.
+  An open-source clock app with Flip, Digital, and Bubble faces, a distinctive pixel interface, and built-in Focus and Timer modes for mobile, desktop, and Web.
 </p>
 
 <p align="center">
@@ -33,24 +33,31 @@
   Standard style
 </p>
 
+<p align="center">
+  <img src="docs/github/bubble-clock-preview.png" alt="Tiqlo Bubble clock face in landscape and portrait layouts with its color palette selector" width="100%" />
+  <br />
+  Bubble clock face
+</p>
+
 ---
 
-Tiqlo is an open-source Flutter clock app for mobile, desktop, and Web. What sets it apart from ordinary clock apps is a cohesive pixel-style visual system—not merely a pixel font. From the Flip and Digital clock faces to every panel, button, outline, and shadow, the entire experience is built around crisp pixel geometry.
-Use it as a full-screen desk clock, or start a built-in Focus or Timer countdown when you need to concentrate. Its responsive design keeps the time clear from across a room in portrait or landscape mode.
+Tiqlo is an open-source Flutter clock app for mobile, desktop, and Web. Choose a Pixel or Standard interface, then switch between Flip, Digital, and Bubble clock faces. The Pixel style carries crisp pixel geometry across clocks, controls, and panels; the Bubble theme pairs oversized rounded digits with individually coloured numbers and ten palettes. Use it as a full-screen desk clock, or start a built-in Focus or Timer session when you need to concentrate. Its responsive layouts keep the time clear in portrait or landscape mode.
 
 ## Try Tiqlo
 
 Tiqlo is now on the [App Store](https://apps.apple.com/us/app/tiqlo-pixel-flip-clock/id6804964763). You can also open the [live Web app](https://tiqlo.link/#demo) in your browser—no clone, account, or installation required. Tap the clock to reveal its controls.
 
-## Pixel Clock Features
+## Clock Features
 
-- Two UI themes: Pixel (default) and Standard. Switch them from the More menu.
-- A distinctive, end-to-end pixel aesthetic across clock faces, typography, controls, panels, and transitions.
+- Three clock faces: Flip, Digital, and Bubble. Choose one from the Clock Style panel in either interface style.
+- Two interface styles: Pixel (default) and Standard.
+- Bubble's rounded display has individually coloured digits and ten selectable colour palettes.
+- The Pixel style carries its pixel aesthetic across clock faces, typography, controls, panels, and transitions.
 - Free, ad-free, and open source under the MIT License; no account required.
-- Digital and Flip clock faces, each with its own colour palettes.
+- Flip and Digital clock faces, each with its own colour palettes.
 - Responsive portrait and landscape layouts; full-screen support on Web and desktop.
 - 12/24-hour time, leading zero, seconds, date, and weekday options.
-- Night Mode dims the display and temporarily hides the date and seconds.
+- Night Mode dims the display, temporarily hides the date and seconds, and changes Bubble to a deep red palette.
 - Focus and Timer sessions with pause, resume, stop, and completion alerts.
 - Completed Focus sessions contribute to today's count and minutes.
 - Configurable keep-awake, sound, and vibration preferences.
@@ -62,6 +69,12 @@ Tiqlo is now on the [App Store](https://apps.apple.com/us/app/tiqlo-pixel-flip-c
 - Grid-aligned spacing, staircase-cut corners, crisp outlines, and zero-blur hard shadows carry the pixel language through every component—not just the clock face.
 - A restrained dark palette and high-contrast clock faces keep time readable from across a room.
 - Dynamic Flutter widgets preserve responsive layouts, accessible touch targets, keyboard focus states, and smooth Flip transitions without rasterising the interface.
+
+## Bubble Clock Theme
+
+- Oversized Fredoka digits and a circular two-dot colon give Bubble its soft, colourful clock face.
+- Ten palettes colour the hour and minute digits individually, with the selected palette saved locally.
+- Portrait and landscape layouts adapt the clock face to the screen; changing digits animate smoothly.
 
 ## Run the Flutter Clock App
 
@@ -98,7 +111,7 @@ Deploy the entire generated `build/web/` directory to a static server. When serv
 
 See [`pubspec.yaml`](pubspec.yaml) for current versions and complete configuration.
 
-## Pixel Fonts Used by Tiqlo
+## Pixel and Bubble Fonts Used by Tiqlo
 
 | Font | Flutter family | Weight / file | Usage |
 | --- | --- | --- | --- |
@@ -106,8 +119,9 @@ See [`pubspec.yaml`](pubspec.yaml) for current versions and complete configurati
 | Tiny5 | `Tiny5` | 400 `Tiny5-Regular.ttf` | Compact HUD labels such as AM/PM, FOCUS, TIMER, and PAUSED |
 | Jersey 25 | `Jersey25` | 400 `Jersey25-Regular.ttf` | Flip clock digits |
 | DotGothic16 | `DotGothic16` | 400 `DotGothic16-Regular.ttf` | Digital clock digits |
+| Fredoka | `BubbleClock` | 500 `Fredoka-Medium.ttf` | Bubble clock digits |
 
-All bundled fonts use the SIL Open Font License 1.1. Their upstream sources, fixed checksums, and license files are recorded in [`fonts/licenses`](fonts/licenses/SOURCES.md).
+The listed fonts use the SIL Open Font License 1.1. Pixel font sources, fixed checksums, and license files are recorded in [`fonts/licenses`](fonts/licenses/SOURCES.md); Fredoka's license is included at [`assets/fonts/bubble/OFL.txt`](assets/fonts/bubble/OFL.txt).
 
 ## Development Skills
 
